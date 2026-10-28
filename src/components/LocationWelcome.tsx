@@ -58,7 +58,6 @@ export function LocationWelcome({ menu }: { menu: Menu }) {
             ? error.message
             : "Não foi possível identificar sua cidade automaticamente. Informe seu CEP.",
       );
-      if (auto) setFeedback(previous => `${previous} Você ainda pode buscar pelo CEP.`);
     } finally {
       setBusy(false);
     }
