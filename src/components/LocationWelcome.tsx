@@ -100,7 +100,6 @@ export function LocationWelcome({ menu }: { menu: Menu }) {
       setState(place.state);
       setCity(place.city);
       setStep("result");
-      setFeedback("Localização aproximada pelo IP. Confira sua cidade antes de continuar.");
     }).catch(() => {
       if (!controller.signal.aborted) setStep("unavailable");
     }).finally(() => {
