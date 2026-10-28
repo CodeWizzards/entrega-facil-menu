@@ -59,6 +59,12 @@ export function Storefront({ menu }: { menu: Menu }) {
   const subtotal = cart.reduce((s, i) => s + lineTotal(i) * i.qty, 0);
   const count = cart.reduce((s, i) => s + i.qty, 0);
   const featured = useMemo(() => menu.products.filter((p) => p.tag), [menu.products]);
+  const freeDelivery = menu.store.deliveryFee === 0;
+  const ratingLabel = menu.store.rating.toLocaleString("pt-BR", {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  });
+  const reviewsLabel = menu.store.reviews.toLocaleString("pt-BR");
 
   const add = (product: Product, qty: number, note: string, addons: Addon[]) =>
     setCart((c) => [...c, { key: crypto.randomUUID(), product, qty, note, addons }]);
@@ -121,12 +127,30 @@ export function Storefront({ menu }: { menu: Menu }) {
               {menu.store.tagline}
             </p>
 
-            <div className="store-availability mt-4">
+            <div className="store-rating mt-3">
+              <Star className="rating-star" aria-hidden />
+              <span className="font-bold">{ratingLabel}</span>
+              <span className="text-muted-foreground">/5</span>
+              <span className="rating-sep" aria-hidden />
+              <span className="text-muted-foreground">
+                {reviewsLabel} {menu.store.reviews === 1 ? "avaliação" : "avaliações"}
+              </span>
+            </div>
+
+            <div className="store-availability mt-3">
               <span className="availability-dot" /> Aberto agora
+              {freeDelivery && (
+                <>
+                  <span className="availability-sep" aria-hidden />
+                  <span className="free-ship">
+                    <Bike aria-hidden /> Entrega grátis
+                  </span>
+                </>
+              )}
             </div>
             <dl className="store-metrics mt-4">
               <div><dt><Clock />Tempo</dt><dd>{menu.store.eta}</dd></div>
-              <div><dt><Bike />Frete</dt><dd>{brl(menu.store.deliveryFee)}</dd></div>
+              <div><dt><Bike />Entrega</dt><dd>{freeDelivery ? "Grátis" : brl(menu.store.deliveryFee)}</dd></div>
               <div><dt><ShoppingBag />Mínimo</dt><dd>{brl(menu.store.minOrder)}</dd></div>
             </dl>
 
