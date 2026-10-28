@@ -8,12 +8,14 @@ import {
   Search,
   Share2,
   ShoppingBag,
-  Sparkles,
   Store,
   Trash2,
   X,
 } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
+import * as Dialog from "@radix-ui/react-dialog";
+import { Button } from "@/components/ui/button";
+import { FeaturedRail } from "@/components/FeaturedRail";
 import { brl, type Addon, type Menu, type Product } from "@/lib/menu";
 
 type Item = {
@@ -81,16 +83,16 @@ export function Storefront({ menu }: { menu: Menu }) {
               height={640}
             />
             <div className="absolute top-4 right-4 z-10 flex gap-2">
-              <button
+              <Button variant="storefront" size="storefront"
                 aria-label="Buscar"
                 onClick={() => searchRef.current?.focus()}
                 className="icon-btn"
               >
                 <Search className="h-5 w-5" />
-              </button>
-              <button aria-label="Compartilhar" onClick={share} className="icon-btn">
+              </Button>
+              <Button variant="storefront" size="storefront" aria-label="Compartilhar" onClick={share} className="icon-btn">
                 <Share2 className="h-5 w-5" />
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -103,7 +105,7 @@ export function Storefront({ menu }: { menu: Menu }) {
               />
             </div>
 
-            <h1 className="text-center font-display text-2xl font-bold tracking-tight">
+            <h1 className="text-center font-display text-2xl font-semibold">
               {menu.store.name}
             </h1>
             <p className="mt-1 text-center text-sm text-muted-foreground">
@@ -142,67 +144,34 @@ export function Storefront({ menu }: { menu: Menu }) {
           </div>
         </header>
 
-        <nav className="sticky top-0 z-30 bg-background/80 py-3 backdrop-blur-xl">
+        <nav className="category-nav sticky top-0 z-30 py-3">
           <div className="no-scrollbar flex gap-2 overflow-x-auto px-3">
             {menu.categories.map((c) => (
-              <button
+              <Button variant="storefront" size="storefront"
                 key={c}
                 onClick={() => jump(c)}
                 className={cat === c ? "cat-pill cat-pill-active" : "cat-pill bg-card"}
               >
                 {c}
-              </button>
+              </Button>
             ))}
           </div>
         </nav>
 
         <main className="px-3">
           {!q && featured.length > 0 && (
-            <section className="pt-4">
-              <h2 className="flex items-center gap-1.5 px-1 font-display text-base font-bold">
-                <Sparkles className="h-4 w-4 text-gold" />
-                Destaques
-              </h2>
-              <div className="no-scrollbar mt-3 flex snap-x gap-3 overflow-x-auto pb-1">
-                {featured.map((p) => (
-                  <button
-                    key={p.id}
-                    onClick={() => setSelected(p)}
-                    className="featured-card"
-                  >
-                    <span className="relative block h-32 w-full">
-                      <img
-                        src={menu.categoryImg[p.category]}
-                        alt={p.name}
-                        loading="lazy"
-                        className="h-full w-full object-cover"
-                      />
-                      <span className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                      <span className="thumb-add">
-                        <Plus className="h-4 w-4" />
-                      </span>
-                    </span>
-                    <span className="block p-3">
-                      <span className="block truncate text-sm font-semibold">{p.name}</span>
-                      <span className="mt-0.5 block text-sm font-bold text-primary">
-                        {brl(p.price)}
-                      </span>
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </section>
+            <FeaturedRail menu={menu} products={featured} onSelect={setSelected} />
           )}
 
           {menu.categories.map((c) => {
             const items = filtered.filter((p) => p.category === c);
             if (!items.length) return null;
             return (
-              <section key={c} id={sectionId(c)} className="scroll-mt-20 pt-6">
-                <h2 className="px-1 font-display text-base font-bold">{c}</h2>
+              <section key={c} id={sectionId(c)} className="scroll-mt-20 pt-8">
+                <h2 className="px-1 font-display text-lg font-semibold">{c}</h2>
                 <div className="mt-3 grid gap-2.5">
                   {items.map((p) => (
-                    <button key={p.id} onClick={() => setSelected(p)} className="product-row">
+                    <Button variant="storefront" size="storefront" key={p.id} onClick={() => setSelected(p)} className="product-row">
                       <div className="min-w-0 flex-1 text-left">
                         {p.tag && (
                           <span className="tag">
@@ -214,7 +183,7 @@ export function Storefront({ menu }: { menu: Menu }) {
                         <p className="mt-0.5 line-clamp-2 text-sm text-muted-foreground">
                           {p.desc}
                         </p>
-                        <p className="mt-2 font-bold text-primary">{brl(p.price)}</p>
+                        <p className="mt-3 font-bold text-foreground">{brl(p.price)}</p>
                       </div>
                       <span className="product-thumb">
                         <img
@@ -227,7 +196,7 @@ export function Storefront({ menu }: { menu: Menu }) {
                           <Plus className="h-4 w-4" />
                         </span>
                       </span>
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </section>
@@ -247,7 +216,7 @@ export function Storefront({ menu }: { menu: Menu }) {
       </div>
 
       {count > 0 && !cartOpen && (
-        <button onClick={() => setCartOpen(true)} className="cart-fab text-left">
+        <Button variant="storefront" size="storefront" onClick={() => setCartOpen(true)} className="cart-fab text-left">
           <span className="flex items-center gap-3">
             <span className="relative">
               <ShoppingBag className="h-6 w-6 text-primary" />
@@ -261,7 +230,7 @@ export function Storefront({ menu }: { menu: Menu }) {
             </span>
           </span>
           <span className="btn-primary py-2.5 text-sm">Ver sacola</span>
-        </button>
+        </Button>
       )}
 
       {selected && (
@@ -287,12 +256,16 @@ export function Storefront({ menu }: { menu: Menu }) {
 
 function Sheet({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
   return (
-    <div className="sheet-backdrop" onClick={onClose}>
-      <div className="sheet" onClick={(e) => e.stopPropagation()}>
-        <div className="sheet-grabber" />
-        {children}
-      </div>
-    </div>
+    <Dialog.Root open onOpenChange={(open) => { if (!open) onClose(); }}>
+      <Dialog.Portal>
+        <Dialog.Overlay className="sheet-backdrop" />
+        <Dialog.Content className="sheet" aria-describedby={undefined}>
+          <Dialog.Title className="sr-only">Personalizar pedido</Dialog.Title>
+          <div className="sheet-grabber" />
+          {children}
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }
 
@@ -319,20 +292,20 @@ function ProductSheet({
 
   return (
     <Sheet onClose={onClose}>
-      <div className="relative -mx-6 -mt-6 mb-5 h-44 overflow-hidden rounded-t-[2rem]">
+      <div className="product-sheet-photo relative -mx-6 mb-5 h-52 overflow-hidden">
         <img
           src={menu.categoryImg[product.category]}
           alt={product.name}
           className="h-full w-full object-cover"
         />
         <span className="absolute inset-0 bg-gradient-to-t from-popover to-transparent" />
-        <button
+        <Button variant="storefront" size="storefront"
           aria-label="Fechar"
           onClick={onClose}
           className="icon-btn absolute top-4 right-4"
         >
           <X className="h-5 w-5" />
-        </button>
+        </Button>
       </div>
 
       {product.tag && (
@@ -341,32 +314,33 @@ function ProductSheet({
           {product.tag}
         </span>
       )}
-      <h3 className="font-display text-2xl font-bold tracking-tight">{product.name}</h3>
+      <h3 className="font-display text-2xl font-semibold">{product.name}</h3>
       <p className="mt-1 text-sm text-muted-foreground">{product.desc}</p>
       <p className="mt-2 text-lg font-bold text-primary">{brl(product.price)}</p>
 
       {product.addons && product.addons.length > 0 && (
         <>
-          <p className="mt-6 mb-2 text-sm font-bold">Turbine seu pedido</p>
-          <div className="grid gap-2">
+          <div className="mt-6 mb-3 flex items-center justify-between gap-3"><p className="text-sm font-semibold">Adicionais</p><span className="text-xs text-muted-foreground">Opcional</span></div>
+          <div className="addon-group">
             {product.addons.map((a) => {
               const on = picked.includes(a.id);
               return (
-                <button
+                <Button variant="storefront" size="storefront"
                   key={a.id}
+                  aria-pressed={on}
                   onClick={() => toggle(a.id)}
                   className={on ? "addon-row addon-row-active" : "addon-row"}
                 >
-                  <span className="flex items-center gap-3">
+                  <span className="flex min-w-0 items-center gap-3 text-left">
                     <span className={on ? "check-dot check-dot-on" : "check-dot"}>
                       <Check className="h-3.5 w-3.5" />
                     </span>
                     {a.name}
                   </span>
-                  <span className={on ? "font-bold text-primary" : "text-muted-foreground"}>
+                  <span className={on ? "shrink-0 font-bold text-primary" : "shrink-0 text-muted-foreground"}>
                     {a.price ? `+ ${brl(a.price)}` : "grátis"}
                   </span>
-                </button>
+                </Button>
               );
             })}
           </div>
@@ -382,17 +356,17 @@ function ProductSheet({
         rows={2}
       />
 
-      <div className="mt-6 flex items-center gap-3">
+      <div className="sheet-actions mt-6 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
         <div className="stepper">
-          <button aria-label="Diminuir" onClick={() => setQty(Math.max(1, qty - 1))}>
+          <Button variant="storefront" size="storefront" aria-label="Diminuir" onClick={() => setQty(Math.max(1, qty - 1))}>
             <Minus className="h-4 w-4" />
-          </button>
+          </Button>
           <span>{qty}</span>
-          <button aria-label="Aumentar" onClick={() => setQty(qty + 1)}>
+          <Button variant="storefront" size="storefront" aria-label="Aumentar" onClick={() => setQty(qty + 1)}>
             <Plus className="h-4 w-4" />
-          </button>
+          </Button>
         </div>
-        <button
+        <Button variant="storefront" size="storefront"
           className="btn-primary flex-1"
           onClick={() => {
             onAdd(product, qty, note, chosen);
@@ -400,7 +374,7 @@ function ProductSheet({
           }}
         >
           Adicionar · {brl(unit * qty)}
-        </button>
+        </Button>
       </div>
     </Sheet>
   );
@@ -462,11 +436,11 @@ function CartSheet({
 
   return (
     <Sheet onClose={onClose}>
-      <div className="flex items-center justify-between">
-        <h3 className="font-display text-2xl font-bold tracking-tight">Sua sacola</h3>
-        <button aria-label="Fechar" onClick={onClose} className="icon-btn">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+        <h3 className="font-display text-2xl font-semibold">Sua sacola</h3>
+        <Button variant="storefront" size="storefront" aria-label="Fechar" onClick={onClose} className="icon-btn">
           <X className="h-5 w-5" />
-        </button>
+        </Button>
       </div>
 
       {cart.length === 0 && (
@@ -482,9 +456,11 @@ function CartSheet({
         {cart.map((i) => (
           <li
             key={i.key}
-            className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-secondary/40 p-3.5 text-sm"
+            className="cart-item grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-4 text-sm"
           >
-            <div className="min-w-0">
+            <div className="flex min-w-0 items-center gap-3">
+              <img src={menu.categoryImg[i.product.category]} alt="" className="h-14 w-14 shrink-0 rounded-xl object-cover" />
+              <div className="min-w-0">
               <p className="font-semibold">
                 {i.qty}x {i.product.name}
               </p>
@@ -494,16 +470,17 @@ function CartSheet({
                 </p>
               )}
               {i.note && <p className="mt-0.5 text-xs text-muted-foreground">Obs: {i.note}</p>}
+              </div>
             </div>
-            <div className="flex shrink-0 items-center gap-3">
+            <div className="flex shrink-0 flex-col items-end gap-1">
               <p className="font-bold">{brl(lineTotal(i) * i.qty)}</p>
-              <button
+              <Button variant="storefront" size="storefront"
                 aria-label="Remover item"
                 className="icon-btn h-8 w-8 text-destructive"
                 onClick={() => setCart((c) => c.filter((x) => x.key !== i.key))}
               >
                 <Trash2 className="h-4 w-4" />
-              </button>
+              </Button>
             </div>
           </li>
         ))}
@@ -511,12 +488,12 @@ function CartSheet({
 
       <div className="segmented mt-5">
         {(["entrega", "retirada"] as const).map((m) => (
-          <button key={m} onClick={() => setMode(m)} className={mode === m ? "on" : ""}>
+          <Button variant="storefront" size="storefront" key={m} onClick={() => setMode(m)} className={mode === m ? "on" : ""}>
             <span className="flex items-center justify-center gap-1.5">
               {m === "entrega" ? <Bike className="h-4 w-4" /> : <Store className="h-4 w-4" />}
               {m === "entrega" ? "Entrega" : "Retirar no local"}
             </span>
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -551,7 +528,7 @@ function CartSheet({
         )}
       </div>
 
-      <div className="mt-5 space-y-1.5 rounded-2xl border border-border bg-secondary/40 p-4 text-sm">
+      <div className="mt-5 space-y-2 border-t border-border pt-5 text-sm">
         <div className="flex justify-between text-muted-foreground">
           <span>Subtotal</span>
           <span>{brl(subtotal)}</span>
@@ -572,7 +549,7 @@ function CartSheet({
         )}
       </div>
 
-      <a
+      <Button asChild variant="storefront" size="storefront"><a
         aria-disabled={!valid}
         href={valid ? `https://wa.me/${menu.store.whatsapp}?text=${encodeURIComponent(message)}` : undefined}
         target="_blank"
@@ -580,7 +557,7 @@ function CartSheet({
         className={`btn-primary mt-5 block text-center ${valid ? "" : "pointer-events-none opacity-40"}`}
       >
         Enviar pedido pelo WhatsApp
-      </a>
+      </a></Button>
     </Sheet>
   );
 }

@@ -1,0 +1,3 @@
+- [x] Remover estrela dos Destaques e permitir arraste real.
+- [x] Refinar apresentação iOS do cardápio, produto, adicionais e sacola.
+- [x] Verificar arraste e montagem do pedido nas duas páginas.
