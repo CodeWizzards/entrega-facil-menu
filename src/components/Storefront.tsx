@@ -291,6 +291,7 @@ export function Storefront({ menu }: { menu: Menu }) {
           mode={sheetMode}
           paidOrder={paidOrder}
           setPaidOrder={setPaidOrder}
+          onPaid={() => setSheetMode("orders")}
         />
       )}
     </div>
@@ -433,6 +434,7 @@ function CartSheet({
   mode,
   paidOrder,
   setPaidOrder,
+  onPaid,
 }: {
   menu: Menu;
   cart: Item[];
@@ -446,6 +448,7 @@ function CartSheet({
   mode: "cart" | "orders";
   paidOrder: PaidOrder | null;
   setPaidOrder: React.Dispatch<React.SetStateAction<PaidOrder | null>>;
+  onPaid: () => void;
 }) {
   const pendingOrder = useRef<PaidOrder | null>(null);
   const settle = (result: PixPayment) => {
@@ -454,6 +457,7 @@ function CartSheet({
       pendingOrder.current = null;
       setCart([]);
       setPayment(null);
+      onPaid();
     } else setPayment(result);
   };
   const [form, setForm] = useState<DeliveryDetails>(emptyDelivery);
