@@ -10,7 +10,7 @@ export const pixCheckoutSchema = pixAccessSchema.extend({
   items: z.array(z.object({ productId: z.string().max(80), qty: z.number().int().min(1).max(99), addonIds: z.array(z.string().max(80)).max(30), note: z.string().max(500) })).min(1).max(100),
 });
 export type PixCheckout = z.infer<typeof pixCheckoutSchema>;
-export type PixPayment = { orderId: string; amount: number; code: string; status: string; whatsappMessage?: string };
+export type PixPayment = { orderId: string; amount: number; code: string; status: string; whatsappMessage?: string; method?: "PIX" | "CARD" };
 export function priceCheckout(menu: Menu, input: PixCheckout) {
   if (Object.keys(deliveryErrors(input.form as DeliveryDetails)).length) throw new Error("Confira os dados e o endereço do pedido.");
   const items = input.items.map(item => {

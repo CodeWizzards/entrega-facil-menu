@@ -1,0 +1,7 @@
+import { cardErrors, formatCardExpiry, formatCardNumber, type CardDetails } from "@/lib/card";
+
+export function CardFields({ card, onChange, submitted }: { card: CardDetails; onChange: (card: CardDetails) => void; submitted: boolean }) {
+  const errors = cardErrors(card);
+  const field = (key: keyof CardDetails, label: string, autocomplete: string) => <label className="checkout-field"><span>{label}</span><input className="field" aria-label={label} autoComplete={autocomplete} type={key === "cvv" ? "password" : "text"} inputMode={key === "owner" ? "text" : "numeric"} value={card[key]} maxLength={key === "number" ? 24 : key === "expiresAt" ? 5 : key === "cvv" ? 4 : 200} aria-invalid={submitted && Boolean(errors[key])} onChange={e => onChange({ ...card, [key]: key === "number" ? formatCardNumber(e.target.value) : key === "expiresAt" ? formatCardExpiry(e.target.value) : key === "cvv" ? e.target.value.replace(/\D/g, "").slice(0, 4) : e.target.value })} />{submitted && errors[key] && <span className="text-xs text-destructive">{errors[key]}</span>}</label>;
+  return <div className="mt-4 grid gap-3">{field("number", "Número do cartão", "cc-number")}{field("owner", "Titular do cartão", "cc-name")}<div className="grid grid-cols-2 gap-3">{field("expiresAt", "Validade MM/AA", "cc-exp")}{field("cvv", "Código de segurança", "cc-csc")}</div><p className="text-xs text-muted-foreground">1x à vista · Dados do cartão não são salvos na loja.</p></div>;
+}
