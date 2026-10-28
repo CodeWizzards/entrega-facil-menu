@@ -41,6 +41,8 @@ import { PixPaymentPanel } from "@/components/PixPaymentPanel";
 import { OrderTracking } from "@/components/OrderTracking";
 import type { InvoiceLine } from "@/lib/invoice";
 
+type PaidOrder = { lines: InvoiceLine[]; total: number; form: DeliveryDetails; payment: PixPayment };
+
 type Item = {
   key: string;
   product: Product;
@@ -568,6 +570,18 @@ function CartSheet({
     </label>
   );
 
+  if (mode === "orders") return (
+    <Sheet onClose={onClose}>
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+        <h3 className="font-display text-2xl font-semibold">Pedidos</h3>
+        <Button variant="storefront" size="storefront" aria-label="Fechar" onClick={onClose} className="icon-btn"><X className="h-5 w-5" /></Button>
+      </div>
+      {paidOrder
+        ? <OrderTracking menu={menu} payment={paidOrder.payment} form={paidOrder.form} total={paidOrder.total} lines={paidOrder.lines} onClose={onClose} />
+        : <div className="py-10 text-center"><ReceiptText className="mx-auto h-10 w-10 text-muted-foreground/40" /><p className="mt-3 text-sm text-muted-foreground">Nenhum pedido pago ainda.</p></div>}
+    </Sheet>
+  );
+
   return (
     <Sheet onClose={onClose}>
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
@@ -621,7 +635,6 @@ function CartSheet({
         ))}
       </ul>}
 
-       {mode === "orders" && paidOrder && <OrderTracking menu={menu} payment={paidOrder.payment} form={paidOrder.form} total={paidOrder.total} lines={paidOrder.lines} onClose={onClose} />}
        {payment && payment.status !== "PAID" && payment.method !== "CARD" && <PixPaymentPanel payment={payment} checking={processing} error={paymentError} onCheck={verifyPayment} />}
        {payment?.method === "CARD" && payment.status !== "PAID" && <section className="checkout-section" aria-label="Pagamento por cartão"><h4><CreditCard /> Cartão · {brl(payment.amount)}</h4><p role="status" className="text-sm">{payment.status === "CANCELLED" ? "Pagamento recusado ou cancelado" : "Pagamento em análise. Não envie uma nova cobrança."}</p><Button variant="storefront" size="storefront" disabled={processing} onClick={verifyPayment} className="mt-3 w-full">Consultar pagamento</Button>{paymentError && <p role="alert" className="text-xs text-destructive">{paymentError}</p>}</section>}
        {payment && payment.status !== "PAID" && <Button variant="storefront" size="storefront" disabled={processing} className="btn-primary mt-4 w-full" onClick={() => { setPayment(null); setPaymentError(""); setSubmitted(false); }}>Novo pagamento</Button>}
