@@ -50,7 +50,7 @@ describe("Nota fiscal do pedido", () => {
     expect(text).toContain("2x Combo Brasa 16 peças");
     expect(text).toContain("Shoyu extra");
     expect(text).toContain("Observação: sem cebola");
-    expect(text).toContain("Total: R$ 142,00");
+    expect(text).toMatch(/Total: R\$\s142,00/);
     expect(text).not.toMatch(/\d{44}/);
   });
 });
