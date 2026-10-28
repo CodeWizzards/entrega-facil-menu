@@ -34,3 +34,6 @@
 - [ ] Homologar cartão em produção — aguarda confirmação da habilitação na Firebot e das obrigações PCI aplicáveis à coleta direta, além de teste autorizado; a documentação não fornece consulta para cartão pendente.- [x] Tela de acompanhamento do pedido estilo iFood (logo, etapas, resumo) após pagamento confirmado
 - [x] Barra de rolagem personalizada com degradê vermelho/dourado e brilho
 - [ ] Taxa de R$ 7,32 para "localização ao vivo": NÃO implementada (padrão de golpe); rastreamento real exige a loja enviar posição
+- [x] Localização por IP via geojs.io com cookies localCidade/localEstado de 365 dias e "1,6 km · distância de exemplo" após confirmar.
+- [x] Modo de teste de pagamentos (PAYMENTS_TEST_MODE em pix.functions.ts): Pix e cartão aprovam sem cobrança real; taxa de "localização ao vivo" de R$ 7,32 simulada com selo TESTE · NÃO PAGAR.
+- [ ] DESLIGAR o modo de teste (PAYMENTS_TEST_MODE = false) e remover a taxa de localização ao vivo antes de publicar.
