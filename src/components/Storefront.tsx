@@ -1,3 +1,4 @@
+import { Home, Search, Share2, ShoppingBag } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { brl, type Addon, type Menu, type Product } from "@/lib/menu";
 
@@ -46,31 +47,49 @@ export function Storefront({ menu }: { menu: Menu }) {
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
+  const share = () => {
+    if (navigator.share) {
+      navigator.share({ title: menu.store.name, url: window.location.href }).catch(() => {});
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-background pb-28">
-      <header className="relative">
-        <img
-          src={menu.cover}
-          alt={menu.coverAlt}
-          className="block h-48 w-full object-cover md:h-64"
-          width={1600}
-          height={640}
-        />
-        <div className="relative z-10 mx-auto -mt-12 max-w-3xl px-4">
-          <div className="store-card">
-            <div className="flex items-start gap-4">
-              <div className="logo-badge">{menu.logo}</div>
-              <div className="min-w-0">
-                <h1 className="font-display text-2xl font-bold">{menu.store.name}</h1>
-                <p className="text-sm text-muted-foreground">
-                  <span className="font-semibold text-success">● Aberto</span> ·{" "}
-                  {menu.store.eta} · Entrega {brl(menu.store.deliveryFee)}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Pedido mínimo {brl(menu.store.minOrder)} · {menu.store.tagline}
-                </p>
-              </div>
+    <div className="min-h-screen bg-background pb-20">
+      <div className="mx-auto max-w-3xl">
+        <header className="relative">
+          <img
+            src={menu.cover}
+            alt={menu.coverAlt}
+            className="block h-52 w-full object-cover md:h-72"
+            width={1600}
+            height={640}
+          />
+          <div className="store-card -mt-6">
+            <div className="logo-badge">{menu.logo}</div>
+            <div className="absolute right-4 top-4 flex items-center gap-4 text-muted-foreground">
+              <button
+                aria-label="Buscar"
+                onClick={() => searchRef.current?.focus()}
+                className="transition-colors hover:text-foreground"
+              >
+                <Search className="h-5 w-5" />
+              </button>
+              <button
+                aria-label="Compartilhar"
+                onClick={share}
+                className="transition-colors hover:text-foreground"
+              >
+                <Share2 className="h-5 w-5" />
+              </button>
             </div>
+
+            <h1 className="text-center font-display text-xl font-bold">{menu.store.name}</h1>
+
+            <div className="status-strip">
+              Aberto · {menu.store.eta} · Entrega {brl(menu.store.deliveryFee)} · Pedido mínimo{" "}
+              {brl(menu.store.minOrder)}
+            </div>
+            <p className="mt-2 text-center text-xs text-muted-foreground">{menu.store.tagline}</p>
 
             <input
               ref={searchRef}
@@ -80,61 +99,80 @@ export function Storefront({ menu }: { menu: Menu }) {
               className="field mt-3"
             />
           </div>
-        </div>
-      </header>
+        </header>
 
-      <nav className="sticky top-0 z-10 mt-4 border-b border-border bg-background/95 backdrop-blur">
-        <div className="mx-auto flex max-w-3xl gap-2 overflow-x-auto px-4 py-3">
-          {menu.categories.map((c) => (
-            <button key={c} onClick={() => jump(c)} className={cat === c ? "chip chip-active" : "chip"}>
-              {c}
-            </button>
-          ))}
+        <nav className="sticky top-0 z-10 border-b border-border bg-card">
+          <div className="flex overflow-x-auto px-2">
+            {menu.categories.map((c) => (
+              <button
+                key={c}
+                onClick={() => jump(c)}
+                className={cat === c ? "cat-link cat-link-active" : "cat-link"}
+              >
+                {c}
+              </button>
+            ))}
+          </div>
+        </nav>
+
+        <main className="px-3">
+          {menu.categories.map((c) => {
+            const items = filtered.filter((p) => p.category === c);
+            if (!items.length) return null;
+            return (
+              <section key={c} id={sectionId(c)} className="scroll-mt-14 pt-5">
+                <h2 className="px-1 text-sm font-bold text-muted-foreground">{c}</h2>
+                <div className="mt-2 grid gap-2">
+                  {items.map((p) => (
+                    <button key={p.id} onClick={() => setSelected(p)} className="product-row">
+                      <div className="min-w-0 text-left">
+                        {p.tag && <span className="tag">{p.tag}</span>}
+                        <h3 className="font-semibold">{p.name}</h3>
+                        <p className="line-clamp-2 text-sm text-muted-foreground">{p.desc}</p>
+                        <p className="mt-2 font-bold">{brl(p.price)}</p>
+                      </div>
+                      <span className="add-dot">+</span>
+                    </button>
+                  ))}
+                </div>
+              </section>
+            );
+          })}
+
+          {filtered.length === 0 && (
+            <p className="py-16 text-center text-muted-foreground">
+              Nada encontrado para “{search}”. Tente outro nome.
+            </p>
+          )}
+
+          <footer className="py-10 text-center text-xs text-muted-foreground">
+            {menu.store.name} · Pedido direto no WhatsApp · Valores sujeitos a alteração
+          </footer>
+        </main>
+      </div>
+
+      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card">
+        <div className="mx-auto flex max-w-3xl">
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className="nav-item nav-item-active"
+          >
+            <Home className="h-5 w-5" />
+            Início
+          </button>
+          <button onClick={() => setCartOpen(true)} className="nav-item relative">
+            <span className="relative">
+              <ShoppingBag className="h-5 w-5" />
+              {count > 0 && (
+                <span className="absolute -right-2 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+                  {count}
+                </span>
+              )}
+            </span>
+            Sacola{count > 0 ? ` · ${brl(subtotal)}` : ""}
+          </button>
         </div>
       </nav>
-
-      <main className="mx-auto max-w-3xl px-4">
-        {menu.categories.map((c) => {
-          const items = filtered.filter((p) => p.category === c);
-          if (!items.length) return null;
-          return (
-            <section key={c} id={sectionId(c)} className="scroll-mt-16 pt-6">
-              <h2 className="font-display mb-3 text-lg font-bold">{c}</h2>
-              <div>
-                {items.map((p) => (
-                  <button key={p.id} onClick={() => setSelected(p)} className="product-row">
-                    <div className="text-left">
-                      {p.tag && <span className="tag">{p.tag}</span>}
-                      <h3 className="font-semibold">{p.name}</h3>
-                      <p className="line-clamp-2 text-sm text-muted-foreground">{p.desc}</p>
-                      <p className="mt-2 font-bold text-primary">{brl(p.price)}</p>
-                    </div>
-                    <span className="add-dot">+</span>
-                  </button>
-                ))}
-              </div>
-            </section>
-          );
-        })}
-
-        {filtered.length === 0 && (
-          <p className="py-16 text-center text-muted-foreground">
-            Nada encontrado para “{search}”. Tente outro nome.
-          </p>
-        )}
-
-        <footer className="py-10 text-center text-xs text-muted-foreground">
-          {menu.store.name} · Pedido direto no WhatsApp · Valores sujeitos a alteração
-        </footer>
-      </main>
-
-      {count > 0 && !cartOpen && (
-        <button onClick={() => setCartOpen(true)} className="cart-bar">
-          <span className="rounded-md bg-primary-foreground/20 px-2 py-0.5 text-sm">{count}</span>
-          <span>Ver sacola</span>
-          <span>{brl(subtotal)}</span>
-        </button>
-      )}
 
       {selected && (
         <ProductSheet
@@ -305,6 +343,12 @@ function CartSheet({
           Fechar
         </button>
       </div>
+
+      {cart.length === 0 && (
+        <p className="py-8 text-center text-sm text-muted-foreground">
+          Sua sacola está vazia. Adicione um item do cardápio.
+        </p>
+      )}
 
       <ul className="mt-3 divide-y divide-border">
         {cart.map((i) => (
