@@ -14,6 +14,7 @@ describe("Localização inicial", () => {
     render(<LocationWelcome menu={SUSHI} />);
     expect(screen.getByRole("dialog")).toBeVisible();
     expect(navigator.geolocation.getCurrentPosition).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Informar minha cidade" }));
     fireEvent.change(screen.getByLabelText("Estado"), { target: { value: "RO" } });
     expect(screen.getByRole("button", { name: "Continuar" })).toBeEnabled();
     fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
@@ -28,6 +29,7 @@ describe("Localização inicial", () => {
     let resolveIp: ((value: unknown) => void) | undefined;
     vi.stubGlobal("fetch", vi.fn().mockImplementation((url: string) => url.includes("ipapi.co") ? new Promise(resolve => { resolveIp = resolve; }) : Promise.resolve({ ok: true, json: async () => [] })));
     render(<LocationWelcome menu={SUSHI} />);
+    fireEvent.click(screen.getByRole("button", { name: "Informar minha cidade" }));
     fireEvent.change(screen.getByLabelText("Estado"), { target: { value: "RO" } });
     resolveIp?.({ ok: true, json: async () => ({ city: "São Paulo", region_code: "SP", country_code: "BR" }) });
     await waitFor(() => expect(screen.getByLabelText("Estado")).toHaveValue("RO"));
@@ -37,7 +39,9 @@ describe("Localização inicial", () => {
   it("preenche cidade e estado pelo IP sem acionar a permissão de GPS", async () => {
     vi.stubGlobal("fetch", vi.fn().mockImplementation((url: string) => Promise.resolve({ ok: true, json: async () => url.includes("ipapi.co") ? { city: "Ariquemes", region_code: "RO", country_code: "BR" } : [] })));
     render(<LocationWelcome menu={SUSHI} />);
-    await waitFor(() => expect(screen.getByLabelText("Cidade")).toHaveValue("Ariquemes"));
+    await waitFor(() => expect(screen.getByRole("button", { name: "Ver cardápio" })).toBeEnabled());
+    expect(screen.queryByLabelText("Estado")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Cidade")).not.toBeInTheDocument();
     expect(navigator.geolocation.getCurrentPosition).not.toHaveBeenCalled();
   });
 });
