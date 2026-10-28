@@ -28,3 +28,4 @@
 - Pix checkout uses shared server functions, server-repriced menu data and service-only order records scoped by hashed random guest capabilities; this keeps buyer data private without requiring buyer accounts.
 - Each Pix attempt has a unique persistent capability, is never automatically retried after an ambiguous provider result, and only matching server-verified transaction IDs and amounts can become PAID; this prevents duplicate charges and browser-forged confirmations.
 - Render Pix QR codes locally and retain only the checkout capability and payment display in session storage, not buyer contact or address; this limits unnecessary disclosure.
+- Checkout inputs are masked on change through `src/lib/format.ts` (phone, CPF, CEP, e-mail), and the stored value keeps that format so the order message reads naturally; every validator strips non-digits first, so pasted or autofilled values still pass and the provider payload stays digits-only.
