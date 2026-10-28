@@ -22,4 +22,6 @@
 - [x] Remover setas das categorias e conferir continuação cortada com arraste.
 - [x] Implementar criação e consulta Pix FirebotBR com valores recalculados e acesso privado ao pedido.
 - [x] Verificar endereço, QR Code e cópia no celular; consulta real rejeita pedido inexistente; 43 testes passando.
+- [x] Formatar WhatsApp, CPF e CEP durante a digitação; e-mail validado apenas por presença de @.
+- [x] Conferir máscaras, cópia colada e apagamento de dígito no celular; 52 testes passando.
 - [ ] Homologar criação e pagamento reais — aguardando dados reais de comprador e autorização de cobrança de teste; formato do retorno da consulta ainda precisa de amostra real.

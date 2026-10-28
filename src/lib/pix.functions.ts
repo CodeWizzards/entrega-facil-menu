@@ -49,7 +49,7 @@ export const createPix = createServerFn({ method: "POST" })
       const raw = await firebot("create", key, {
         productType: "PHYSICAL", storeUrl, amount: priced.amountCents / 100,
         description: `${menu.store.name}: ${priced.items.map(i => `${i.qty}x ${i.name}`).join(", ")}`.slice(0, 500),
-        customer: { name: form.name, email: form.email, cpf: form.cpf.replace(/\D/g, ""), phone: form.phone.replace(/\D/g, "") },
+        customer: { name: form.name, email: form.email.trim().toLowerCase(), cpf: form.cpf.replace(/\D/g, ""), phone: form.phone.replace(/\D/g, "") },
         shipping: { street: form.street, number: form.number, complement: form.complement, neighborhood: form.neighborhood, city: form.city, state: form.state.toUpperCase(), zipCode: form.cep.replace(/\D/g, ""), shippingFee: menu.store.deliveryFee }, qrStyle: "plain",
       });
       const result = pixCreatedSchema.parse(raw);

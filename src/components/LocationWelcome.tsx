@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { lookupPostal } from "@/lib/postal";
 import { UFS, placeFromCoords } from "@/lib/place";
 import { placeFromIp } from "@/lib/ip-place";
+import { formatCep } from "@/lib/format";
 import type { Menu } from "@/lib/menu";
 
 export function LocationWelcome({ menu }: { menu: Menu }) {
@@ -143,7 +144,7 @@ export function LocationWelcome({ menu }: { menu: Menu }) {
             {busy === "ip" && <p role="status" className="flex items-center gap-2 text-xs text-muted-foreground"><LoaderCircle className="h-4 w-4 animate-spin" />Identificando sua região pelo IP…</p>}
             <Button variant="storefront" size="storefront" className="location-detect" disabled={busy === "gps"} onClick={() => void detect()}><span className="location-control-icon">{busy === "gps" ? <LoaderCircle className="animate-spin" /> : <LocateFixed />}</span><span>{busy === "gps" ? "Localizando você…" : "Usar minha localização"}<small>{busy === "gps" ? "Você também pode preencher abaixo" : "Estado e cidade automaticamente"}</small></span>{busy !== "gps" && <ArrowRight />}</Button>
             <div className="location-divider"><span />ou informe seu local<span /></div>
-            <div className="location-postal"><input aria-label="CEP para localização" className="field" placeholder="Seu CEP" inputMode="numeric" autoComplete="postal-code" maxLength={9} value={cep} onChange={e => { stopLookup(); setCep(e.target.value); }} /><Button variant="storefront" size="storefront" className="location-postal-btn" aria-label="Buscar CEP" disabled={busy === "postal" || cep.replace(/\D/g, "").length !== 8} onClick={() => void postal()}>{busy === "postal" ? <LoaderCircle className="animate-spin" /> : <ArrowRight />}</Button></div>
+            <div className="location-postal"><input aria-label="CEP para localização" className="field" placeholder="Seu CEP" inputMode="numeric" autoComplete="postal-code" maxLength={9} value={cep} onChange={e => { stopLookup(); setCep(formatCep(e.target.value)); }} /><Button variant="storefront" size="storefront" className="location-postal-btn" aria-label="Buscar CEP" disabled={busy === "postal" || cep.replace(/\D/g, "").length !== 8} onClick={() => void postal()}>{busy === "postal" ? <LoaderCircle className="animate-spin" /> : <ArrowRight />}</Button></div>
             <label className="checkout-field">Estado<div className="location-select"><select className="field" aria-label="Estado" value={state} onChange={e => { stopLookup(); setState(e.target.value); setCity(""); }}><option value="">Selecione seu estado</option>{UFS.map(uf => <option key={uf}>{uf}</option>)}</select><ChevronDown /></div></label>
             <Button variant="storefront" size="storefront" className="btn-primary location-primary" disabled={!state} onClick={() => { stopLookup(); setStep("city"); }}>Continuar <ArrowRight /></Button>
           </div>}
