@@ -17,4 +17,10 @@ describe("Recusas Firebot sem dados privados", () => {
     expect(result).toContain("CEP");
     expect(result).not.toContain("99999-999");
   });
+  it("avisa quando o Pix não está ativado na conta", () => {
+    expect(firebotFailureMessage(400, { success: false, error: "Pix não está habilitado para essa conta." })).toContain("Pix ainda não está ativado");
+  });
+  it("avisa quando o cartão não está ativado na conta", () => {
+    expect(firebotFailureMessage(403, { success: false, method: "CREDIT_CARD" })).toContain("cartão ainda não está ativado");
+  });
 });
