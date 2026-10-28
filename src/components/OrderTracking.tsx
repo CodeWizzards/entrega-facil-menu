@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Bike, Check, ChefHat, CircleDashed, Home, LoaderCircle, MapPin, MessageCircle, ReceiptText, Store } from "lucide-react";
+import { Bike, Check, ChefHat, CircleDashed, Home, LoaderCircle, MapPin, ReceiptText, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InvoiceSheet } from "@/components/InvoiceSheet";
 import { brl, type Menu } from "@/lib/menu";
@@ -193,15 +193,14 @@ export function OrderTracking({ menu, payment, form, total, lines, onClose }: {
 
       <div className="tracking-invoice">
         <Button variant="storefront" size="storefront" className="btn-success w-full" onClick={openInvoice}>
-          <ReceiptText className="h-[18px] w-[18px]" strokeWidth={2.3} />
-          {doc ? "Ver nota fiscal" : "Emitir nota fiscal"}
+          <span className="btn-success-icon" aria-hidden="true"><ReceiptText strokeWidth={2.2} /></span>
+          <span className="btn-success-label">{doc ? "Ver nota fiscal" : "Emitir nota fiscal"}</span>
         </Button>
         {invoiceError
           ? <p className="tracking-invoice-error" role="alert">{invoiceError}</p>
           : <p className="tracking-invoice-note">Documento do pedido pago · demonstrativo, sem validade fiscal</p>}
       </div>
 
-      <p className="tracking-note" role="status"><MessageCircle className="h-4 w-4 shrink-0" /> A loja acompanha cada etapa e te atualiza pelo seu WhatsApp.</p>
       <Button variant="storefront" size="storefront" className="mt-3 w-full rounded-full border border-border px-4 py-3 text-sm font-semibold" onClick={onClose}>Voltar ao cardápio</Button>
 
       {doc && showDoc && <InvoiceSheet menu={menu} doc={doc} onClose={() => setShowDoc(false)} />}
