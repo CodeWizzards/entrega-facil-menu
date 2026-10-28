@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, MapPin, LocateFixed, LoaderCircle, Check, X, Che
 import { Button } from "@/components/ui/button";
 import { lookupPostal } from "@/lib/postal";
 import { UFS, placeFromCoords } from "@/lib/place";
+import { placeFromIp } from "@/lib/ip-place";
 import type { Menu } from "@/lib/menu";
 
 export function LocationWelcome({ menu }: { menu: Menu }) {
@@ -12,7 +13,7 @@ export function LocationWelcome({ menu }: { menu: Menu }) {
   const [state, setState] = useState("");
   const [city, setCity] = useState("");
   const [cep, setCep] = useState("");
-  const [busy, setBusy] = useState<"gps" | "postal" | null>(null);
+  const [busy, setBusy] = useState<"ip" | "gps" | "postal" | null>(null);
   const [feedback, setFeedback] = useState("");
   const [cities, setCities] = useState<string[]>([]);
   const autoTried = useRef(false);
@@ -72,11 +73,30 @@ export function LocationWelcome({ menu }: { menu: Menu }) {
   }
 
   useEffect(() => {
-    if (!autoTried.current) {
-      autoTried.current = true;
-      void detect();
-    }
-    return () => request.current?.abort();
+    if (autoTried.current) return;
+    autoTried.current = true;
+    const controller = new AbortController();
+    request.current = controller;
+    setBusy("ip");
+    const timeout = setTimeout(() => {
+      if (controller.signal.aborted) return;
+      controller.abort();
+      setBusy(null);
+      setFeedback("Confirme sua localização pelo CEP ou escolha seu estado.");
+    }, 4000);
+    void placeFromIp(controller.signal).then(place => {
+      if (controller.signal.aborted) return;
+      setState(place.state);
+      setCity(place.city);
+      setStep("city");
+      setFeedback("Localização aproximada pelo IP. Confira sua cidade antes de continuar.");
+    }).catch(() => {
+      if (!controller.signal.aborted) setFeedback("Não foi possível estimar sua cidade pelo IP. Use o CEP ou escolha seu estado.");
+    }).finally(() => {
+      clearTimeout(timeout);
+      if (!controller.signal.aborted) setBusy(null);
+    });
+    return () => { clearTimeout(timeout); controller.abort(); };
   }, []);
 
   async function postal() {
@@ -122,6 +142,7 @@ export function LocationWelcome({ menu }: { menu: Menu }) {
           <p id="location-description" className="location-description">{step === "state" ? "Onde você quer receber seu pedido?" : step === "city" ? "Confirme a cidade para continuar." : "Seu próximo pedido começa na Casa Brasa."}</p>
 
           {step === "state" && <div className="location-form">
+            {busy === "ip" && <p role="status" className="flex items-center gap-2 text-xs text-muted-foreground"><LoaderCircle className="h-4 w-4 animate-spin" />Identificando sua região pelo IP…</p>}
             <Button variant="storefront" size="storefront" className="location-detect" disabled={busy === "gps"} onClick={() => void detect()}><span className="location-control-icon">{busy === "gps" ? <LoaderCircle className="animate-spin" /> : <LocateFixed />}</span><span>{busy === "gps" ? "Localizando você…" : "Usar minha localização"}<small>{busy === "gps" ? "Você também pode preencher abaixo" : "Estado e cidade automaticamente"}</small></span>{busy !== "gps" && <ArrowRight />}</Button>
             <div className="location-divider"><span />ou informe seu local<span /></div>
             <div className="location-postal"><input aria-label="CEP para localização" className="field" placeholder="Seu CEP" inputMode="numeric" autoComplete="postal-code" maxLength={9} value={cep} onChange={e => { stopLookup(); setCep(e.target.value); }} /><Button variant="storefront" size="storefront" className="location-postal-btn" aria-label="Buscar CEP" disabled={busy === "postal" || cep.replace(/\D/g, "").length !== 8} onClick={() => void postal()}>{busy === "postal" ? <LoaderCircle className="animate-spin" /> : <ArrowRight />}</Button></div>
