@@ -8,5 +8,11 @@ describe("Regras da finalização", () => {
     expect(deliveryErrors({ ...emptyDelivery, name: "Maria", email: "maria@example.com", cpf: "52998224725", phone: "11987654321", cep: "01001-000", street: "Praça da Sé", number: "10", neighborhood: "Sé", city: "São Paulo", state: "SP" })).toEqual({});
   });
   it("exige e-mail para o Pix Firebot", () => { expect(deliveryErrors({ ...emptyDelivery, email: "inválido" }).email).toBeDefined(); });
+  it("aceita e-mail com @ sem exigir domínio completo", () => {
+    expect(deliveryErrors({ ...emptyDelivery, email: "maria@exemplo" }).email).toBeUndefined();
+    expect(deliveryErrors({ ...emptyDelivery, email: "maria@exemplo.com" }).email).toBeUndefined();
+    expect(deliveryErrors({ ...emptyDelivery, email: "mariaexemplo.com" }).email).toBeDefined();
+    expect(deliveryErrors({ ...emptyDelivery, email: "@exemplo.com" }).email).toBeDefined();
+  });
   it("rejeita CPF com dígitos inválidos", () => { expect(deliveryErrors({ ...emptyDelivery, cpf: "11111111111" }).cpf).toBeDefined(); });
 });
