@@ -178,6 +178,9 @@
   .stepper { @apply flex items-center gap-3 rounded-xl border border-border px-3 py-2 font-semibold; }
   .stepper button { @apply text-lg text-primary; }
   .btn-primary { @apply rounded-xl bg-primary px-4 py-3 font-semibold text-primary-foreground transition hover:opacity-90; }
+  .segment { @apply flex items-center justify-center rounded-xl border border-border bg-muted px-4 py-2.5 text-sm font-semibold transition-colors hover:border-primary/50; }
+  .segment-active { @apply border-primary bg-primary text-primary-foreground hover:border-primary; }
+  .tag { @apply mb-1 inline-block rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary; }
 }
 
 @keyframes sheet-up { from { transform: translateY(30px); opacity: 0; } to { transform: none; opacity: 1; } }
