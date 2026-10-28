@@ -788,8 +788,8 @@
 .map-blocks rect { fill: color-mix(in oklab, var(--foreground) 5%, transparent); }
 .map-park { fill: color-mix(in oklab, var(--success) 13%, transparent); }
 .map-streets text {
-  fill: color-mix(in oklab, var(--foreground) 34%, transparent);
-  font-size: 7.5px; font-weight: 600; letter-spacing: .09em;
+  fill: color-mix(in oklab, var(--foreground) 58%, transparent);
+  font-size: 8px; font-weight: 600; letter-spacing: .07em;
 }
 .map-road-major { stroke: color-mix(in oklab, var(--foreground) 12%, transparent); stroke-width: 9; stroke-linecap: round; }
 .map-road-minor { stroke: color-mix(in oklab, var(--foreground) 7%, transparent); stroke-width: 5; stroke-linecap: round; }
@@ -804,18 +804,21 @@
   animation: route-flow 1.7s linear infinite;
 }
 @keyframes route-flow { to { stroke-dashoffset: -17; } }
-.map-dest-halo { fill: color-mix(in oklab, var(--gold) 20%, transparent); }
-.map-dest-dot { fill: var(--gold); }
-.map-dest-glyph { fill: var(--background); }
+.map-dest-halo { fill: color-mix(in oklab, var(--gold) 14%, transparent); }
+.map-dest-pin {
+  fill: var(--gold);
+  filter: drop-shadow(0 4px 9px oklch(0 0 0 / 50%));
+}
+.map-dest-inner { fill: var(--background); }
 .map-courier-halo {
   fill: color-mix(in oklab, var(--primary) 26%, transparent);
   transform-box: fill-box; transform-origin: center;
   animation: courier-halo 1.9s ease-out infinite;
 }
 @keyframes courier-halo { 0% { transform: scale(.55); opacity: .9; } 100% { transform: scale(1.35); opacity: 0; } }
-.map-courier-dot { fill: var(--primary); stroke: color-mix(in oklab, var(--foreground) 26%, transparent); stroke-width: 1.6; }
-.map-courier-beam { fill: color-mix(in oklab, var(--primary) 16%, transparent); }
-.map-courier-ring { fill: color-mix(in oklab, var(--primary) 30%, transparent); }
+.map-courier-dot { fill: var(--primary); stroke: color-mix(in oklab, var(--primary-foreground) 75%, transparent); stroke-width: 2; }
+.map-courier-beam { fill: color-mix(in oklab, var(--primary) 28%, transparent); }
+.map-courier-ring { fill: color-mix(in oklab, var(--primary) 34%, transparent); }
 
 .tracking-live-chip {
   position: absolute; z-index: 2; top: 12px;
