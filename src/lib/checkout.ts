@@ -10,7 +10,9 @@ export const emptyDelivery: DeliveryDetails = {
 };
 export function deliveryErrors(form: DeliveryDetails): Partial<Record<keyof DeliveryDetails, string>> {
   const errors: Partial<Record<keyof DeliveryDetails, string>> = {};
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) errors.email = "Informe um e-mail válido.";
+  const email = form.email.trim().toLowerCase();
+  // A Firebot exige um e-mail de contato; a regra é simples: precisa ter @ com algo antes e depois.
+  if (!/^[^\s@]+@[^\s@]+$/.test(email)) errors.email = "Informe um e-mail com @.";
   if (!validCpf(form.cpf)) errors.cpf = "Informe um CPF válido.";
   for (const key of ["name", "street", "number", "neighborhood", "city"] as const) {
     if (!form[key].trim()) errors[key] = "Preencha este campo.";

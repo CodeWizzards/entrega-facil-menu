@@ -23,6 +23,7 @@ import { FeaturedRail } from "@/components/FeaturedRail";
 import { CategoryRail } from "@/components/CategoryRail";
 import pixLogo from "@/assets/pix-logo.png.asset.json";
 import { deliveryErrors, deliveryAddress, emptyDelivery, PAYMENT_METHOD, type DeliveryDetails } from "@/lib/checkout";
+import { formatCep, formatCpf, formatEmail, formatPhone } from "@/lib/format";
 import { ProductBadge } from "@/components/ProductBadge";
 import { LocationWelcome } from "@/components/LocationWelcome";
 import { lookupPostal } from "@/lib/postal";
