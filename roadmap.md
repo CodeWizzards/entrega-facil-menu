@@ -11,3 +11,6 @@
 - [x] Exibir busca e resultado de proximidade explicitamente demonstrativos.
 - [x] Preencher endereço pelo CEP e apresentar segurança sem promessas não verificadas.
 - [x] Testar seleção de cidade, consulta de CEP e sacola.
+- [x] Exibir avaliação 4,9/5 com 1.367 avaliações e faixa de entrega grátis no cartão da loja.
+- [x] Identificar estado e cidade sozinho pela localização do aparelho, com CEP e escolha manual como reserva.
+- [x] Testar identificação automática de cidade e estado.
