@@ -492,7 +492,8 @@ function CartSheet({
     unitCents: lineCents(i),
     addons: i.addons.map(a => a.name),
     note: i.note,
-  })), [cart]);
+    image: menu.categoryImg[i.product.category],
+  })), [cart, menu.categoryImg]);
 
   const message = useMemo(() => {
     const lines = [
