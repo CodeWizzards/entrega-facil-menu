@@ -221,7 +221,7 @@ export function Storefront({ menu }: { menu: Menu }) {
                       </div>
                       <span className="product-thumb">
                         <img
-                          src={menu.categoryImg[p.category]}
+                          src={p.image ?? menu.categoryImg[p.category]}
                           alt={p.name}
                           loading="lazy"
                           className="h-full w-full object-cover"
@@ -338,7 +338,7 @@ function ProductSheet({
     <Sheet onClose={onClose} product>
       <div className="product-sheet-photo relative -mx-6 mb-5 h-52 overflow-hidden">
         <img
-          src={menu.categoryImg[product.category]}
+          src={product.image ?? menu.categoryImg[product.category]}
           alt={product.name}
           className="h-full w-full object-cover"
         />
@@ -513,7 +513,7 @@ function CartSheet({
   const valid = Object.keys(errors).length === 0 && !belowMin && cart.length > 0;
 
   const invoiceLines = useMemo<InvoiceLine[]>(() => cart.map(i => {
-    const thumb = menu.categoryImg[i.product.category];
+    const thumb = i.product.image ?? menu.categoryImg[i.product.category];
     return {
       name: i.product.name,
       qty: i.qty,
@@ -611,7 +611,7 @@ function CartSheet({
             className="cart-item grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-4 text-sm"
           >
             <div className="flex min-w-0 items-center gap-3">
-              <img src={menu.categoryImg[i.product.category]} alt="" className="h-14 w-14 shrink-0 rounded-xl object-cover" />
+              <img src={i.product.image ?? menu.categoryImg[i.product.category]} alt="" className="h-14 w-14 shrink-0 rounded-xl object-cover" />
               <div className="min-w-0">
               <p className="font-semibold">
                 {i.qty}x {i.product.name}

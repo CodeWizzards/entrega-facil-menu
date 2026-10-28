@@ -9,6 +9,7 @@ export type Product = {
   name: string;
   desc: string;
   price: number;
+  image?: string;
   tag?: string;
   addons?: Addon[];
 };
