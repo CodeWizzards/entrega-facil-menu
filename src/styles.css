@@ -660,7 +660,7 @@
   padding: 9px 2px;
 }
 .tracking-step:not(:last-child)::before {
-  content: ""; position: absolute; left: 15px; top: 34px; bottom: -6px;
+  content: ""; position: absolute; left: 16px; top: 37px; bottom: -5px;
   width: 2px; border-radius: 2px;
   background: var(--border);
 }
