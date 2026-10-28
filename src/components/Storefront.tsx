@@ -140,14 +140,6 @@ export function Storefront({ menu }: { menu: Menu }) {
 
             <div className="store-availability mt-3">
               <span className="availability-dot" /> Aberto agora
-              {freeDelivery && (
-                <>
-                  <span className="availability-sep" aria-hidden />
-                  <span className="free-ship">
-                    <Bike aria-hidden /> Entrega grátis
-                  </span>
-                </>
-              )}
             </div>
             <dl className="store-metrics mt-4">
               <div><dt><Clock />Tempo</dt><dd>{menu.store.eta}</dd></div>
