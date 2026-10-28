@@ -105,10 +105,10 @@ export function OrderTracking({ menu, payment, form, total, sentToStore, onSend,
                 <line x1="246" y1="120" x2="340" y2="120" className="map-road-minor" />
               </g>
               <g className="map-streets">
-                <text x="18" y="140">AV. DA BRASA</text>
-                <text x="128" y="70">R. DAS PALMEIRAS</text>
-                <text x="240" y="112" transform="rotate(-90 240 112)">R. DO FOGO</text>
-                <text x="176" y="176">R. DO MAR</text>
+                <text x="300" y="70" textAnchor="middle">AV. DA BRASA</text>
+                <text x="56" y="101" textAnchor="middle">R. DAS PALMEIRAS</text>
+                <text x="170" y="132" textAnchor="middle" transform="rotate(-90 170 132)">R. DO FOGO</text>
+                <text x="52" y="25" textAnchor="middle">R. DO MAR</text>
               </g>
               <path className="map-route" d={ROUTE} />
               <path className="map-route-flow" d={ROUTE} />
@@ -118,11 +118,15 @@ export function OrderTracking({ menu, payment, form, total, sentToStore, onSend,
                 <circle className="map-dest-inner" cx="0" cy="-4" r="3.8" />
               </g>
               <g className="map-courier">
-                <path className="map-courier-beam" d="M 0 0 L 27 -14 A 30 30 0 0 1 27 14 Z" />
-                <circle className="map-courier-halo" r="17" />
-                <circle className="map-courier-ring" r="12" />
-                <circle className="map-courier-dot" r="7.5" />
-                <animateMotion dur="9s" repeatCount="indefinite" rotate="auto" path={ROUTE} />
+                <circle className="map-courier-halo" r="19" />
+                <rect className="map-courier-badge" x="-12" y="-12" width="24" height="24" rx="8" />
+                <g className="map-courier-glyph" transform="scale(0.62) translate(-12 -12)">
+                  <circle cx="18.5" cy="17.5" r="3.5" />
+                  <circle cx="5.5" cy="17.5" r="3.5" />
+                  <circle cx="15" cy="5" r="1" />
+                  <path d="M12 17.5V14l-3-3 4-3 2 3h2" />
+                </g>
+                <animateMotion dur="9s" repeatCount="indefinite" rotate="0" path={ROUTE} />
               </g>
             </svg>
             <span className="tracking-live-chip is-live"><i aria-hidden="true" /> Ao vivo</span>
