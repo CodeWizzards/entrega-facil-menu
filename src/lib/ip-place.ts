@@ -32,7 +32,7 @@ function parsePlace(data: unknown): Place | null {
   const city = typeof d.city === "string" ? d.city.trim() : "";
   const region = d.region_code || d.region;
   const state = ufFrom(typeof region === "string" ? region : "");
-  if (d.error || d.success === false || d.country_code !== "BR" || !city || !state) return null;
+  if (d["error"] || d["success"] === false || d["country_code"] !== "BR" || !city || !state) return null;
   return { city, state };
 }
 
