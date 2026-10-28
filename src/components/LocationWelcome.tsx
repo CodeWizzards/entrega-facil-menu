@@ -17,7 +17,17 @@ export function LocationWelcome({ menu }: { menu: Menu }) {
   const [busy, setBusy] = useState<"ip" | "gps" | "postal" | null>(null);
   const [feedback, setFeedback] = useState("");
   const [cities, setCities] = useState<string[]>([]);
+  const [searching, setSearching] = useState(false);
   const request = useRef<AbortController | null>(null);
+  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function confirmCity() {
+    stopLookup();
+    setStep("result");
+    setSearching(true);
+    if (searchTimer.current) clearTimeout(searchTimer.current);
+    searchTimer.current = setTimeout(() => setSearching(false), 3500);
+  }
 
   useEffect(() => {
     setCities([]);
