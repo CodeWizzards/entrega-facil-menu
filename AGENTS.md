@@ -21,4 +21,4 @@
 - Featured product rails use Embla for mouse dragging, native touch gestures and click suppression after dragging; this prevents product dialogs from opening during a swipe.
 - Storefront overlays use Radix Dialog for focus trapping, Escape dismissal and background scroll locking.
 - Checkout validation and address formatting live in a shared browser-safe module with rule tests; a future payment handler must independently revalidate these fields and recalculate totals.
-- CEP lookup uses ViaCEP with cancellation and editable fallback; GPS permission alone does not resolve a city or establish store proximity, so the location wizard must not represent demo distances as real calculations.
+- CEP lookup uses ViaCEP with cancellation and editable fallback; browser coordinates are reverse-geocoded through the keyless Nominatim endpoint wrapped in `src/lib/place.ts` to fill city and state, and the location wizard must never present demo distances as real calculations.
