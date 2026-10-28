@@ -1,5 +1,8 @@
+import { useState } from "react";
 import {
+  ChevronDown,
   ChevronRight,
+  Facebook,
   MapPin,
   MessagesSquare,
   PackageCheck,
@@ -46,6 +49,49 @@ const REVIEWS: Record<Menu["to"], Review[]> = {
       score: "5,0",
       comment: "Tudo muito bem feito e bem embalado! As fritas com cheddar são viciantes.",
     },
+    {
+      initials: "FR",
+      name: "Fernanda Rocha",
+      loc: "Sorocaba, SP",
+      date: "há 14 horas",
+      score: "5,0",
+      comment:
+        "Melhor custo-benefício! Porção generosa, comida deliciosa e preço justo. Recomendo para todo mundo!",
+    },
+    {
+      initials: "MP",
+      name: "Marcos Pereira",
+      loc: "Sorocaba, SP",
+      date: "há 20 horas",
+      score: "5,0",
+      comment:
+        "Fiquei impressionado com a velocidade da entrega! Burger delicioso, ingredientes frescos e preço acessível. Excelente experiência!",
+    },
+    {
+      initials: "JC",
+      name: "Juliana Costa",
+      loc: "Sorocaba, SP",
+      date: "há 1 dia",
+      score: "5,0",
+      comment:
+        "Perfeito para o dia a dia! Variedade no cardápio, tempero na medida certa e sempre entregam no horário.",
+    },
+    {
+      initials: "RT",
+      name: "Rafael Teixeira",
+      loc: "Sorocaba, SP",
+      date: "há 1 dia",
+      score: "5,0",
+      comment: "Bom, barato e entrega rápida. Não tem erro, semana que vem peço de novo.",
+    },
+    {
+      initials: "IM",
+      name: "Iana Martins",
+      loc: "Sorocaba, SP",
+      date: "há 1 dia",
+      score: "5,0",
+      comment: "Pedi pela primeira vez e td mundo gostou, vamos pedir mais!",
+    },
   ],
   "/sushi": [
     {
@@ -74,6 +120,49 @@ const REVIEWS: Record<Menu["to"], Review[]> = {
       score: "5,0",
       comment: "Tudo muito bem feito e bem embalado! Amo comida japonesa.",
     },
+    {
+      initials: "FR",
+      name: "Fernanda Rocha",
+      loc: "Sorocaba, SP",
+      date: "há 14 horas",
+      score: "5,0",
+      comment:
+        "Melhor custo-benefício! Porção generosa, comida deliciosa e preço justo. Recomendo para todo mundo!",
+    },
+    {
+      initials: "MP",
+      name: "Marcos Pereira",
+      loc: "Sorocaba, SP",
+      date: "há 20 horas",
+      score: "5,0",
+      comment:
+        "Fiquei impressionado com a velocidade da entrega! Sushi delicioso, ingredientes frescos e preço acessível. Excelente experiência!",
+    },
+    {
+      initials: "JC",
+      name: "Juliana Costa",
+      loc: "Sorocaba, SP",
+      date: "há 1 dia",
+      score: "5,0",
+      comment:
+        "Perfeito para o dia a dia! Variedade no cardápio, tempero na medida certa e sempre entregam no horário.",
+    },
+    {
+      initials: "RT",
+      name: "Rafael Teixeira",
+      loc: "Sorocaba, SP",
+      date: "há 1 dia",
+      score: "5,0",
+      comment: "Bom, barato e entrega rápida. Não tem erro, semana que vem peço de novo.",
+    },
+    {
+      initials: "IM",
+      name: "Iana Martins",
+      loc: "Sorocaba, SP",
+      date: "há 1 dia",
+      score: "5,0",
+      comment: "Pedi pela primeira vez e td mundo gostou, vamos pedir mais!",
+    },
   ],
 };
 
@@ -82,6 +171,8 @@ const PERKS = [
   { icon: MessagesSquare, label: "Zero ou poucas reclamações" },
   { icon: PackageCheck, label: "Zero ou poucos cancelamentos" },
 ];
+
+const PREVIEW_COUNT = 3;
 
 function Stars() {
   return (
@@ -94,10 +185,13 @@ function Stars() {
 }
 
 export function SuperReviews({ menu }: { menu: Menu }) {
+  const [expanded, setExpanded] = useState(false);
   const rating = menu.store.rating.toLocaleString("pt-BR", {
     minimumFractionDigits: 1,
   });
   const reviews = menu.store.reviews.toLocaleString("pt-BR");
+  const all = REVIEWS[menu.to];
+  const visible = expanded ? all : all.slice(0, PREVIEW_COUNT);
 
   return (
     <section className="pt-10" aria-label="Avaliações da loja">
@@ -145,7 +239,7 @@ export function SuperReviews({ menu }: { menu: Menu }) {
 
       {/* Avaliações */}
       <div className="mt-3 grid gap-2.5">
-        {REVIEWS[menu.to].map((r) => (
+        {visible.map((r) => (
           <article key={r.name} className="review-card">
             <header className="flex items-center gap-3">
               <span className="review-avatar" aria-hidden>
@@ -167,6 +261,26 @@ export function SuperReviews({ menu }: { menu: Menu }) {
             <p className="mt-2 text-sm text-muted-foreground">{r.comment}</p>
           </article>
         ))}
+      </div>
+
+      {/* Ações */}
+      <div className="mt-3 grid gap-2.5">
+        <button
+          type="button"
+          className="reviews-btn"
+          onClick={() => setExpanded((v) => !v)}
+          aria-expanded={expanded}
+        >
+          {expanded ? "Ver menos avaliações" : `Ver mais avaliações`}
+          <ChevronDown
+            className={`h-4 w-4 transition-transform duration-300 ${expanded ? "rotate-180" : ""}`}
+            aria-hidden
+          />
+        </button>
+        <button type="button" className="reviews-btn" aria-label="Ver mais no Facebook">
+          <Facebook className="h-4 w-4" aria-hidden />
+          Ver mais no Facebook
+        </button>
       </div>
     </section>
   );

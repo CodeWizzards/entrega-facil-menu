@@ -563,7 +563,19 @@
   display: grid; place-items: center;
   width: 38px; height: 38px; border-radius: 999px;
   font-size: 13px; font-weight: 800; letter-spacing: 0.02em;
-  color: var(--gold);
-  background: color-mix(in oklab, var(--gold) 10%, var(--card));
-  border: 1px solid color-mix(in oklab, var(--gold) 28%, var(--border));
+  color: var(--primary-foreground);
+  background: var(--primary);
+  border: 1px solid color-mix(in oklab, var(--primary) 70%, var(--border));
 }
+.reviews-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 13px 16px;
+  border-radius: 14px;
+  font-size: 14px; font-weight: 600;
+  color: var(--foreground);
+  background: var(--card);
+  border: 1px solid var(--border);
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+.reviews-btn:hover { background: color-mix(in oklab, var(--foreground) 5%, var(--card)); }
+.reviews-btn:active { transform: scale(0.98); }
