@@ -7,3 +7,7 @@
 - [x] Redesenhar botão Ver sacola e animação.
 - [x] Finalização com contato, endereço completo, apenas entrega e Pix com logo PNG.
 - [x] Testar validação e mensagem de finalização sem simular pagamento.
+- [x] Adicionar seleção inicial de local com permissão GPS e alternativa por CEP.
+- [x] Exibir busca e resultado de proximidade explicitamente demonstrativos.
+- [x] Preencher endereço pelo CEP e apresentar segurança sem promessas não verificadas.
+- [x] Testar seleção de cidade, consulta de CEP e sacola.
