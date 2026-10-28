@@ -14,7 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      pix_orders: {
+        Row: {
+          access_hash: string
+          amount_cents: number
+          checkout: Json
+          created_at: string
+          id: string
+          menu_path: string
+          pix_code: string | null
+          status: string
+          transaction_id: string | null
+        }
+        Insert: {
+          access_hash: string
+          amount_cents: number
+          checkout: Json
+          created_at?: string
+          id?: string
+          menu_path: string
+          pix_code?: string | null
+          status?: string
+          transaction_id?: string | null
+        }
+        Update: {
+          access_hash?: string
+          amount_cents?: number
+          checkout?: Json
+          created_at?: string
+          id?: string
+          menu_path?: string
+          pix_code?: string | null
+          status?: string
+          transaction_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

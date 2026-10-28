@@ -20,4 +20,6 @@
 - [x] Afinar rolagem e dar mais destaque aos selos de produtos.
 - [x] Conferir localização automática e apresentação no celular.
 - [x] Remover setas das categorias e conferir continuação cortada com arraste.
-- [ ] Integrar Pix FirebotBR — aguardando documentação oficial acessível (URL retorna login), credencial em formulário seguro e configuração de teste da loja.
+- [x] Implementar criação e consulta Pix FirebotBR com valores recalculados e acesso privado ao pedido.
+- [x] Verificar endereço, QR Code e cópia no celular; consulta real rejeita pedido inexistente; 43 testes passando.
+- [ ] Homologar criação e pagamento reais — aguardando dados reais de comprador e autorização de cobrança de teste; formato do retorno da consulta ainda precisa de amostra real.
