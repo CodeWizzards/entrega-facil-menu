@@ -1,6 +1,5 @@
 import { Home, Search, Share2, ShoppingBag } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
-import logoAsset from "@/assets/casa-brasa-logo.png.asset.json";
 import { brl, type Addon, type Menu, type Product } from "@/lib/menu";
 
 type Item = {
@@ -69,7 +68,7 @@ export function Storefront({ menu }: { menu: Menu }) {
           <div className="store-card -mt-6">
             <div className="logo-badge">
               <img
-                src={logoAsset.url}
+                src={menu.logoImg}
                 alt={`Logo ${menu.store.name}`}
                 className="h-full w-full object-cover"
               />

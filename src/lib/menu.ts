@@ -29,6 +29,8 @@ export type Menu = {
   to: "/" | "/sushi";
   /** Ícone do selo da loja */
   logo: string;
+  /** Imagem da logo exibida no círculo sobre a capa */
+  logoImg: string;
   store: StoreInfo;
   categories: string[];
   products: Product[];
