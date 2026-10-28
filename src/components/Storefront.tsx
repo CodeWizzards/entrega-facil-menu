@@ -83,8 +83,10 @@ export function Storefront({ menu }: { menu: Menu }) {
   });
   const reviewsLabel = menu.store.reviews.toLocaleString("pt-BR");
 
-  const add = (product: Product, qty: number, note: string, addons: Addon[]) =>
+  const add = (product: Product, qty: number, note: string, addons: Addon[]) => {
+    if (pixAccess) { setCartOpen(true); return; }
     setCart((c) => [...c, { key: crypto.randomUUID(), product, qty, note, addons }]);
+  };
 
   const jump = (c: string) => {
     setCat(c);
@@ -425,7 +427,7 @@ function CartSheet({
   const createPayment = useServerFn(createPix);
   const checkPayment = useServerFn(checkPix);
   const savePayment = (access: string, value?: PixPayment) => {
-    try { sessionStorage.setItem(`pix:${menu.to}`, JSON.stringify({ access, payment: value })); } catch { /* No persistent browser storage. */ }
+    try { sessionStorage.setItem(`pix:${menu.to}`, JSON.stringify({ access, payment: value ? { orderId: value.orderId, amount: value.amount, code: value.code, status: "PENDING" } : undefined })); } catch { /* No persistent browser storage. */ }
   };
   const verifyPayment = async () => {
     if (processing || !pixAccess) return;
@@ -559,7 +561,7 @@ function CartSheet({
 
        {payment && <PixPaymentPanel payment={payment} checking={processing} error={paymentError} onCheck={verifyPayment} />}
        {!payment && pixAccess && <div className="checkout-section"><p className="text-sm text-muted-foreground">Já existe uma tentativa de Pix neste navegador. Consulte antes de gerar outra cobrança.</p><Button variant="storefront" size="storefront" disabled={processing} onClick={verifyPayment} className="btn-primary mt-3 w-full">Consultar meu Pix</Button>{paymentError && <p role="alert" className="mt-3 text-xs text-destructive">{paymentError}</p>}</div>}
-       {payment?.status === "PAID" && cart.length > 0 && <Button variant="storefront" size="storefront" className="btn-primary mt-5 w-full" onClick={() => window.open(`https://wa.me/${menu.store.whatsapp}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer")}>Enviar pedido à loja <ArrowRight /></Button>}
+       {payment?.status === "PAID" && payment.whatsappMessage && <Button variant="storefront" size="storefront" className="btn-primary mt-5 w-full" onClick={() => window.open(`https://wa.me/${menu.store.whatsapp}?text=${encodeURIComponent(payment.whatsappMessage || "")}`, "_blank", "noopener,noreferrer")}>Enviar pedido à loja <ArrowRight /></Button>}
        {cart.length > 0 && !payment && !pixAccess && <form noValidate onSubmit={async e => {
         e.preventDefault(); setSubmitted(true);
          if (!valid || processing) return;

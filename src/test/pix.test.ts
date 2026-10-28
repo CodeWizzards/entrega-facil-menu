@@ -4,7 +4,8 @@ import { SUSHI } from "@/lib/sushi";
 import { LANCHES } from "@/lib/lanches";
 import { emptyDelivery } from "@/lib/checkout";
 const form = { ...emptyDelivery, name: "Teste", email: "teste@example.com", cpf: "52998224725", phone: "11987654321", cep: "01001000", street: "Praça da Sé", number: "10", neighborhood: "Sé", city: "São Paulo", state: "SP" };
-const input = { access: "a".repeat(64), menuPath: "/sushi" as const, form, items: [{ productId: "combo-brasa-16", qty: 2, addonIds: ["shoyu"], note: "" }] };
+const baseItem = { productId: "combo-brasa-16", qty: 2, addonIds: ["shoyu"], note: "" };
+const input = { access: "a".repeat(64), menuPath: "/sushi" as const, form, items: [baseItem] };
 describe("Pix Firebot", () => {
   it("recalcula produtos e adicionais sem confiar no total enviado", () => {
     const parsed = pixCheckoutSchema.parse({ ...input, amount: 0.01 });

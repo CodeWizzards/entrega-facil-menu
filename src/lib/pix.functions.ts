@@ -3,6 +3,9 @@ import { getRequest } from "@tanstack/react-start/server";
 import { LANCHES } from "@/lib/lanches";
 import { SUSHI } from "@/lib/sushi";
 import { pixAccessSchema, pixCheckoutSchema, pixCreatedSchema, priceCheckout, verifiedPixStatus } from "@/lib/pix";
+import { brl } from "@/lib/menu";
+import { deliveryAddress } from "@/lib/checkout";
+import { z } from "zod";
 
 async function hashAccess(access: string) {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(access));
@@ -12,7 +15,7 @@ async function firebot(path: string, key: string, body?: unknown) {
   const response = await fetch(`https://firebotbr.com/api/v1/pix/${path}`, {
     method: body ? "POST" : "GET",
     headers: { "x-api-key": key, accept: "application/json", ...(body ? { "Content-Type": "application/json" } : {}) },
-    body: body ? JSON.stringify(body) : undefined,
+    ...(body ? { body: JSON.stringify(body) } : {}),
     signal: AbortSignal.timeout(20000),
   });
   if (!response.ok) {
@@ -64,7 +67,7 @@ export const checkPix = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const accessHash = await hashAccess(data.access);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: order, error } = await supabaseAdmin.from("pix_orders").select("id, amount_cents, transaction_id, pix_code, status").eq("access_hash", accessHash).maybeSingle();
+    const { data: order, error } = await supabaseAdmin.from("pix_orders").select("id, menu_path, checkout, amount_cents, transaction_id, pix_code, status").eq("access_hash", accessHash).maybeSingle();
     if (error || !order) throw new Error("Pedido não encontrado neste navegador.");
     const key = process.env["FIREBOT_API_KEY"];
     if (!key || !order.transaction_id || !order.pix_code) throw new Error("Pedido em conferência. Consulte a loja antes de gerar outro Pix.");
@@ -72,5 +75,15 @@ export const checkPix = createServerFn({ method: "POST" })
     const status = verifiedPixStatus(raw, order.transaction_id, order.amount_cents / 100);
     const { error: saveError } = await supabaseAdmin.from("pix_orders").update({ status }).eq("id", order.id);
     if (saveError) throw new Error("Não foi possível atualizar o pedido.");
-    return { orderId: order.id, amount: order.amount_cents / 100, code: order.pix_code, status };
+    let whatsappMessage = "";
+    if (status === "PAID") {
+      const saved = z.object({ form: pixCheckoutSchema.shape.form, items: z.array(z.object({ name: z.string(), qty: z.number(), cents: z.number(), note: z.string(), addons: z.array(z.object({ name: z.string(), price: z.number() })) })) }).parse(order.checkout);
+      const menu = order.menu_path === "/sushi" ? SUSHI : LANCHES;
+      whatsappMessage = [
+        `*Novo pedido — ${menu.store.name}*`, `Pedido: ${order.id}`, "",
+        ...saved.items.map(i => `${i.qty}x ${i.name} — ${brl(i.cents / 100)}${i.addons.length ? `\nAdicionais: ${i.addons.map(a => a.name).join(", ")}` : ""}${i.note ? `\nObs: ${i.note}` : ""}`),
+        "", `*Total: ${brl(order.amount_cents / 100)}*`, "Entrega: Grátis", `Nome: ${saved.form.name}`, `Telefone: ${saved.form.phone}`, `Endereço: ${deliveryAddress(saved.form)}`, saved.form.reference ? `Referência: ${saved.form.reference}` : "", "Pagamento: Pix confirmado pela Firebot",
+      ].filter(Boolean).join("\n");
+    }
+    return { orderId: order.id, amount: order.amount_cents / 100, code: order.pix_code, status, whatsappMessage };
   });

@@ -11,8 +11,8 @@ export function PixPaymentPanel({ payment, checking, error, onCheck }: { payment
   const [copyError, setCopyError] = useState(false);
   useEffect(() => {
     let cancelled = false;
-    import("qrcode").then(qr => {
-      if (!cancelled && canvas.current) return qr.toCanvas(canvas.current, payment.code, { width: 240, margin: 3, errorCorrectionLevel: "M" });
+    import("qrcode").then(async qr => {
+      if (!cancelled && canvas.current) await qr.toCanvas(canvas.current, payment.code, { width: 240, margin: 3, errorCorrectionLevel: "M" });
     }).catch(() => { if (!cancelled) setQrError(true); });
     return () => { cancelled = true; };
   }, [payment.code]);
