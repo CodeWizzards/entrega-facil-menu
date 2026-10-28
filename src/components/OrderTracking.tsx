@@ -11,7 +11,7 @@ const LIVE_FEE = 7.32;
 
 /** Rota desenhada no mapa (coordenadas do viewBox 340x190). */
 const ROUTE = "M 16 146 L 96 146 Q 112 146 112 130 L 112 92 Q 112 76 128 76 L 230 76 Q 246 76 246 92 L 246 130 Q 246 146 262 146 L 306 146";
-const DEST = { x: 306, y: 146 };
+const DEST = { x: 306, y: 133 };
 
 /**
  * Acompanhamento do pedido após o pagamento confirmado.
@@ -113,10 +113,9 @@ export function OrderTracking({ menu, payment, form, total, sentToStore, onSend,
               <path className="map-route" d={ROUTE} />
               <path className="map-route-flow" d={ROUTE} />
               <g className="map-dest" transform={`translate(${DEST.x} ${DEST.y})`}>
-                <circle className="map-dest-halo" r="16" />
-                <circle className="map-dest-dot" r="11" />
-                <path className="map-dest-glyph" d="M -5.4 -0.8 L 0 -6.4 L 5.4 -0.8 Z" />
-                <rect className="map-dest-glyph" x="-3.4" y="-0.8" width="6.8" height="5.6" rx="1.2" />
+                <circle className="map-dest-halo" cx="0" cy="-4" r="17" />
+                <path className="map-dest-pin" d="M 0 13 C -3.6 6.6 -10.6 3.4 -10.6 -4 A 10.6 10.6 0 1 1 10.6 -4 C 10.6 3.4 3.6 6.6 0 13 Z" />
+                <circle className="map-dest-inner" cx="0" cy="-4" r="3.8" />
               </g>
               <g className="map-courier">
                 <path className="map-courier-beam" d="M 0 0 L 27 -14 A 30 30 0 0 1 27 14 Z" />
