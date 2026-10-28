@@ -94,7 +94,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         // Começa a localização por IP já no HTML, antes do bundle carregar.
         children:
-          'try{var c=JSON.parse(localStorage.getItem("casa-brasa:place")||"null");if(c&&c.city&&Date.now()-c.at<864e5){window.__ipPlaceRaw=Promise.resolve(null)}else{window.__ipPlaceRaw=Promise.any(["https://ipapi.co/json/","https://ipwho.is/"].map(function(u){return fetch(u,{credentials:"omit",referrerPolicy:"no-referrer"}).then(function(r){if(!r.ok)throw 0;return r.json()})})).catch(function(){return null})}}catch(e){}',
+          'try{var k=function(n){var p=n+"=";for(var i=0;i<document.cookie.split(";").length;i++){var t=document.cookie.split(";")[i].trim();if(t.indexOf(p)===0)return decodeURIComponent(t.slice(p.length))}return""};if(k("localCidade")&&k("localEstado")){window.__ipPlaceRaw=Promise.resolve(null)}else{window.__ipPlaceRaw=fetch("https://get.geojs.io/v1/ip/geo.json",{credentials:"omit",referrerPolicy:"no-referrer"}).then(function(r){if(!r.ok)throw 0;return r.json()}).catch(function(){return null})}}catch(e){}',
       },
     ],
   }),
