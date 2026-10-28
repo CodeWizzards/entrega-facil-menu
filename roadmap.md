@@ -19,3 +19,5 @@
 - [x] Abrir apenas busca por IP; formulário somente ao solicitar correção.
 - [x] Afinar rolagem e dar mais destaque aos selos de produtos.
 - [x] Conferir localização automática e apresentação no celular.
+- [ ] Remover setas das categorias e conferir continuação cortada com arraste.
+- [ ] Integrar Pix FirebotBR conforme documentação oficial, com chave privada protegida e confirmação real.
