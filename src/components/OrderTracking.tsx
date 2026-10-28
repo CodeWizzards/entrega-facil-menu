@@ -84,7 +84,8 @@ export function OrderTracking({ menu, payment, form, total, sentToStore, onSend,
                 <rect x="6" y="36" width="98" height="32" rx="9" />
                 <rect x="6" y="112" width="98" height="26" rx="8" />
                 <rect x="6" y="158" width="98" height="26" rx="8" />
-                <rect x="124" y="4" width="108" height="64" rx="11" />
+                <rect x="124" y="4" width="108" height="16" rx="8" />
+                <rect x="124" y="36" width="108" height="32" rx="9" />
                 <rect x="258" y="4" width="76" height="26" rx="8" />
                 <rect x="258" y="38" width="76" height="30" rx="8" />
                 <rect x="124" y="84" width="38" height="54" rx="9" />
@@ -101,14 +102,14 @@ export function OrderTracking({ menu, payment, form, total, sentToStore, onSend,
                 <line x1="246" y1="0" x2="246" y2="132" className="map-road-minor" />
                 <line x1="170" y1="76" x2="170" y2="190" className="map-road-minor" />
                 <line x1="0" y1="104" x2="112" y2="104" className="map-road-minor" />
-                <line x1="0" y1="28" x2="106" y2="28" className="map-road-minor" />
+                <line x1="0" y1="28" x2="240" y2="28" className="map-road-minor" />
                 <line x1="246" y1="120" x2="340" y2="120" className="map-road-minor" />
               </g>
               <g className="map-streets">
                 <text x="300" y="70" textAnchor="middle">AV. DA BRASA</text>
                 <text x="56" y="101" textAnchor="middle">R. DAS PALMEIRAS</text>
-                <text x="170" y="132" textAnchor="middle" transform="rotate(-90 170 132)">R. DO FOGO</text>
-                <text x="52" y="25" textAnchor="middle">R. DO MAR</text>
+                <text x="170" y="110" textAnchor="middle" transform="rotate(-90 170 110)">R. DO FOGO</text>
+                <text x="175" y="25" textAnchor="middle">R. DO MAR</text>
               </g>
               <path className="map-route" d={ROUTE} />
               <path className="map-route-flow" d={ROUTE} />
