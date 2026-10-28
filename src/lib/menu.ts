@@ -32,6 +32,8 @@ export type Menu = {
   store: StoreInfo;
   categories: string[];
   products: Product[];
+  /** Foto de cada categoria, usada como miniatura nos cartões de produto */
+  categoryImg: Record<string, string>;
   cover: string;
   coverAlt: string;
 };
