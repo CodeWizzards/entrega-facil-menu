@@ -16,3 +16,6 @@
 - [x] Testar identificação automática de cidade e estado.
 - [x] Agilizar abertura do modal e redesenhar localização no estilo iOS.
 - [x] Remover distância demonstrativa e conferir seleção de cidade até o cardápio.
+- [ ] Abrir apenas busca por IP; formulário somente ao solicitar correção.
+- [ ] Afinar rolagem e dar mais destaque aos selos de produtos.
+- [ ] Conferir localização automática e apresentação no celular.
