@@ -29,8 +29,8 @@ export function rememberPlace(place: Place, now = Date.now()) {
 function parsePlace(data: unknown): Place | null {
   if (!data || typeof data !== "object") return null;
   const d = data as Record<string, unknown>;
-  const city = typeof d.city === "string" ? d.city.trim() : "";
-  const region = d.region_code || d.region;
+  const city = typeof d["city"] === "string" ? d["city"].trim() : "";
+  const region = d["region_code"] || d["region"];
   const state = ufFrom(typeof region === "string" ? region : "");
   if (d["error"] || d["success"] === false || d["country_code"] !== "BR" || !city || !state) return null;
   return { city, state };
