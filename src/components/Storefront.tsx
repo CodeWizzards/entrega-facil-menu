@@ -190,6 +190,8 @@ export function Storefront({ menu }: { menu: Menu }) {
             <FeaturedRail menu={menu} products={featured} onSelect={setSelected} />
           )}
 
+          {!q && <SuperReviews menu={menu} />}
+
           {menu.categories.map((c) => {
             const items = filtered.filter((p) => p.category === c);
             if (!items.length) return null;
