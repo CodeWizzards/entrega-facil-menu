@@ -372,9 +372,55 @@
 .pix-method { display: grid; grid-template-columns: 32px minmax(0,1fr) 22px; gap: 14px; align-items: center; padding: 18px; border: 1px solid var(--border); border-radius: 16px; background: var(--secondary); font-size: 14px; }
 @keyframes cart-arrive { from { opacity: 0; translate: 0 14px; scale: .96; } to { opacity: 1; translate: 0 0; scale: 1; } }
 @media (prefers-reduced-motion: reduce) { .cart-fab { animation: none; } }
-.location-modal { position: fixed; z-index: 60; top: 50%; left: 50%; transform: translate(-50%,-50%); width: calc(100% - 32px); max-width: 420px; max-height: 90dvh; overflow-y: auto; border: 1px solid var(--border); border-radius: 26px; background: var(--popover); box-shadow: var(--shadow-sheet); animation: fade-in .2s ease-out; }
-.location-visual { position: relative; height: 118px; overflow: hidden; }
-.location-visual img { width: 100%; height: 100%; object-fit: cover; }
-.location-visual > span { position: absolute; left: 24px; bottom: 14px; display: grid; place-items: center; width: 42px; height: 42px; border-radius: 14px; background: var(--popover); color: var(--foreground); }
-.location-detect { min-height: 44px; border: 1px solid var(--border); border-radius: 14px; padding: 10px; background: var(--secondary); font-size: 13px; }
+.location-backdrop { z-index: 59; backdrop-filter: blur(5px); }
+.location-modal { position: fixed; z-index: 60; top: 50%; left: 50%; transform: translate(-50%,-50%); width: calc(100% - 32px); max-width: 420px; max-height: 92dvh; overflow-y: auto; border: 1px solid var(--border); border-radius: 30px; background: var(--popover); box-shadow: var(--shadow-sheet); animation: location-enter .24s cubic-bezier(.2,.8,.2,1); outline: none; scrollbar-width: thin; }
+.location-toolbar { display: flex; align-items: center; justify-content: space-between; position: absolute; top: 12px; left: 12px; right: 12px; z-index: 2; }
+.location-toolbar .icon-btn { background: color-mix(in oklab, var(--background) 75%, transparent); color: var(--foreground); width: 34px; height: 34px; min-height: 34px; }
+.location-toolbar-spacer { width: 34px; }
+.location-progress { display: flex; gap: 5px; padding: 10px; border-radius: 20px; background: color-mix(in oklab, var(--background) 75%, transparent); }
+.location-progress span { height: 4px; width: 16px; border-radius: 4px; background: var(--muted-foreground); opacity: .4; }
+.location-progress .on { background: var(--foreground); opacity: 1; }
+.location-art { position: relative; height: 166px; margin-bottom: 20px; }
+.location-art > img { width: 100%; height: 100%; object-fit: cover; }
+.location-art-shade { position: absolute; inset: 0; background: linear-gradient(0deg, var(--popover), transparent 85%); }
+.location-emblem { position: absolute; bottom: -4px; left: 24px; width: 62px; height: 62px; display: grid; place-items: center; border-radius: 20px; border: 1px solid var(--border); background: var(--secondary); color: var(--primary); box-shadow: var(--shadow-soft); }
+.location-emblem > svg { width: 28px; height: 28px; }
+.location-art-result .location-emblem { border-radius: 50%; width: 76px; height: 76px; }
+.location-emblem > img { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
+.location-confirmed { position: absolute; right: -3px; bottom: -2px; display: grid; place-items: center; border-radius: 50%; width: 26px; height: 26px; border: 3px solid var(--popover); background: var(--success); color: var(--background); }
+.location-confirmed svg { width: 14px; height: 14px; }
+.location-body { padding: 0 24px 26px; }
+.location-eyebrow { font-size: 10px; font-weight: 700; color: var(--muted-foreground); margin-bottom: 10px; }
+.location-title { font-family: var(--font-sans); font-size: 25px; line-height: 1.22; font-weight: 800; text-wrap: balance; }
+.location-description { font-size: 13px; line-height: 1.6; color: var(--muted-foreground); margin-top: 10px; }
+.location-form { display: grid; gap: 16px; margin-top: 24px; }
+.location-detect { display: flex; gap: 12px; text-align: left; justify-content: flex-start; min-height: 70px; border: 1px solid var(--border); border-radius: 18px; padding: 12px; background: var(--secondary); font-size: 13px; font-weight: 700; }
+.location-detect:disabled { opacity: 1; }
+.location-detect small { display: block; margin-top: 5px; color: var(--muted-foreground); font-size: 10px; font-weight: 500; }
+.location-detect > svg { margin-left: auto; }
+.location-control-icon { display: grid; place-items: center; flex-shrink: 0; width: 36px; height: 36px; border-radius: 11px; background: color-mix(in oklab, var(--primary) 12%, transparent); color: var(--primary); }
+.location-control-icon svg { width: 19px; height: 19px; }
+.location-divider { display: flex; align-items: center; gap: 10px; font-size: 10px; color: var(--muted-foreground); }
+.location-divider span { flex: 1; height: 1px; background: var(--border); }
+.location-postal { position: relative; }
+.location-postal input { padding-right: 58px; }
+.location-postal-btn { position: absolute; right: 6px; top: 6px; height: 36px; width: 40px; border-radius: 10px; color: var(--foreground); background: var(--card); }
+.location-select { position: relative; }
+.location-select select { appearance: none; padding-right: 40px; }
+.location-select svg { position: absolute; right: 16px; top: 16px; width: 16px; height: 16px; pointer-events: none; color: var(--muted-foreground); }
+.location-primary { width: 100%; min-height: 54px; border-radius: 18px; justify-content: space-between; padding-inline: 20px; }
+.location-region, .location-destination { display: flex; align-items: center; gap: 12px; padding-block: 16px; border-block: 1px solid var(--border); }
+.location-region > svg, .location-destination > svg { flex-shrink: 0; color: var(--primary); width: 20px; height: 20px; }
+.location-region > span, .location-destination > div { flex: 1; min-width: 0; font-size: 11px; color: var(--muted-foreground); }
+.location-region strong, .location-destination strong { display: block; font-size: 16px; color: var(--foreground); margin-top: 4px; overflow-wrap: anywhere; }
+.location-edit { color: var(--primary); font-size: 12px; font-weight: 600; min-height: 40px; padding: 4px; }
+.location-store { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.location-store strong { font-size: 14px; }
+.location-store > span { font-size: 11px; font-weight: 600; color: var(--success); }
+.location-coverage { font-size: 11px; color: var(--muted-foreground); margin-top: -8px; }
+.location-feedback { font-size: 12px; line-height: 1.5; color: var(--muted-foreground); margin-top: 16px; }
+.location-step { animation: location-step .2s ease-out; }
+@keyframes location-enter { from { opacity: 0; scale: .97; translate: 0 12px; } to { opacity: 1; scale: 1; translate: 0 0; } }
+@keyframes location-step { from { opacity: .4; translate: 0 6px; } to { opacity: 1; translate: 0 0; } }
+@media (max-height: 740px) { .location-art { height: 118px; } .location-form { gap: 12px; margin-top: 18px; } .location-body { padding-bottom: 20px; } }
 .checkout-security { display: flex; align-items: center; gap: 10px; padding: 14px 0; border-bottom: 1px solid var(--border); color: var(--muted-foreground); }
