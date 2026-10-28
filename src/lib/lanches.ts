@@ -1,4 +1,4 @@
-import logoAsset from "@/assets/casa-brasa-logo.png.asset.json";
+import logoAsset from "@/assets/logo-lanches.png.asset.json";
 import cover from "@/assets/cover-lanches.jpg";
 import imgBebidas from "@/assets/menu/lanches-bebidas.jpg";
 import imgBurgers from "@/assets/menu/lanches-burgers.jpg";
