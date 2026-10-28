@@ -707,70 +707,138 @@
 }
 
 /* Localização ao vivo (demonstração de teste) */
+/* Selo de modo de teste — chip discreto no padrão iOS */
 .test-badge {
-  display: inline-flex; align-items: center; align-self: center;
-  padding: 4px 12px; border-radius: 999px;
-  font-size: 10px; font-weight: 800; letter-spacing: .08em;
-  color: var(--primary-foreground); background: var(--primary);
-  box-shadow: 0 0 0 1px color-mix(in oklab, var(--primary) 60%, transparent), 0 4px 14px color-mix(in oklab, var(--primary) 40%, transparent);
+  display: inline-flex; align-items: center; align-self: center; gap: 7px;
+  padding: 6px 13px 6px 11px; border-radius: 999px;
+  font-size: 10.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+  color: color-mix(in oklab, var(--primary) 78%, var(--foreground));
+  background: color-mix(in oklab, var(--primary) 11%, transparent);
+  border: 1px solid color-mix(in oklab, var(--primary) 24%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in oklab, var(--foreground) 6%, transparent);
 }
+.test-badge i {
+  width: 6px; height: 6px; border-radius: 999px; background: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 16%, transparent);
+  animation: test-badge-blink 1.9s ease-in-out infinite;
+}
+@keyframes test-badge-blink { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+
 .tracking-live-cta {
-  display: flex; flex-direction: column; gap: 12px;
+  display: flex; flex-direction: column; gap: 13px;
   margin-top: 16px; padding: 16px;
-  border: 1px solid color-mix(in oklab, var(--primary) 35%, var(--border));
-  border-radius: 24px;
+  border: 1px solid var(--border);
+  border-radius: 26px;
   background:
-    radial-gradient(120% 140% at 0% 0%, color-mix(in oklab, var(--primary) 14%, transparent), transparent 55%),
+    radial-gradient(120% 130% at 0% 0%, color-mix(in oklab, var(--primary) 10%, transparent), transparent 58%),
     var(--card);
-  box-shadow: var(--shadow-soft), inset 0 1px 0 color-mix(in oklab, var(--foreground) 6%, transparent);
+  box-shadow: var(--shadow-soft), inset 0 1px 0 color-mix(in oklab, var(--foreground) 5%, transparent);
 }
 .tracking-live-head { display: flex; align-items: center; gap: 12px; }
 .tracking-live-icon {
   display: grid; place-items: center; flex-shrink: 0;
-  width: 42px; height: 42px; border-radius: 14px;
+  width: 44px; height: 44px; border-radius: 15px;
   color: var(--primary-foreground);
-  background: linear-gradient(160deg, color-mix(in oklab, var(--primary) 85%, var(--gold)), var(--primary));
-  box-shadow: 0 8px 18px -6px color-mix(in oklab, var(--primary) 60%, transparent), inset 0 1px 0 color-mix(in oklab, var(--primary-foreground) 30%, transparent);
+  background: linear-gradient(160deg, color-mix(in oklab, var(--primary) 82%, var(--gold)), var(--primary));
+  box-shadow: 0 10px 20px -8px color-mix(in oklab, var(--primary) 62%, transparent), inset 0 1px 0 color-mix(in oklab, var(--primary-foreground) 32%, transparent);
 }
 .tracking-live-icon svg { width: 20px; height: 20px; }
 .tracking-live-cta-title { margin: 0; font-size: 15px; font-weight: 800; letter-spacing: -.01em; }
 .tracking-live-cta-sub { margin: 1px 0 0; font-size: 12px; color: var(--muted-foreground); }
+/* Pílula de preço: número em destaque, moeda discreta (padrão App Store) */
 .tracking-live-price {
-  flex-shrink: 0; padding: 6px 12px; border-radius: 999px;
-  font-size: 13px; font-weight: 800;
-  color: var(--gold);
-  background: color-mix(in oklab, var(--gold) 12%, transparent);
-  border: 1px solid color-mix(in oklab, var(--gold) 35%, transparent);
+  flex-shrink: 0; display: inline-flex; align-items: baseline; gap: 3px;
+  padding: 7px 12px; border-radius: 14px;
+  font-size: 16px; font-weight: 800; letter-spacing: -.01em;
+  font-variant-numeric: tabular-nums;
+  color: var(--foreground);
+  background: color-mix(in oklab, var(--foreground) 8%, transparent);
+  border: 1px solid color-mix(in oklab, var(--foreground) 9%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in oklab, var(--foreground) 7%, transparent);
 }
+.tracking-live-price span { font-size: 11px; font-weight: 600; letter-spacing: .02em; color: var(--muted-foreground); }
 .tracking-live-disclaimer { margin: 0; text-align: center; font-size: 11px; color: var(--muted-foreground); }
-.tracking-live { margin-top: 14px; text-align: center; }
+
+/* Mapa da localização ao vivo (rota simulada) */
+.tracking-live { margin-top: 16px; }
 .tracking-live-map {
-  position: relative; display: grid; place-items: center;
-  height: 140px; border-radius: 20px; overflow: hidden;
+  position: relative; overflow: hidden;
+  height: 194px; border-radius: 26px;
   border: 1px solid var(--border);
   background:
-    radial-gradient(circle at 30% 40%, color-mix(in oklab, var(--primary) 14%, transparent), transparent 55%),
-    repeating-linear-gradient(0deg, transparent 0 27px, color-mix(in oklab, var(--foreground) 6%, transparent) 27px 28px),
-    repeating-linear-gradient(90deg, transparent 0 27px, color-mix(in oklab, var(--foreground) 6%, transparent) 27px 28px),
-    var(--card);
+    radial-gradient(90% 70% at 16% 90%, color-mix(in oklab, var(--primary) 16%, transparent), transparent 62%),
+    radial-gradient(70% 60% at 90% 6%, color-mix(in oklab, var(--gold) 11%, transparent), transparent 60%),
+    color-mix(in oklab, var(--foreground) 4%, var(--card));
+  box-shadow: var(--shadow-soft), inset 0 1px 0 color-mix(in oklab, var(--foreground) 6%, transparent);
 }
-.tracking-live-pin {
-  position: relative; z-index: 1; display: grid; place-items: center;
-  width: 44px; height: 44px; border-radius: 999px;
-  color: var(--primary-foreground); background: var(--primary);
-  box-shadow: 0 8px 20px color-mix(in oklab, var(--primary) 45%, transparent);
-  animation: tracking-pin-bob 1.6s ease-in-out infinite;
+.tracking-live-svg { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+.map-blocks rect { fill: color-mix(in oklab, var(--foreground) 5%, transparent); }
+.map-road-major { stroke: color-mix(in oklab, var(--foreground) 12%, transparent); stroke-width: 9; stroke-linecap: round; }
+.map-road-minor { stroke: color-mix(in oklab, var(--foreground) 7%, transparent); stroke-width: 5; stroke-linecap: round; }
+.map-route {
+  fill: none; stroke: color-mix(in oklab, var(--primary) 88%, var(--gold));
+  stroke-width: 5; stroke-linecap: round; stroke-linejoin: round;
+  filter: drop-shadow(0 0 7px color-mix(in oklab, var(--primary) 45%, transparent));
 }
-.tracking-live-pin svg { width: 20px; height: 20px; }
-.tracking-live-pulse {
-  position: absolute; width: 44px; height: 44px; border-radius: 999px;
-  border: 2px solid var(--primary);
-  animation: tracking-live-pulse 1.6s ease-out infinite;
+.map-route-flow {
+  fill: none; stroke: color-mix(in oklab, var(--primary-foreground) 80%, var(--gold));
+  stroke-width: 2.4; stroke-linecap: round; stroke-dasharray: 2 15;
+  animation: route-flow 1.7s linear infinite;
 }
-.tracking-live-title { margin: 10px 0 2px; font-size: 14px; font-weight: 700; }
-.tracking-live-hint { margin: 0; font-size: 12px; color: var(--muted-foreground); }
-@keyframes tracking-pin-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
-@keyframes tracking-live-pulse { 0% { transform: scale(1); opacity: .8; } 100% { transform: scale(2.6); opacity: 0; } }
+@keyframes route-flow { to { stroke-dashoffset: -17; } }
+.map-dest-halo { fill: color-mix(in oklab, var(--gold) 20%, transparent); }
+.map-dest-dot { fill: var(--gold); }
+.map-dest-glyph { fill: var(--background); }
+.map-courier-halo {
+  fill: color-mix(in oklab, var(--primary) 26%, transparent);
+  transform-box: fill-box; transform-origin: center;
+  animation: courier-halo 1.9s ease-out infinite;
+}
+@keyframes courier-halo { 0% { transform: scale(.55); opacity: .9; } 100% { transform: scale(1.35); opacity: 0; } }
+.map-courier-dot { fill: var(--primary); stroke: color-mix(in oklab, var(--foreground) 26%, transparent); stroke-width: 1.6; }
+.map-courier-glyph { fill: var(--primary-foreground); }
+
+.tracking-live-chip {
+  position: absolute; z-index: 2; top: 12px;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 11px; border-radius: 999px;
+  font-size: 11px; font-weight: 700; letter-spacing: .02em;
+  color: var(--foreground);
+  background: color-mix(in oklab, var(--background) 60%, transparent);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  box-shadow: 0 6px 16px -8px oklch(0 0 0 / 65%);
+}
+.tracking-live-chip.is-live { left: 12px; }
+.tracking-live-chip.is-demo { right: 12px; color: var(--muted-foreground); font-weight: 600; }
+.tracking-live-chip.is-live i {
+  width: 7px; height: 7px; border-radius: 999px;
+  background: var(--success); box-shadow: 0 0 8px var(--success);
+  animation: tracking-status-pulse 1.6s ease-in-out infinite;
+}
+
+.tracking-live-rows {
+  margin-top: 12px; border-radius: 22px; overflow: hidden;
+  border: 1px solid var(--border); background: var(--card);
+  box-shadow: var(--shadow-soft);
+}
+.tracking-live-row { display: flex; align-items: center; gap: 12px; padding: 13px 14px; }
+.tracking-live-row + .tracking-live-row { border-top: 1px solid var(--border); }
+.tracking-live-row.is-plain { justify-content: space-between; padding-block: 11px; }
+.tracking-live-avatar {
+  display: grid; place-items: center; flex-shrink: 0;
+  width: 38px; height: 38px; border-radius: 13px;
+  color: var(--primary-foreground);
+  background: linear-gradient(160deg, color-mix(in oklab, var(--primary) 82%, var(--gold)), var(--primary));
+  box-shadow: 0 8px 16px -8px color-mix(in oklab, var(--primary) 60%, transparent), inset 0 1px 0 color-mix(in oklab, var(--primary-foreground) 30%, transparent);
+}
+.tracking-live-avatar svg { width: 19px; height: 19px; }
+.tracking-live-row-title { margin: 0; font-size: 14px; font-weight: 700; }
+.tracking-live-row-sub { margin: 1px 0 0; font-size: 11.5px; color: var(--muted-foreground); }
+.tracking-live-eta { flex-shrink: 0; font-size: 12.5px; font-weight: 800; color: var(--gold); font-variant-numeric: tabular-nums; }
+.tracking-live-row-label { font-size: 12.5px; color: var(--muted-foreground); }
+.tracking-live-row-value { font-size: 12.5px; font-weight: 700; }
 .reviews-close {
   display: grid; place-items: center;
   width: 32px; height: 32px; border-radius: 999px;
