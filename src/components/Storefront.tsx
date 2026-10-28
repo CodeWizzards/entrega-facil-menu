@@ -35,6 +35,7 @@ export function Storefront({ menu }: { menu: Menu }) {
 
   const subtotal = cart.reduce((s, i) => s + lineTotal(i) * i.qty, 0);
   const count = cart.reduce((s, i) => s + i.qty, 0);
+  const featured = useMemo(() => menu.products.filter((p) => p.tag), [menu.products]);
 
   const add = (product: Product, qty: number, note: string, addons: Addon[]) =>
     setCart((c) => [...c, { key: crypto.randomUUID(), product, qty, note, addons }]);
@@ -123,6 +124,33 @@ export function Storefront({ menu }: { menu: Menu }) {
         </nav>
 
         <main className="px-3">
+          {!q && featured.length > 0 && (
+            <section className="pt-5">
+              <h2 className="px-1 text-sm font-bold text-muted-foreground">Destaques</h2>
+              <div className="mt-2 flex snap-x gap-3 overflow-x-auto rounded-2xl bg-card p-3">
+                {featured.map((p) => (
+                  <button
+                    key={p.id}
+                    onClick={() => setSelected(p)}
+                    className="featured-card"
+                  >
+                    <span className="product-thumb relative block h-28 w-full">
+                      <img
+                        src={menu.categoryImg[p.category]}
+                        alt={p.name}
+                        loading="lazy"
+                        className="h-full w-full object-cover"
+                      />
+                      <span className="thumb-add">+</span>
+                    </span>
+                    <span className="mt-1.5 block truncate text-xs font-semibold">{p.name}</span>
+                    <span className="block text-xs font-bold">{brl(p.price)}</span>
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
+
           {menu.categories.map((c) => {
             const items = filtered.filter((p) => p.category === c);
             if (!items.length) return null;
@@ -138,7 +166,15 @@ export function Storefront({ menu }: { menu: Menu }) {
                         <p className="line-clamp-2 text-sm text-muted-foreground">{p.desc}</p>
                         <p className="mt-2 font-bold">{brl(p.price)}</p>
                       </div>
-                      <span className="add-dot">+</span>
+                      <span className="product-thumb">
+                        <img
+                          src={menu.categoryImg[p.category]}
+                          alt={p.name}
+                          loading="lazy"
+                          className="h-full w-full object-cover"
+                        />
+                        <span className="thumb-add">+</span>
+                      </span>
                     </button>
                   ))}
                 </div>

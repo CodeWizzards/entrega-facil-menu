@@ -1,4 +1,10 @@
 import cover from "@/assets/cover-sushi.jpg";
+import imgBebidas from "@/assets/menu/sushi-bebidas.jpg";
+import imgCombos from "@/assets/menu/sushi-combos.jpg";
+import imgEnrolados from "@/assets/menu/sushi-enrolados.jpg";
+import imgHot from "@/assets/menu/sushi-hot.jpg";
+import imgSashimi from "@/assets/menu/sushi-sashimi.jpg";
+import imgTemaki from "@/assets/menu/sushi-temaki.jpg";
 import { WHATSAPP, type Addon, type Menu, type Product } from "@/lib/menu";
 
 const ACOMPANHAMENTOS: Addon[] = [
@@ -266,6 +272,14 @@ export const SUSHI: Menu = {
     "Sashimi & Niguiri",
     "Bebidas",
   ],
+  categoryImg: {
+    Combos: imgCombos,
+    Enrolados: imgEnrolados,
+    "Hot Rolls": imgHot,
+    Temaki: imgTemaki,
+    "Sashimi & Niguiri": imgSashimi,
+    Bebidas: imgBebidas,
+  },
   products,
   cover,
   coverAlt: "Combinado de sushi com salmão, hot rolls e temaki",
