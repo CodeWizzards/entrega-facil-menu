@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
-import { ArrowLeft, ArrowRight, MapPin, LocateFixed, LoaderCircle, Check, X, ChevronDown } from "lucide-react";
+import { ArrowLeft, ArrowRight, MapPin, LocateFixed, LoaderCircle, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { lookupPostal } from "@/lib/postal";
 import { UFS, placeFromCoords } from "@/lib/place";
@@ -148,7 +148,7 @@ export function LocationWelcome({ menu }: { menu: Menu }) {
         <div className={`location-art ${step === "result" ? "location-art-result" : ""}`}>
           <img src={menu.cover} alt={menu.coverAlt} width={420} height={200} />
           <div className="location-art-shade" />
-          <div className="location-emblem">{step === "result" ? <><img src={menu.logoImg} alt="" /><span className="location-confirmed"><Check /></span></> : <MapPin />}</div>
+          <div className="location-emblem">{step === "result" ? <><img src={menu.logoImg} alt="" /><img src={verifiedBadge.url} alt="Loja verificada" className="location-verified" /></> : <MapPin />}</div>
         </div>
         <div className="location-body">
           <p className="location-eyebrow">{step === "result" ? "LOCALIZAÇÃO SELECIONADA" : step === "ip" || step === "unavailable" ? "LOCALIZAÇÃO AUTOMÁTICA" : "SEU DELIVERY COMEÇA AQUI"}</p>
