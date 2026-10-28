@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { Bike, Check, ChefHat, CircleDashed, Home, LoaderCircle, MapPin, MessageCircle, ReceiptText, SendHorizontal, Store } from "lucide-react";
+import { Bike, Check, ChefHat, CircleDashed, Home, LoaderCircle, MapPin, MessageCircle, ReceiptText, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { InvoiceSheet } from "@/components/InvoiceSheet";
 import { brl, type Menu } from "@/lib/menu";
 import type { PixPayment } from "@/lib/pix";
 import { deliveryAddress, type DeliveryDetails } from "@/lib/checkout";
+import { buildInvoice, type InvoiceDoc, type InvoiceLine } from "@/lib/invoice";
 
 type Step = { label: string; hint: string; icon: typeof Check; state: "done" | "current" | "next" };
 
@@ -21,15 +23,17 @@ const DEST = { x: 306, y: 133 };
  * A "localização ao vivo" é uma demonstração de teste: a taxa é simulada
  * no navegador, sem cobrança real, e o mapa mostra uma rota fictícia.
  */
-export function OrderTracking({ menu, payment, form, total, sentToStore, onSend, onClose }: {
+export function OrderTracking({ menu, payment, form, total, lines, onClose }: {
   menu: Menu;
   payment: PixPayment;
   form: DeliveryDetails;
   total: number;
-  sentToStore: boolean;
-  onSend: () => void;
+  lines: InvoiceLine[];
   onClose: () => void;
 }) {
+  const [doc, setDoc] = useState<InvoiceDoc | null>(null);
+  const [showDoc, setShowDoc] = useState(false);
+  const [invoiceError, setInvoiceError] = useState("");
   const [live, setLive] = useState<"idle" | "paying" | "on">("idle");
   const liveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -41,11 +45,23 @@ export function OrderTracking({ menu, payment, form, total, sentToStore, onSend,
     liveTimer.current = setTimeout(() => setLive("on"), 1800);
   }
 
+  function openInvoice() {
+    if (doc) { setShowDoc(true); return; }
+    try {
+      // O documento só sai se os itens baterem com o valor realmente pago.
+      setDoc(buildInvoice({ menu, payment, form, lines }));
+      setInvoiceError("");
+      setShowDoc(true);
+    } catch (error) {
+      setInvoiceError(error instanceof Error ? error.message : "Não foi possível gerar o documento.");
+    }
+  }
+
   const liveFeeText = brl(LIVE_FEE).replace("R$", "").trim();
 
   const steps: Step[] = [
     { label: "Pagamento confirmado", hint: `${payment.method === "CARD" ? "Cartão" : "Pix"} aprovado · ${brl(payment.amount)}`, icon: Check, state: "done" },
-    { label: "Pedido enviado à loja", hint: sentToStore ? "A loja recebeu seu pedido" : "Toque no botão abaixo para enviar", icon: Store, state: sentToStore ? "done" : "current" },
+    { label: "Pedido enviado à loja", hint: "Aguardando a confirmação da loja", icon: Store, state: "current" },
     { label: "Em preparo", hint: "A loja confirma pelo WhatsApp", icon: ChefHat, state: "next" },
     { label: "Saiu para entrega", hint: "A loja avisa quando sair", icon: Bike, state: "next" },
     { label: "Entregue", hint: "Bom apetite!", icon: Home, state: "next" },
@@ -175,15 +191,20 @@ export function OrderTracking({ menu, payment, form, total, sentToStore, onSend,
         <p className="mt-1 text-sm font-semibold">Total pago: <span className="text-primary">{brl(total)}</span></p>
       </div>
 
-      {!sentToStore && payment.whatsappMessage && (
-        <Button variant="storefront" size="storefront" className="btn-primary mt-4 w-full gap-2" onClick={onSend}>
-          Enviar pedido à loja <SendHorizontal className="h-4 w-4" strokeWidth={2.4} />
+      <div className="tracking-invoice">
+        <Button variant="storefront" size="storefront" className="btn-success w-full" onClick={openInvoice}>
+          <ReceiptText className="h-[18px] w-[18px]" strokeWidth={2.3} />
+          {doc ? "Ver nota fiscal" : "Emitir nota fiscal"}
         </Button>
-      )}
-      {sentToStore && (
-        <p className="tracking-note" role="status"><MessageCircle className="h-4 w-4 shrink-0" /> A loja acompanha cada etapa e te atualiza pelo seu WhatsApp.</p>
-      )}
+        {invoiceError
+          ? <p className="tracking-invoice-error" role="alert">{invoiceError}</p>
+          : <p className="tracking-invoice-note">Documento do pedido pago · demonstrativo, sem validade fiscal</p>}
+      </div>
+
+      <p className="tracking-note" role="status"><MessageCircle className="h-4 w-4 shrink-0" /> A loja acompanha cada etapa e te atualiza pelo seu WhatsApp.</p>
       <Button variant="storefront" size="storefront" className="mt-3 w-full rounded-full border border-border px-4 py-3 text-sm font-semibold" onClick={onClose}>Voltar ao cardápio</Button>
+
+      {doc && showDoc && <InvoiceSheet menu={menu} doc={doc} onClose={() => setShowDoc(false)} />}
     </div>
   );
 }
