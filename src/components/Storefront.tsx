@@ -12,6 +12,7 @@ import {
   ArrowRight,
   MapPin,
   ShieldCheck,
+  Star,
   Trash2,
   X,
 } from "lucide-react";
@@ -456,7 +457,7 @@ function CartSheet({
       }),
       "",
       `Subtotal: ${brl(subtotal)}`,
-      `Entrega: ${brl(fee)}`,
+      `Entrega: ${fee === 0 ? "Grátis" : brl(fee)}`,
       `*Total: ${brl(total)}*`,
       "",
       `Nome: ${form.name}`,
@@ -539,7 +540,7 @@ function CartSheet({
       }}>
       <div className="delivery-summary mt-5">
         <span className="delivery-icon"><Bike /></span>
-        <div className="min-w-0"><p className="text-sm font-semibold">Entrega no seu endereço</p><p className="mt-1 text-xs text-muted-foreground">{menu.store.eta} · {brl(fee)}</p></div>
+        <div className="min-w-0"><p className="text-sm font-semibold">Entrega no seu endereço</p><p className="mt-1 text-xs text-muted-foreground">{menu.store.eta} · {fee === 0 ? "Entrega grátis" : brl(fee)}</p></div>
         <Check className="h-4 w-4 shrink-0 text-success" />
       </div>
       <section className="checkout-section">
