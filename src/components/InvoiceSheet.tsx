@@ -1,12 +1,15 @@
 import { useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
-import { Check, Copy, Printer, X } from "lucide-react";
+import { Check, Copy, MapPin, Printer, ReceiptText, ShoppingBag, User, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DEMO_LINE, invoiceText, money, type InvoiceDoc } from "@/lib/invoice";
 import type { Menu } from "@/lib/menu";
 
 /**
  * Documento do pedido pago, exibido como uma folha de nota fiscal.
+ * O visual segue a mesma linguagem da sacola: cartão de ícone no topo,
+ * linhas de item com miniatura e total em destaque.
+ *
  * É demonstrativo: a NFS-e de verdade exige CNPJ registrado e emissão
  * na prefeitura (ou um emissor fiscal), então nada aqui simula autorização
  * da secretaria de fazenda.
@@ -34,9 +37,12 @@ export function InvoiceSheet({ menu, doc, onClose }: { menu: Menu; doc: InvoiceD
           <div className="sheet-grabber" />
 
           <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-            <div className="min-w-0">
-              <h3 className="font-display text-2xl font-semibold">Nota fiscal</h3>
-              <p className="invoice-kicker">{DEMO_LINE}</p>
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="invoice-launch-icon" aria-hidden="true"><ReceiptText strokeWidth={2.2} /></span>
+              <div className="min-w-0">
+                <h3 className="font-display text-2xl font-semibold">Nota fiscal</h3>
+                <p className="invoice-kicker">{DEMO_LINE}</p>
+              </div>
             </div>
             <Button variant="storefront" size="storefront" aria-label="Fechar" onClick={onClose} className="icon-btn">
               <X className="h-5 w-5" />
@@ -61,26 +67,35 @@ export function InvoiceSheet({ menu, doc, onClose }: { menu: Menu; doc: InvoiceD
             </dl>
 
             <section className="invoice-block">
-              <p className="invoice-block-title">Comprador</p>
+              <p className="invoice-block-title">
+                <span className="invoice-chip" aria-hidden="true"><User /></span> Comprador
+              </p>
               <p className="invoice-block-line">{doc.buyer.name}</p>
               <p className="invoice-block-sub">CPF {doc.buyer.cpf} · {doc.buyer.email}</p>
               <p className="invoice-block-sub">WhatsApp {doc.buyer.phone}</p>
             </section>
 
             <section className="invoice-block">
-              <p className="invoice-block-title">Entrega</p>
+              <p className="invoice-block-title">
+                <span className="invoice-chip" aria-hidden="true"><MapPin /></span> Entrega
+              </p>
               <p className="invoice-block-line">{doc.address}</p>
             </section>
 
             <section className="invoice-block">
-              <p className="invoice-block-title">Itens</p>
+              <p className="invoice-block-title">
+                <span className="invoice-chip" aria-hidden="true"><ShoppingBag /></span> Itens
+              </p>
               <ul className="invoice-lines">
                 {doc.lines.map((line, index) => (
                   <li key={`${line.name}-${index}`} className="invoice-line">
-                    <div className="min-w-0">
-                      <p className="invoice-line-name">{line.qty}x {line.name}</p>
-                      {line.addons.length > 0 && <p className="invoice-line-sub">{line.addons.join(", ")}</p>}
-                      {line.note && <p className="invoice-line-sub">Obs: {line.note}</p>}
+                    <div className="flex min-w-0 items-center gap-3">
+                      {line.image && <img src={line.image} alt="" className="invoice-line-img" />}
+                      <div className="min-w-0">
+                        <p className="invoice-line-name">{line.qty}x {line.name}</p>
+                        {line.addons.length > 0 && <p className="invoice-line-sub">{line.addons.join(", ")}</p>}
+                        {line.note && <p className="invoice-line-sub">Obs: {line.note}</p>}
+                      </div>
                     </div>
                     <div className="invoice-line-values">
                       <p className="invoice-line-total">{money(line.unitCents * line.qty)}</p>

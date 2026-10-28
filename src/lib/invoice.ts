@@ -10,6 +10,8 @@ export type InvoiceLine = {
   unitCents: number;
   addons: string[];
   note: string;
+  /** miniatura da categoria, quando disponível — usada na folha do documento */
+  image?: string;
 };
 
 export type InvoiceDoc = {
