@@ -27,6 +27,10 @@ import { ProductBadge } from "@/components/ProductBadge";
 import { LocationWelcome } from "@/components/LocationWelcome";
 import { lookupPostal } from "@/lib/postal";
 import { brl, type Addon, type Menu, type Product } from "@/lib/menu";
+import { useServerFn } from "@tanstack/react-start";
+import { createPix, checkPix } from "@/lib/pix.functions";
+import type { PixPayment } from "@/lib/pix";
+import { PixPaymentPanel } from "@/components/PixPaymentPanel";
 
 type Item = {
   key: string;
@@ -47,6 +51,17 @@ export function Storefront({ menu }: { menu: Menu }) {
   const [cart, setCart] = useState<Item[]>([]);
   const [selected, setSelected] = useState<Product | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
+  const [payment, setPayment] = useState<PixPayment | null>(null);
+  const [pixAccess, setPixAccess] = useState("");
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(sessionStorage.getItem(`pix:${menu.to}`) || "null");
+      if (stored && typeof stored.access === "string" && /^[a-f0-9]{64}$/.test(stored.access)) {
+        setPixAccess(stored.access);
+        if (stored.payment && typeof stored.payment.code === "string" && typeof stored.payment.amount === "number") setPayment({ ...stored.payment, status: "PENDING" });
+      }
+    } catch { /* Storage is optional; checkout remains available. */ }
+  }, [menu.to]);
   const searchRef = useRef<HTMLInputElement>(null);
 
   const q = search.toLowerCase().trim();
@@ -250,6 +265,10 @@ export function Storefront({ menu }: { menu: Menu }) {
           setCart={setCart}
           subtotal={subtotal}
           onClose={() => setCartOpen(false)}
+          payment={payment}
+          setPayment={setPayment}
+          pixAccess={pixAccess}
+          setPixAccess={setPixAccess}
         />
       )}
     </div>
@@ -385,14 +404,36 @@ function CartSheet({
   setCart,
   subtotal,
   onClose,
+  payment,
+  setPayment,
+  pixAccess,
+  setPixAccess,
 }: {
   menu: Menu;
   cart: Item[];
   setCart: React.Dispatch<React.SetStateAction<Item[]>>;
   subtotal: number;
   onClose: () => void;
+  payment: PixPayment | null;
+  setPayment: React.Dispatch<React.SetStateAction<PixPayment | null>>;
+  pixAccess: string;
+  setPixAccess: React.Dispatch<React.SetStateAction<string>>;
 }) {
   const [form, setForm] = useState<DeliveryDetails>(emptyDelivery);
+  const [processing, setProcessing] = useState(false);
+  const [paymentError, setPaymentError] = useState("");
+  const createPayment = useServerFn(createPix);
+  const checkPayment = useServerFn(checkPix);
+  const savePayment = (access: string, value?: PixPayment) => {
+    try { sessionStorage.setItem(`pix:${menu.to}`, JSON.stringify({ access, payment: value })); } catch { /* No persistent browser storage. */ }
+  };
+  const verifyPayment = async () => {
+    if (processing || !pixAccess) return;
+    setProcessing(true); setPaymentError("");
+    try { const result = await checkPayment({ data: { access: pixAccess } }); setPayment(result); savePayment(pixAccess, result); }
+    catch (error) { setPaymentError(error instanceof Error ? error.message : "Não foi possível consultar o Pix."); }
+    finally { setProcessing(false); }
+  };
   const [submitted, setSubmitted] = useState(false);
   const [postalStatus, setPostalStatus] = useState("");
   const [secureConnection, setSecureConnection] = useState(false);
@@ -445,16 +486,17 @@ function CartSheet({
       `Telefone: ${form.phone}`,
       `Endereço: ${deliveryAddress(form)}`,
       form.reference ? `Referência: ${form.reference}` : "",
-      `Pagamento: ${PAYMENT_METHOD} — aguardando pagamento`,
+       `Pagamento: ${PAYMENT_METHOD} — ${payment?.status === "PAID" ? `confirmado · Pedido ${payment.orderId}` : "aguardando pagamento"}`,
     ];
     return lines.join("\n");
-  }, [cart, form, subtotal, fee, total, menu.store.name]);
+   }, [cart, form, subtotal, fee, total, menu.store.name, payment]);
 
   const field = (key: keyof DeliveryDetails, label: string, autoComplete?: string, optional = false) => (
     <label className="checkout-field">
       <span>{label}{optional && <span className="text-muted-foreground"> · opcional</span>}</span>
       <input className="field" aria-label={label} value={form[key]} autoComplete={autoComplete} required={!optional}
-        inputMode={key === "cep" || key === "phone" ? "numeric" : undefined}
+        inputMode={key === "cep" || key === "phone" || key === "cpf" ? "numeric" : key === "email" ? "email" : undefined}
+        type={key === "email" ? "email" : "text"}
         maxLength={key === "state" ? 2 : undefined}
         aria-invalid={submitted && Boolean(errors[key])}
         onChange={e => setForm(prev => ({ ...prev, [key]: key === "state" ? e.target.value.toUpperCase() : e.target.value }))} />
@@ -471,7 +513,7 @@ function CartSheet({
         </Button>
       </div>
 
-      {cart.length === 0 && (
+      {cart.length === 0 && !payment && (
         <div className="py-10 text-center">
           <ShoppingBag className="mx-auto h-10 w-10 text-muted-foreground/40" />
           <p className="mt-3 text-sm text-muted-foreground">
@@ -505,7 +547,8 @@ function CartSheet({
               <Button variant="storefront" size="storefront"
                 aria-label="Remover item"
                 className="icon-btn h-8 w-8 text-destructive"
-                onClick={() => setCart((c) => c.filter((x) => x.key !== i.key))}
+                 disabled={processing || Boolean(payment) || Boolean(pixAccess)}
+                 onClick={() => setCart((c) => c.filter((x) => x.key !== i.key))}
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -514,10 +557,20 @@ function CartSheet({
         ))}
       </ul>
 
-      {cart.length > 0 && <form noValidate onSubmit={e => {
+       {payment && <PixPaymentPanel payment={payment} checking={processing} error={paymentError} onCheck={verifyPayment} />}
+       {!payment && pixAccess && <div className="checkout-section"><p className="text-sm text-muted-foreground">Já existe uma tentativa de Pix neste navegador. Consulte antes de gerar outra cobrança.</p><Button variant="storefront" size="storefront" disabled={processing} onClick={verifyPayment} className="btn-primary mt-3 w-full">Consultar meu Pix</Button>{paymentError && <p role="alert" className="mt-3 text-xs text-destructive">{paymentError}</p>}</div>}
+       {payment?.status === "PAID" && cart.length > 0 && <Button variant="storefront" size="storefront" className="btn-primary mt-5 w-full" onClick={() => window.open(`https://wa.me/${menu.store.whatsapp}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer")}>Enviar pedido à loja <ArrowRight /></Button>}
+       {cart.length > 0 && !payment && !pixAccess && <form noValidate onSubmit={async e => {
         e.preventDefault(); setSubmitted(true);
-        if (!valid) return;
-        window.open(`https://wa.me/${menu.store.whatsapp}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
+         if (!valid || processing) return;
+         setProcessing(true); setPaymentError("");
+         const access = Array.from(crypto.getRandomValues(new Uint8Array(32)), n => n.toString(16).padStart(2, "0")).join("");
+         setPixAccess(access); savePayment(access);
+         try {
+           const result = await createPayment({ data: { access, menuPath: menu.to, form, items: cart.map(i => ({ productId: i.product.id, qty: i.qty, addonIds: i.addons.map(a => a.id), note: i.note })) } });
+           setPayment(result); savePayment(access, result);
+         } catch (error) { setPaymentError(error instanceof Error ? error.message : "Não foi possível gerar o Pix."); }
+         finally { setProcessing(false); }
       }}>
       <div className="delivery-summary mt-5">
         <span className="delivery-icon"><Bike /></span>
@@ -526,7 +579,7 @@ function CartSheet({
       </div>
       <section className="checkout-section">
         <h4><ReceiptText /> Seus dados</h4>
-        <div className="grid gap-3">{field("name", "Nome completo", "name")}{field("phone", "WhatsApp com DDD", "tel")}</div>
+         <div className="grid gap-3">{field("name", "Nome completo", "name")}{field("phone", "WhatsApp com DDD", "tel")}{field("email", "E-mail", "email")}{field("cpf", "CPF")}</div>
       </section>
       <section className="checkout-section">
         <h4><MapPin /> Endereço de entrega</h4>
@@ -545,7 +598,7 @@ function CartSheet({
         <div className="pix-method"><img src={pixLogo.url} alt="Pix" width={32} height={32} /><div className="min-w-0"><p className="font-semibold">Pix</p><p className="mt-1 text-xs text-muted-foreground">Pagamento ainda não realizado</p></div><span className="check-dot check-dot-on"><Check /></span></div>
         <div className="checkout-security mt-4">
           <ShieldCheck className="h-5 w-5 shrink-0" />
-          <div><p className="text-xs font-semibold">{secureConnection ? "Conexão criptografada · HTTPS" : "Ambiente de teste"}</p><p className="mt-1 text-xs text-muted-foreground">Mercado Pago · integração de pagamento pendente</p></div>
+           <div><p className="text-xs font-semibold">{secureConnection ? "Conexão criptografada · HTTPS" : "Ambiente de teste"}</p><p className="mt-1 text-xs text-muted-foreground">Pix processado pela Firebot</p></div>
         </div>
       </section>
 
@@ -572,7 +625,7 @@ function CartSheet({
 
       {submitted && Object.keys(errors).length > 0 && <p role="alert" className="mt-4 text-xs text-destructive">Confira os campos destacados para continuar.</p>}
       <div className="sheet-actions mt-5">
-        <Button type="submit" variant="storefront" size="storefront" disabled={belowMin} className="btn-primary w-full gap-2">Enviar pedido pelo WhatsApp <ArrowRight /></Button>
+         <Button type="submit" variant="storefront" size="storefront" disabled={belowMin || processing} className="btn-primary w-full gap-2">{processing ? "Gerando Pix…" : `Gerar Pix · ${brl(total)}`} <ArrowRight /></Button>
       </div>
       </form>}
 
