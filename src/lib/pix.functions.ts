@@ -36,7 +36,7 @@ export const createPix = createServerFn({ method: "POST" })
     const { data: existing, error: readError } = await supabaseAdmin.from("pix_orders").select("id, amount_cents, pix_code, status").eq("access_hash", accessHash).maybeSingle();
     if (readError) throw new Error("Não foi possível consultar seu pedido.");
     if (existing) {
-      if (!existing.pix_code) throw new Error("A cobrança deste pedido está em conferência. Não gere outra cobrança; consulte a loja.");
+      if (!existing.pix_code) throw new Error("Esta tentativa não retornou um código Pix. Você pode iniciar uma nova tentativa manualmente.");
       return { orderId: existing.id, amount: existing.amount_cents / 100, code: existing.pix_code, status: existing.status };
     }
     // An unguessable capability authorizes only this guest order, never lists or arbitrary IDs.
@@ -59,7 +59,7 @@ export const createPix = createServerFn({ method: "POST" })
       return { orderId: order.id, amount: result.amount, code: result.pixCopiaECola, status: "PENDING" };
     } catch {
       await supabaseAdmin.from("pix_orders").update({ status: "REVIEW" }).eq("id", order.id);
-      throw new Error("Não foi possível concluir a cobrança. Este pedido ficou em conferência para evitar um Pix duplicado.");
+      throw new Error("A Firebot não retornou um Pix válido. Você pode tentar novamente; a cobrança anterior não é cancelada automaticamente.");
     }
   });
 export const checkPix = createServerFn({ method: "POST" })
@@ -70,7 +70,7 @@ export const checkPix = createServerFn({ method: "POST" })
     const { data: order, error } = await supabaseAdmin.from("pix_orders").select("id, menu_path, checkout, amount_cents, transaction_id, pix_code, status").eq("access_hash", accessHash).maybeSingle();
     if (error || !order) throw new Error("Pedido não encontrado neste navegador.");
     const key = process.env["FIREBOT_API_KEY"];
-    if (!key || !order.transaction_id || !order.pix_code) throw new Error("Pedido em conferência. Consulte a loja antes de gerar outro Pix.");
+    if (!key || !order.transaction_id || !order.pix_code) throw new Error("Esta tentativa não tem um código Pix disponível para consulta. Você pode gerar outro Pix.");
     const raw = await firebot(encodeURIComponent(order.transaction_id), key);
     const status = verifiedPixStatus(raw, order.transaction_id, order.amount_cents / 100);
     const { error: saveError } = await supabaseAdmin.from("pix_orders").update({ status }).eq("id", order.id);

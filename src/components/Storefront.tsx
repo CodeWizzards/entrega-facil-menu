@@ -31,6 +31,7 @@ import { brl, type Addon, type Menu, type Product } from "@/lib/menu";
 import { useServerFn } from "@tanstack/react-start";
 import { createPix, checkPix } from "@/lib/pix.functions";
 import type { PixPayment } from "@/lib/pix";
+import { newPixAccess, readPixAttempts, rememberPixAttempt, type PixAttempt } from "@/lib/pix-session";
 import { PixPaymentPanel } from "@/components/PixPaymentPanel";
 
 type Item = {
@@ -85,7 +86,6 @@ export function Storefront({ menu }: { menu: Menu }) {
   const reviewsLabel = menu.store.reviews.toLocaleString("pt-BR");
 
   const add = (product: Product, qty: number, note: string, addons: Addon[]) => {
-    if (pixAccess) { setCartOpen(true); return; }
     setCart((c) => [...c, { key: crypto.randomUUID(), product, qty, note, addons }]);
   };
 
@@ -425,10 +425,17 @@ function CartSheet({
   const [form, setForm] = useState<DeliveryDetails>(emptyDelivery);
   const [processing, setProcessing] = useState(false);
   const [paymentError, setPaymentError] = useState("");
+  const [attempts, setAttempts] = useState<PixAttempt[]>([]);
+  useEffect(() => { setAttempts(readPixAttempts(menu.to)); }, [menu.to]);
   const createPayment = useServerFn(createPix);
   const checkPayment = useServerFn(checkPix);
   const savePayment = (access: string, value?: PixPayment) => {
-    try { sessionStorage.setItem(`pix:${menu.to}`, JSON.stringify({ access, payment: value ? { orderId: value.orderId, amount: value.amount, code: value.code, status: "PENDING" } : undefined })); } catch { /* No persistent browser storage. */ }
+    const next = rememberPixAttempt(attempts, access, value);
+    setAttempts(next);
+    try {
+      sessionStorage.setItem(`pix-history:${menu.to}`, JSON.stringify(next));
+      sessionStorage.setItem(`pix:${menu.to}`, JSON.stringify(next[next.length - 1]));
+    } catch { /* No persistent browser storage. */ }
   };
   const verifyPayment = async () => {
     if (processing || !pixAccess) return;
@@ -557,7 +564,7 @@ function CartSheet({
               <Button variant="storefront" size="storefront"
                 aria-label="Remover item"
                 className="icon-btn h-8 w-8 text-destructive"
-                 disabled={processing || Boolean(payment) || Boolean(pixAccess)}
+                 disabled={processing || Boolean(payment)}
                  onClick={() => setCart((c) => c.filter((x) => x.key !== i.key))}
               >
                 <Trash2 className="h-4 w-4" />
@@ -568,13 +575,15 @@ function CartSheet({
       </ul>
 
        {payment && <PixPaymentPanel payment={payment} checking={processing} error={paymentError} onCheck={verifyPayment} />}
-       {!payment && pixAccess && <div className="checkout-section"><p className="text-sm text-muted-foreground">Já existe uma tentativa de Pix neste navegador. Consulte antes de gerar outra cobrança.</p><Button variant="storefront" size="storefront" disabled={processing} onClick={verifyPayment} className="btn-primary mt-3 w-full">Consultar meu Pix</Button>{paymentError && <p role="alert" className="mt-3 text-xs text-destructive">{paymentError}</p>}</div>}
+       {payment && <Button variant="storefront" size="storefront" disabled={processing} className="btn-primary mt-4 w-full" onClick={() => { setPayment(null); setPaymentError(""); setSubmitted(false); }}>Gerar outro Pix</Button>}
+       {attempts.length > 0 && <section className="checkout-section" aria-label="Tentativas anteriores de Pix"><h4><ReceiptText /> Tentativas de Pix</h4><div className="grid gap-2">{attempts.map((attempt, index) => <Button key={attempt.access} variant="storefront" size="storefront" disabled={processing} className="w-full text-sm" onClick={() => { setPixAccess(attempt.access); setPayment(attempt.payment || null); setPaymentError(""); }}>Consultar tentativa {index + 1}{attempt.payment ? ` · ${brl(attempt.payment.amount)}` : ""}</Button>)}</div>{!payment && pixAccess && <Button variant="storefront" size="storefront" disabled={processing} onClick={verifyPayment} className="mt-3 w-full">Verificar tentativa selecionada</Button>}</section>}
+       {!payment && paymentError && <p role="alert" className="mt-3 text-xs text-destructive">{paymentError}</p>}
        {payment?.status === "PAID" && payment.whatsappMessage && <Button variant="storefront" size="storefront" className="btn-primary mt-5 w-full" onClick={() => window.open(`https://wa.me/${menu.store.whatsapp}?text=${encodeURIComponent(payment.whatsappMessage || "")}`, "_blank", "noopener,noreferrer")}>Enviar pedido à loja <ArrowRight /></Button>}
-       {cart.length > 0 && !payment && !pixAccess && <form noValidate onSubmit={async e => {
+       {cart.length > 0 && !payment && <form noValidate onSubmit={async e => {
         e.preventDefault(); setSubmitted(true);
          if (!valid || processing) return;
          setProcessing(true); setPaymentError("");
-         const access = Array.from(crypto.getRandomValues(new Uint8Array(32)), n => n.toString(16).padStart(2, "0")).join("");
+         const access = newPixAccess();
          setPixAccess(access); savePayment(access);
          try {
            const result = await createPayment({ data: { access, menuPath: menu.to, form, items: cart.map(i => ({ productId: i.product.id, qty: i.qty, addonIds: i.addons.map(a => a.id), note: i.note })) } });

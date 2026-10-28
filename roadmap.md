@@ -25,3 +25,4 @@
 - [x] Formatar WhatsApp, CPF e CEP durante a digitação; e-mail validado apenas por presença de @.
 - [x] Conferir máscaras, cópia colada e apagamento de dígito no celular; 52 testes passando.
 - [ ] Homologar criação e pagamento reais — aguardando dados reais de comprador e autorização de cobrança de teste; formato do retorno da consulta ainda precisa de amostra real.
+- [x] Liberar novas tentativas manuais de Pix, preservar consultas anteriores e testar sem gerar cobranças reais.
