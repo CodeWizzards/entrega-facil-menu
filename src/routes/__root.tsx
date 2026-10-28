@@ -91,6 +91,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&family=Sora:wght@600;700&display=swap" },
       { rel: "icon", href: "/favicon.png", type: "image/png" },
     ],
+    scripts: [
+      {
+        // Começa a localização por IP já no HTML, antes do bundle carregar.
+        children:
+          'try{var c=JSON.parse(localStorage.getItem("casa-brasa:place")||"null");if(c&&c.city&&Date.now()-c.at<864e5){window.__ipPlaceRaw=Promise.resolve(null)}else{window.__ipPlaceRaw=Promise.any(["https://ipapi.co/json/","https://ipwho.is/"].map(function(u){return fetch(u,{credentials:"omit",referrerPolicy:"no-referrer"}).then(function(r){if(!r.ok)throw 0;return r.json()})})).catch(function(){return null})}}catch(e){}',
+      },
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,

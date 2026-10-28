@@ -579,3 +579,38 @@
 }
 .reviews-btn:hover { background: color-mix(in oklab, var(--foreground) 5%, var(--card)); }
 .reviews-btn:active { transform: scale(0.98); }
+
+/* ---- Modal de avaliações e selo de pedido verificado ---- */
+.review-verified {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 2px 8px; border-radius: 999px;
+  font-size: 10px; font-weight: 700; line-height: 1.4;
+  color: var(--primary-foreground);
+  background: var(--primary);
+}
+.reviews-modal {
+  position: fixed; z-index: 60; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(100% - 32px); max-width: 420px; max-height: 88dvh;
+  display: flex; flex-direction: column;
+  border: 1px solid var(--border); border-radius: 26px;
+  background: var(--popover);
+  box-shadow: var(--shadow-sheet);
+  animation: location-enter 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
+  outline: none;
+}
+.reviews-modal-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 18px 16px 12px;
+}
+.reviews-modal-body {
+  overflow-y: auto; padding: 0 16px 16px;
+  scrollbar-width: thin;
+}
+.reviews-close {
+  display: grid; place-items: center;
+  width: 32px; height: 32px; border-radius: 999px;
+  color: var(--foreground);
+  background: color-mix(in oklab, var(--foreground) 7%, transparent);
+  border: 1px solid var(--border);
+}

@@ -3,6 +3,13 @@ import { ufFrom, type Place } from "@/lib/place";
 const PLACE_KEY = "casa-brasa:place";
 const PLACE_TTL = 24 * 60 * 60 * 1000;
 
+declare global {
+  interface Window {
+    /** Busca de IP iniciada por um script inline no <head>, antes do bundle carregar. */
+    __ipPlaceRaw?: Promise<unknown>;
+  }
+}
+
 /** Last confirmed city on this device, so returning visitors skip the network wait. */
 export function rememberedPlace(now = Date.now()): Place | null {
   try {
@@ -19,6 +26,16 @@ export function rememberPlace(place: Place, now = Date.now()) {
   try { localStorage.setItem(PLACE_KEY, JSON.stringify({ city: place.city, state: place.state, at: now })); } catch { /* storage unavailable */ }
 }
 
+function parsePlace(data: unknown): Place | null {
+  if (!data || typeof data !== "object") return null;
+  const d = data as Record<string, unknown>;
+  const city = typeof d["city"] === "string" ? d["city"].trim() : "";
+  const region = d["region_code"] || d["region"];
+  const state = ufFrom(typeof region === "string" ? region : "");
+  if (d["error"] || d["success"] === false || d["country_code"] !== "BR" || !city || !state) return null;
+  return { city, state };
+}
+
 /** Called in the browser so the provider sees the visitor's IP, not the server's. */
 export async function placeFromIp(signal?: AbortSignal): Promise<Place> {
   const controller = new AbortController();
@@ -32,6 +49,12 @@ export async function placeFromIp(signal?: AbortSignal): Promise<Place> {
     else controller.signal.addEventListener("abort", rejectAbort, { once: true });
   });
   try {
+    // A busca geralmente já está em andamento desde o HTML inicial; reaproveita.
+    const early = typeof window !== "undefined" ? window.__ipPlaceRaw : undefined;
+    if (early) {
+      const place = parsePlace(await Promise.race([early, cancelled]));
+      if (place) return place;
+    }
     if (controller.signal.aborted) throw new Error("Consulta cancelada.");
     const queries = ["https://ipapi.co/json/", "https://ipwho.is/"].map(async url => {
       const response = await fetch(url, {
@@ -40,12 +63,9 @@ export async function placeFromIp(signal?: AbortSignal): Promise<Place> {
         referrerPolicy: "no-referrer",
       });
       if (!response.ok) throw new Error("Consulta indisponível.");
-      const data = await response.json();
-      const city = typeof data.city === "string" ? data.city.trim() : "";
-      const region = data.region_code || data.region;
-      const state = ufFrom(typeof region === "string" ? region : "");
-      if (data.error || data.success === false || data.country_code !== "BR" || !city || !state) throw new Error("Região inválida.");
-      return { city, state };
+      const place = parsePlace(await response.json());
+      if (!place) throw new Error("Região inválida.");
+      return place;
     });
     return await Promise.race([Promise.any(queries), cancelled]);
   } catch {
