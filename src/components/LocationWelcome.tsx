@@ -77,12 +77,6 @@ export function LocationWelcome({ menu }: { menu: Menu }) {
     const controller = new AbortController();
     request.current = controller;
     setBusy("ip");
-    const timeout = setTimeout(() => {
-      if (controller.signal.aborted) return;
-      controller.abort();
-      setBusy(null);
-      setStep("unavailable");
-    }, 4000);
     void placeFromIp(controller.signal).then(place => {
       if (controller.signal.aborted) return;
       setState(place.state);
@@ -92,7 +86,6 @@ export function LocationWelcome({ menu }: { menu: Menu }) {
     }).catch(() => {
       if (!controller.signal.aborted) setStep("unavailable");
     }).finally(() => {
-      clearTimeout(timeout);
       if (!controller.signal.aborted) setBusy(null);
     });
   }
