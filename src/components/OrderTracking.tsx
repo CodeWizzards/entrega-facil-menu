@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Bike, Check, ChefHat, CircleDashed, Home, LoaderCircle, MapPin, MessageCircle, Navigation, ReceiptText, Send } from "lucide-react";
+import { Bike, Check, ChefHat, CircleDashed, Home, LoaderCircle, MapPin, MessageCircle, Navigation, ReceiptText, SendHorizontal, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { brl, type Menu } from "@/lib/menu";
 import type { PixPayment } from "@/lib/pix";
@@ -39,7 +39,7 @@ export function OrderTracking({ menu, payment, form, total, sentToStore, onSend,
 
   const steps: Step[] = [
     { label: "Pagamento confirmado", hint: `${payment.method === "CARD" ? "Cartão" : "Pix"} aprovado · ${brl(payment.amount)}`, icon: Check, state: "done" },
-    { label: "Pedido enviado à loja", hint: sentToStore ? "A loja recebeu seu pedido" : "Toque no botão abaixo para enviar", icon: Send, state: sentToStore ? "done" : "current" },
+    { label: "Pedido enviado à loja", hint: sentToStore ? "A loja recebeu seu pedido" : "Toque no botão abaixo para enviar", icon: Store, state: sentToStore ? "done" : "current" },
     { label: "Em preparo", hint: "A loja confirma pelo WhatsApp", icon: ChefHat, state: "next" },
     { label: "Saiu para entrega", hint: "A loja avisa quando sair", icon: Bike, state: "next" },
     { label: "Entregue", hint: "Bom apetite!", icon: Home, state: "next" },
@@ -80,9 +80,13 @@ export function OrderTracking({ menu, payment, form, total, sentToStore, onSend,
         </div>
       ) : (
         <div className="tracking-live-cta">
-          <div className="tracking-live-info">
-            <MapPin className="h-4 w-4 shrink-0" />
-            <p>Veja a localização do entregador ao vivo por <strong>{brl(LIVE_FEE)}</strong></p>
+          <div className="tracking-live-head">
+            <span className="tracking-live-icon"><MapPin strokeWidth={2.4} /></span>
+            <div className="min-w-0 flex-1">
+              <p className="tracking-live-cta-title">Localização ao vivo</p>
+              <p className="tracking-live-cta-sub">Acompanhe o entregador no mapa em tempo real</p>
+            </div>
+            <span className="tracking-live-price">{brl(LIVE_FEE)}</span>
           </div>
           <span className="test-badge">TESTE · NÃO PAGAR</span>
           <Button variant="storefront" size="storefront" className="btn-primary w-full gap-2" disabled={live === "paying"} onClick={payLiveFee}>
@@ -100,7 +104,7 @@ export function OrderTracking({ menu, payment, form, total, sentToStore, onSend,
 
       {!sentToStore && payment.whatsappMessage && (
         <Button variant="storefront" size="storefront" className="btn-primary mt-4 w-full gap-2" onClick={onSend}>
-          Enviar pedido à loja <Send className="h-4 w-4" />
+          Enviar pedido à loja <SendHorizontal className="h-4 w-4" strokeWidth={2.4} />
         </Button>
       )}
       {sentToStore && (
