@@ -6,7 +6,7 @@ describe("Consulta de CEP", () => {
     const fetcher = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ logradouro: "Praça da Sé", bairro: "Sé", localidade: "São Paulo", uf: "SP" }) });
     vi.stubGlobal("fetch", fetcher);
     expect(await lookupPostal("01001-000")).toEqual({ street: "Praça da Sé", neighborhood: "Sé", city: "São Paulo", state: "SP" });
-    expect(fetcher).toHaveBeenCalledWith("https://viacep.com.br/ws/01001000/json/", { signal: undefined });
+    expect(fetcher).toHaveBeenCalledWith("https://viacep.com.br/ws/01001000/json/", { signal: null });
   });
   it("não preenche endereço inventado para CEP inexistente", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => ({ erro: true }) }));
