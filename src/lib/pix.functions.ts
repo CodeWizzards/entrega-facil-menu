@@ -12,6 +12,16 @@ import { formatCep } from "@/lib/format";
 
 class FirebotRequestError extends Error {}
 
+/**
+ * MODO DE TESTE ATIVO: enquanto true, nenhuma cobrança real é enviada à
+ * Firebot e toda consulta aprova o pagamento. Trocar para false (ou remover
+ * esta constante) volta ao comportamento real — OBRIGATÓRIO antes de publicar.
+ */
+const PAYMENTS_TEST_MODE = true;
+function paymentsTestMode() {
+  return PAYMENTS_TEST_MODE || process.env["PAYMENTS_TEST_MODE"] === "true";
+}
+
 async function hashAccess(access: string) {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(access));
   return Array.from(new Uint8Array(digest), n => n.toString(16).padStart(2, "0")).join("");
@@ -48,6 +58,12 @@ export const createPix = createServerFn({ method: "POST" })
     // An unguessable capability authorizes only this guest order, never lists or arbitrary IDs.
     const { data: order, error } = await supabaseAdmin.from("pix_orders").insert({ access_hash: accessHash, menu_path: data.menuPath, amount_cents: priced.amountCents, checkout: { form: data.form, items: priced.items } }).select("id").single();
     if (error || !order) throw new Error("Este pedido já está sendo processado. Consulte novamente.");
+    if (paymentsTestMode()) {
+      const code = `00020101021226870014br.gov.bcb.pix0136teste-${order.id}520400005303986540${(priced.amountCents / 100).toFixed(2)}5802BR5913TESTE CASA BRASA6009SAO PAULO62070503***6304TEST`;
+      const { error: saveError } = await supabaseAdmin.from("pix_orders").update({ transaction_id: `test_pix_${order.id}`, pix_code: code, status: "PENDING" }).eq("id", order.id);
+      if (saveError) throw new Error("Não foi possível salvar a cobrança.");
+      return { orderId: order.id, amount: priced.amountCents / 100, code, status: "PENDING" };
+    }
     try {
       const origin = new URL(getRequest().url).origin;
       const storeUrl = origin.startsWith("https://") ? `${origin}${data.menuPath}` : `https://id-preview--70bdd435-bb1a-4539-baca-224b359a39eb.lovable.app${data.menuPath}`;
@@ -77,9 +93,12 @@ export const checkPix = createServerFn({ method: "POST" })
     const { data: order, error } = await supabaseAdmin.from("pix_orders").select("id, menu_path, checkout, amount_cents, transaction_id, pix_code, status").eq("access_hash", accessHash).maybeSingle();
     if (error || !order) throw new Error("Pedido não encontrado neste navegador.");
     const key = process.env["FIREBOT_API_KEY"];
-    const isCard = order.transaction_id?.startsWith("fire_card_") === true;
-    if (!key || !order.transaction_id || (!order.pix_code && !isCard)) throw new Error("Esta tentativa não tem um código Pix disponível para consulta. Você pode gerar outro Pix.");
-    const status = isCard ? order.status : verifiedPixStatus(await firebot(`pix/${encodeURIComponent(order.transaction_id)}`, key), order.transaction_id, order.amount_cents / 100);
+    const isCard = order.transaction_id?.startsWith("fire_card_") === true || order.transaction_id?.startsWith("test_card_") === true;
+    if (!order.transaction_id || (!order.pix_code && !isCard)) throw new Error("Esta tentativa não tem um código Pix disponível para consulta. Você pode gerar outro Pix.");
+    if (!key && !paymentsTestMode()) throw new Error("Pagamento ainda não configurado.");
+    const status = paymentsTestMode() && order.transaction_id.startsWith("test_")
+      ? "PAID"
+      : isCard ? order.status : verifiedPixStatus(await firebot(`pix/${encodeURIComponent(order.transaction_id)}`, key!), order.transaction_id, order.amount_cents / 100);
     const { error: saveError } = await supabaseAdmin.from("pix_orders").update({ status }).eq("id", order.id);
     if (saveError) throw new Error("Não foi possível atualizar o pedido.");
     let whatsappMessage = "";
@@ -110,6 +129,11 @@ export const chargeCard = createServerFn({ method: "POST" })
     const accessHash = await hashAccess(data.access);
     const { data: order, error } = await supabaseAdmin.from("pix_orders").insert({ access_hash: accessHash, menu_path: data.menuPath, amount_cents: priced.amountCents, checkout: { form: data.form, items: priced.items, method: "CARD" } }).select("id").single();
     if (error || !order) throw new Error("Esta tentativa já foi enviada. Consulte antes de reenviar.");
+    if (paymentsTestMode()) {
+      const { error: saveError } = await supabaseAdmin.from("pix_orders").update({ transaction_id: `test_card_${order.id}`, status: "PAID" }).eq("id", order.id);
+      if (saveError) throw new Error("Falha ao salvar pagamento.");
+      return { orderId: order.id, amount: priced.amountCents / 100, code: "", status: "PAID", method: "CARD" as const };
+    }
     try {
       // Card data is transient: never include it in database, storage, logs, or responses.
       const result = cardResultSchema.parse(await firebot("card/charge", key, {
