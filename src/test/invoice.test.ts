@@ -24,7 +24,9 @@ const payment = { orderId: "fire_tx_demo123", amount: priced.amountCents / 100, 
 describe("Nota fiscal do pedido", () => {
   it("confere unidade, subtotal, entrega e total com o valor pago", () => {
     const doc = buildInvoice({ menu: SUSHI, payment, form, lines });
-    expect(doc.lines[0].unitCents).toBe(7100);
+    const first = doc.lines[0];
+    expect(first?.unitCents).toBe(7100);
+    expect(first?.qty).toBe(2);
     expect(doc.subtotalCents).toBe(14200);
     expect(doc.deliveryCents).toBe(0);
     expect(doc.subtotalCents + doc.deliveryCents).toBe(doc.totalCents);
