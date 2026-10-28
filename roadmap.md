@@ -26,3 +26,6 @@
 - [x] Conferir máscaras, cópia colada e apagamento de dígito no celular; 52 testes passando.
 - [ ] Homologar criação e pagamento reais — aguardando dados reais de comprador e autorização de cobrança de teste; formato do retorno da consulta ainda precisa de amostra real.
 - [x] Liberar novas tentativas manuais de Pix, preservar consultas anteriores e testar sem gerar cobranças reais.
+- [x] Mostrar motivo seguro da recusa da Firebot, sem expor dados do comprador ou chave.
+- [ ] Confirmar a causa da rejeição do Pix — aguarda uma nova tentativa do usuário para obter o motivo retornado pela Firebot; as duas respostas anteriores guardaram apenas HTTP 400.
+- [ ] Disponibilizar cartão — requer confirmar habilitação e fluxo seguro de coleta do cartão na Firebot.

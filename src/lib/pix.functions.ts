@@ -6,6 +6,9 @@ import { pixAccessSchema, pixCheckoutSchema, pixCreatedSchema, priceCheckout, ve
 import { brl } from "@/lib/menu";
 import { deliveryAddress } from "@/lib/checkout";
 import { z } from "zod";
+import { firebotFailureMessage } from "@/lib/firebot-error";
+
+class FirebotRequestError extends Error {}
 
 async function hashAccess(access: string) {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(access));
@@ -20,7 +23,8 @@ async function firebot(path: string, key: string, body?: unknown) {
   });
   if (!response.ok) {
     console.error("Firebot request failed", response.status);
-    throw new Error("A Firebot não concluiu a solicitação. Consulte este pedido antes de tentar uma nova cobrança.");
+    const details: unknown = await response.json().catch(() => null);
+    throw new FirebotRequestError(firebotFailureMessage(response.status, details));
   }
   return response.json();
 }
@@ -57,8 +61,9 @@ export const createPix = createServerFn({ method: "POST" })
       const { error: saveError } = await supabaseAdmin.from("pix_orders").update({ transaction_id: result.transactionId, pix_code: result.pixCopiaECola, status: "PENDING" }).eq("id", order.id);
       if (saveError) throw new Error("Não foi possível salvar a cobrança.");
       return { orderId: order.id, amount: result.amount, code: result.pixCopiaECola, status: "PENDING" };
-    } catch {
+    } catch (error) {
       await supabaseAdmin.from("pix_orders").update({ status: "REVIEW" }).eq("id", order.id);
+      if (error instanceof FirebotRequestError) throw new Error(error.message);
       throw new Error("A Firebot não retornou um Pix válido. Você pode tentar novamente; a cobrança anterior não é cancelada automaticamente.");
     }
   });
