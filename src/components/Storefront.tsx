@@ -147,7 +147,7 @@ export function Storefront({ menu, other }: { menu: Menu; other: Menu }) {
         </footer>
       </main>
 
-      {count > 0 && (
+      {count > 0 && !cartOpen && (
         <button onClick={() => setCartOpen(true)} className="cart-bar">
           <span className="rounded-md bg-primary-foreground/20 px-2 py-0.5 text-sm">{count}</span>
           <span>Ver sacola</span>
