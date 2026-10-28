@@ -35,6 +35,7 @@
 - [x] Barra de rolagem personalizada com degradê vermelho/dourado e brilho
 - [x] Taxa de R$ 7,32 para "localização ao vivo" simulada em modo de teste (selo TESTE · NÃO PAGAR) com mapa desenhado, rota e marcador de entregador; nada de posição real.
 - [x] Localização por IP via geojs.io com cookies localCidade/localEstado de 365 dias e "1,6 km · distância de exemplo" após confirmar.
+- [x] Remover o carregamento fake do modal: a loja aparece na hora ao confirmar a cidade, sem spinner de 3,5 s.
 - [x] Modo de teste de pagamentos (PAYMENTS_TEST_MODE em pix.functions.ts): Pix e cartão aprovam sem cobrança real; taxa de "localização ao vivo" de R$ 7,32 simulada com selo TESTE · NÃO PAGAR.
 - [ ] DESLIGAR o modo de teste (PAYMENTS_TEST_MODE = false) e remover a taxa de localização ao vivo antes de publicar.
 - [x] Botão verde da tela de pedido deixou de enviar ao WhatsApp e passou a emitir nota fiscal (folha com itens, comprador, endereço e totais; salvar em PDF e copiar resumo).

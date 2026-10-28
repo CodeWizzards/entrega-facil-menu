@@ -26,8 +26,8 @@ describe("Localização inicial", () => {
     fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
     fireEvent.change(screen.getByLabelText("Cidade"), { target: { value: "Ariquemes" } });
     fireEvent.click(screen.getByRole("button", { name: "Confirmar localização" }));
-    expect(screen.getByText("Buscando o delivery mais próximo de você…")).toBeInTheDocument();
-    await waitFor(() => expect(screen.getByRole("button", { name: "Ver cardápio" })).toBeEnabled(), { timeout: 5000 });
+    expect(screen.queryByText("Buscando o delivery mais próximo de você…")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Ver cardápio" })).toBeEnabled();
     expect(screen.getByText("1,6 km · distância de exemplo")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Ver cardápio" }));
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
