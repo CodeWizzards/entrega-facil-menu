@@ -37,6 +37,7 @@ import { cardErrors, emptyCard } from "@/lib/card";
 import type { PixPayment } from "@/lib/pix";
 import { newPixAccess, readPixAttempts, rememberPixAttempt, type PixAttempt } from "@/lib/pix-session";
 import { PixPaymentPanel } from "@/components/PixPaymentPanel";
+import { OrderTracking } from "@/components/OrderTracking";
 
 type Item = {
   key: string;
@@ -454,6 +455,7 @@ function CartSheet({
     finally { setProcessing(false); }
   };
   const [submitted, setSubmitted] = useState(false);
+  const [sentToStore, setSentToStore] = useState(false);
   const [postalStatus, setPostalStatus] = useState("");
   const [secureConnection, setSecureConnection] = useState(false);
   useEffect(() => { setSecureConnection(window.location.protocol === "https:"); }, []);
@@ -548,7 +550,7 @@ function CartSheet({
         </div>
       )}
 
-      <ul className="mt-4 grid gap-2.5">
+      {payment?.status !== "PAID" && <ul className="mt-4 grid gap-2.5">
         {cart.map((i) => (
           <li
             key={i.key}
@@ -581,13 +583,13 @@ function CartSheet({
             </div>
           </li>
         ))}
-      </ul>
+      </ul>}
 
-       {payment && payment.method !== "CARD" && <PixPaymentPanel payment={payment} checking={processing} error={paymentError} onCheck={verifyPayment} />}
-       {payment?.method === "CARD" && <section className="checkout-section" aria-label="Pagamento por cartão"><h4><CreditCard /> Cartão · {brl(payment.amount)}</h4><p role="status" className="text-sm">{payment.status === "PAID" ? "Pagamento aprovado pela Firebot" : payment.status === "CANCELLED" ? "Pagamento recusado ou cancelado" : "Pagamento em análise. Não envie uma nova cobrança."}</p><Button variant="storefront" size="storefront" disabled={processing} onClick={verifyPayment} className="mt-3 w-full">Consultar pagamento</Button>{paymentError && <p role="alert" className="text-xs text-destructive">{paymentError}</p>}</section>}
-       {payment && <Button variant="storefront" size="storefront" disabled={processing} className="btn-primary mt-4 w-full" onClick={() => { setPayment(null); setPaymentError(""); setSubmitted(false); }}>Novo pagamento</Button>}
+       {payment?.status === "PAID" && <OrderTracking menu={menu} payment={payment} form={form} total={total} sentToStore={sentToStore} onClose={onClose} onSend={() => { window.open(`https://wa.me/${menu.store.whatsapp}?text=${encodeURIComponent(payment.whatsappMessage || "")}`, "_blank", "noopener,noreferrer"); setSentToStore(true); }} />}
+       {payment && payment.status !== "PAID" && payment.method !== "CARD" && <PixPaymentPanel payment={payment} checking={processing} error={paymentError} onCheck={verifyPayment} />}
+       {payment?.method === "CARD" && payment.status !== "PAID" && <section className="checkout-section" aria-label="Pagamento por cartão"><h4><CreditCard /> Cartão · {brl(payment.amount)}</h4><p role="status" className="text-sm">{payment.status === "CANCELLED" ? "Pagamento recusado ou cancelado" : "Pagamento em análise. Não envie uma nova cobrança."}</p><Button variant="storefront" size="storefront" disabled={processing} onClick={verifyPayment} className="mt-3 w-full">Consultar pagamento</Button>{paymentError && <p role="alert" className="text-xs text-destructive">{paymentError}</p>}</section>}
+       {payment && payment.status !== "PAID" && <Button variant="storefront" size="storefront" disabled={processing} className="btn-primary mt-4 w-full" onClick={() => { setPayment(null); setPaymentError(""); setSubmitted(false); }}>Novo pagamento</Button>}
        {!payment && paymentError && <p role="alert" className="mt-3 text-xs text-destructive">{paymentError}</p>}
-       {payment?.status === "PAID" && payment.whatsappMessage && <Button variant="storefront" size="storefront" className="btn-primary mt-5 w-full" onClick={() => window.open(`https://wa.me/${menu.store.whatsapp}?text=${encodeURIComponent(payment.whatsappMessage || "")}`, "_blank", "noopener,noreferrer")}>Enviar pedido à loja <ArrowRight /></Button>}
        {cart.length > 0 && !payment && <form noValidate onSubmit={async e => {
         e.preventDefault(); setSubmitted(true);
          if (!valid || processing) return;

@@ -31,4 +31,6 @@
 - [ ] Ativar Pix e cartão na conta Firebot — aguarda o usuário pedir a liberação ao suporte da Firebot.
 - [x] Cartão animado que se preenche ao digitar e vira no código de segurança; novo ícone do botão Cartão.
 - [x] Disponibilizar seleção Pix/cartão e cobrança direta Firebot com validação e dados do cartão transitórios; teste no celular sem cobrar valores reais.
-- [ ] Homologar cartão em produção — aguarda confirmação da habilitação na Firebot e das obrigações PCI aplicáveis à coleta direta, além de teste autorizado; a documentação não fornece consulta para cartão pendente.
+- [ ] Homologar cartão em produção — aguarda confirmação da habilitação na Firebot e das obrigações PCI aplicáveis à coleta direta, além de teste autorizado; a documentação não fornece consulta para cartão pendente.- [x] Tela de acompanhamento do pedido estilo iFood (logo, etapas, resumo) após pagamento confirmado
+- [x] Barra de rolagem personalizada com degradê vermelho/dourado e brilho
+- [ ] Taxa de R$ 7,32 para "localização ao vivo": NÃO implementada (padrão de golpe); rastreamento real exige a loja enviar posição
