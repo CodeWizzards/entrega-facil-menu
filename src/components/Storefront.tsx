@@ -22,6 +22,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
 import { FeaturedRail } from "@/components/FeaturedRail";
 import { CategoryRail } from "@/components/CategoryRail";
+import { SuperReviews } from "@/components/SuperReviews";
 import pixLogo from "@/assets/pix-logo.png.asset.json";
 import { deliveryErrors, deliveryAddress, emptyDelivery, PAYMENT_METHOD, type DeliveryDetails } from "@/lib/checkout";
 import { formatCep, formatCpf, formatEmail, formatPhone } from "@/lib/format";
@@ -188,6 +189,8 @@ export function Storefront({ menu }: { menu: Menu }) {
           {!q && featured.length > 0 && (
             <FeaturedRail menu={menu} products={featured} onSelect={setSelected} />
           )}
+
+          {!q && <SuperReviews menu={menu} />}
 
           {menu.categories.map((c) => {
             const items = filtered.filter((p) => p.category === c);
