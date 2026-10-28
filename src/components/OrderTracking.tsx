@@ -62,7 +62,7 @@ export function OrderTracking({ menu, payment, form, total, lines, onClose }: {
   const steps: Step[] = [
     { label: "Pagamento confirmado", hint: `${payment.method === "CARD" ? "Cartão" : "Pix"} aprovado · ${brl(payment.amount)}`, icon: Check, state: "done" },
     { label: "Pedido enviado à loja", hint: "Aguardando a confirmação da loja", icon: Store, state: "current" },
-    { label: "Em preparo", hint: "A loja confirma pelo WhatsApp", icon: ChefHat, state: "next" },
+    { label: "Em preparo", hint: "Aguardando a loja iniciar o preparo", icon: ChefHat, state: "next" },
     { label: "Saiu para entrega", hint: "A loja avisa quando sair", icon: Bike, state: "next" },
     { label: "Entregue", hint: "Bom apetite!", icon: Home, state: "next" },
   ];
