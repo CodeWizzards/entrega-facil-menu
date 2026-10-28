@@ -190,8 +190,6 @@ export function Storefront({ menu }: { menu: Menu }) {
             <FeaturedRail menu={menu} products={featured} onSelect={setSelected} />
           )}
 
-          {!q && <SuperReviews menu={menu} />}
-
           {menu.categories.map((c) => {
             const items = filtered.filter((p) => p.category === c);
             if (!items.length) return null;
@@ -234,6 +232,8 @@ export function Storefront({ menu }: { menu: Menu }) {
               Nada encontrado para “{search}”. Tente outro nome.
             </p>
           )}
+
+          {!q && <SuperReviews menu={menu} />}
 
           <footer className="py-10 text-center text-xs text-muted-foreground">
             {menu.store.name} · Pedido direto no WhatsApp · Valores sujeitos a alteração

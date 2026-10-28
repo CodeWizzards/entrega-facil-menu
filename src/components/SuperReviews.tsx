@@ -1,10 +1,10 @@
 import {
-  Bookmark,
-  Check,
   ChevronRight,
   MapPin,
-  MessageCircle,
+  MessagesSquare,
+  PackageCheck,
   Star,
+  ThumbsUp,
 } from "lucide-react";
 import type { Menu } from "@/lib/menu";
 
@@ -78,9 +78,9 @@ const REVIEWS: Record<Menu["to"], Review[]> = {
 };
 
 const PERKS = [
-  { icon: Star, label: "Avaliações excelentes" },
-  { icon: MessageCircle, label: "Zero ou poucas reclamações" },
-  { icon: Bookmark, label: "Zero ou poucos cancelamentos" },
+  { icon: ThumbsUp, label: "Avaliações excelentes" },
+  { icon: MessagesSquare, label: "Zero ou poucas reclamações" },
+  { icon: PackageCheck, label: "Zero ou poucos cancelamentos" },
 ];
 
 function Stars() {
@@ -100,7 +100,7 @@ export function SuperReviews({ menu }: { menu: Menu }) {
   const reviews = menu.store.reviews.toLocaleString("pt-BR");
 
   return (
-    <section className="pt-8" aria-label="Avaliações da loja">
+    <section className="pt-10" aria-label="Avaliações da loja">
       {/* Selo Super */}
       <div className="super-card">
         <div className="flex items-center gap-3">
@@ -127,10 +127,7 @@ export function SuperReviews({ menu }: { menu: Menu }) {
           {PERKS.map(({ icon: Icon, label }) => (
             <li key={label} className="flex items-center gap-3">
               <span className="super-perk-icon" aria-hidden>
-                <Icon className="h-4 w-4" />
-                <span className="super-perk-check">
-                  <Check className="h-2.5 w-2.5" strokeWidth={3.5} />
-                </span>
+                <Icon className="h-4 w-4" strokeWidth={1.8} />
               </span>
               <span className="text-sm">{label}</span>
             </li>
