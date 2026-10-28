@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Storefront } from "@/components/Storefront";
-import { LANCHES } from "@/lib/lanches";
 import { SUSHI } from "@/lib/sushi";
 
 export const Route = createFileRoute("/sushi")({
@@ -26,5 +25,5 @@ export const Route = createFileRoute("/sushi")({
 });
 
 function StorefrontSushi() {
-  return <Storefront menu={SUSHI} other={LANCHES} />;
+  return <Storefront menu={SUSHI} />;
 }
