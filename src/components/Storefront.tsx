@@ -15,13 +15,15 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
 import { FeaturedRail } from "@/components/FeaturedRail";
 import pixLogo from "@/assets/pix-logo.png.asset.json";
 import { deliveryErrors, deliveryAddress, emptyDelivery, PAYMENT_METHOD, type DeliveryDetails } from "@/lib/checkout";
 import { ProductBadge } from "@/components/ProductBadge";
+import { LocationWelcome } from "@/components/LocationWelcome";
+import { lookupPostal } from "@/lib/postal";
 import { brl, type Addon, type Menu, type Product } from "@/lib/menu";
 
 type Item = {
@@ -78,6 +80,7 @@ export function Storefront({ menu }: { menu: Menu }) {
 
   return (
     <div className="min-h-screen bg-background pb-28">
+      <LocationWelcome menu={menu} />
       <div className="mx-auto max-w-3xl">
         <header className="relative">
           <div className="cover-wrap">
@@ -385,6 +388,26 @@ function CartSheet({
 }) {
   const [form, setForm] = useState<DeliveryDetails>(emptyDelivery);
   const [submitted, setSubmitted] = useState(false);
+  const [postalStatus, setPostalStatus] = useState("");
+  const [secureConnection, setSecureConnection] = useState(false);
+  useEffect(() => { setSecureConnection(window.location.protocol === "https:"); }, []);
+  useEffect(() => {
+    const cep = form.cep.replace(/\D/g, "");
+    if (cep.length !== 8) { setPostalStatus(""); return; }
+    const controller = new AbortController();
+    const timer = setTimeout(async () => {
+      setPostalStatus("Consultando CEP…");
+      try {
+        const address = await lookupPostal(cep, controller.signal);
+        if (controller.signal.aborted) return;
+        setForm(previous => ({ ...previous, ...address }));
+        setPostalStatus("Endereço encontrado. Confira os dados e informe o número.");
+      } catch (error) {
+        if (!controller.signal.aborted) setPostalStatus(error instanceof Error ? error.message : "Preencha o endereço manualmente.");
+      }
+    }, 400);
+    return () => { clearTimeout(timer); controller.abort(); };
+  }, [form.cep]);
   const errors = deliveryErrors(form);
   const fee = menu.store.deliveryFee;
   const total = subtotal + fee;
@@ -503,6 +526,7 @@ function CartSheet({
         <h4><MapPin /> Endereço de entrega</h4>
         <div className="grid gap-3">
           {field("cep", "CEP", "postal-code")}
+          {postalStatus && <p role="status" className="text-xs text-muted-foreground">{postalStatus}</p>}
           {field("street", "Rua / avenida", "address-line1")}
           <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] gap-3">{field("number", "Número")}{field("complement", "Complemento", "address-line2", true)}</div>
           {field("neighborhood", "Bairro")}
@@ -513,6 +537,10 @@ function CartSheet({
       <section className="checkout-section">
         <h4><ShieldCheck /> Pagamento</h4>
         <div className="pix-method"><img src={pixLogo.url} alt="Pix" width={32} height={32} /><div className="min-w-0"><p className="font-semibold">Pix</p><p className="mt-1 text-xs text-muted-foreground">Pagamento ainda não realizado</p></div><span className="check-dot check-dot-on"><Check /></span></div>
+        <div className="checkout-security mt-4">
+          <ShieldCheck className="h-5 w-5 shrink-0" />
+          <div><p className="text-xs font-semibold">{secureConnection ? "Conexão criptografada · HTTPS" : "Ambiente de teste"}</p><p className="mt-1 text-xs text-muted-foreground">Mercado Pago · integração de pagamento pendente</p></div>
+        </div>
       </section>
 
       <div className="mt-5 space-y-2 border-t border-border pt-5 text-sm">
