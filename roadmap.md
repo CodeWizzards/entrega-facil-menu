@@ -27,6 +27,8 @@
 - [ ] Homologar criação e pagamento reais — aguardando dados reais de comprador e autorização de cobrança de teste; formato do retorno da consulta ainda precisa de amostra real.
 - [x] Liberar novas tentativas manuais de Pix, preservar consultas anteriores e testar sem gerar cobranças reais.
 - [x] Mostrar motivo seguro da recusa da Firebot, sem expor dados do comprador ou chave.
-- [ ] Confirmar a causa da rejeição do Pix — aguarda uma nova tentativa do usuário para obter o motivo retornado pela Firebot; as duas respostas anteriores guardaram apenas HTTP 400.
+- [x] Confirmar a causa da rejeição do Pix — a Firebot respondeu "Pix não está habilitado para essa conta".
+- [ ] Ativar Pix e cartão na conta Firebot — aguarda o usuário pedir a liberação ao suporte da Firebot.
+- [x] Cartão animado que se preenche ao digitar e vira no código de segurança; novo ícone do botão Cartão.
 - [x] Disponibilizar seleção Pix/cartão e cobrança direta Firebot com validação e dados do cartão transitórios; teste no celular sem cobrar valores reais.
 - [ ] Homologar cartão em produção — aguarda confirmação da habilitação na Firebot e das obrigações PCI aplicáveis à coleta direta, além de teste autorizado; a documentação não fornece consulta para cartão pendente.
