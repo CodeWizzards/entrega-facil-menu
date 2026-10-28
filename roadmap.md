@@ -37,3 +37,6 @@
 - [x] Localização por IP via geojs.io com cookies localCidade/localEstado de 365 dias e "1,6 km · distância de exemplo" após confirmar.
 - [x] Modo de teste de pagamentos (PAYMENTS_TEST_MODE em pix.functions.ts): Pix e cartão aprovam sem cobrança real; taxa de "localização ao vivo" de R$ 7,32 simulada com selo TESTE · NÃO PAGAR.
 - [ ] DESLIGAR o modo de teste (PAYMENTS_TEST_MODE = false) e remover a taxa de localização ao vivo antes de publicar.
+- [x] Botão verde da tela de pedido deixou de enviar ao WhatsApp e passou a emitir nota fiscal (folha com itens, comprador, endereço e totais; salvar em PDF e copiar resumo).
+- [ ] Emitir NFS-e de verdade — exige CNPJ da loja, cadastro na prefeitura e um emissor fiscal; hoje o documento é demonstrativo, gerado no navegador.
+- [ ] Avisar a loja quando um pedido é pago — o pagamento fica registrado, mas ninguém notifica a loja automaticamente.
