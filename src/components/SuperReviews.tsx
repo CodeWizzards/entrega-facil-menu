@@ -1,6 +1,7 @@
 import { useState } from "react";
+import * as Dialog from "@radix-ui/react-dialog";
 import {
-  ChevronDown,
+  BadgeCheck,
   ChevronRight,
   Facebook,
   MapPin,
@@ -8,6 +9,7 @@ import {
   PackageCheck,
   Star,
   ThumbsUp,
+  X,
 } from "lucide-react";
 import type { Menu } from "@/lib/menu";
 
@@ -184,14 +186,44 @@ function Stars() {
   );
 }
 
+function ReviewCard({ r }: { r: Review }) {
+  return (
+    <article className="review-card">
+      <header className="flex items-center gap-3">
+        <span className="review-avatar" aria-hidden>
+          {r.initials}
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-semibold">
+            <span className="truncate">{r.name}</span>
+            <span className="review-verified">
+              <BadgeCheck className="h-3 w-3" aria-hidden />
+              Pedido verificado
+            </span>
+          </p>
+          <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
+            <MapPin className="h-3 w-3" aria-hidden />
+            {r.loc}
+          </p>
+        </div>
+        <span className="shrink-0 text-xs text-muted-foreground">{r.date}</span>
+      </header>
+      <div className="mt-2.5 flex items-center gap-2">
+        <Stars />
+        <span className="text-sm font-bold">{r.score}</span>
+      </div>
+      <p className="mt-2 text-sm text-muted-foreground">{r.comment}</p>
+    </article>
+  );
+}
+
 export function SuperReviews({ menu }: { menu: Menu }) {
-  const [expanded, setExpanded] = useState(false);
+  const [open, setOpen] = useState(false);
   const rating = menu.store.rating.toLocaleString("pt-BR", {
     minimumFractionDigits: 1,
   });
   const reviews = menu.store.reviews.toLocaleString("pt-BR");
   const all = REVIEWS[menu.to];
-  const visible = expanded ? all : all.slice(0, PREVIEW_COUNT);
 
   return (
     <section className="pt-10" aria-label="Avaliações da loja">
@@ -237,51 +269,57 @@ export function SuperReviews({ menu }: { menu: Menu }) {
         <p className="text-sm text-muted-foreground">{reviews} avaliações</p>
       </div>
 
-      {/* Avaliações */}
+      {/* Prévia: primeiras avaliações */}
       <div className="mt-3 grid gap-2.5">
-        {visible.map((r) => (
-          <article key={r.name} className="review-card">
-            <header className="flex items-center gap-3">
-              <span className="review-avatar" aria-hidden>
-                {r.initials}
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold">{r.name}</p>
-                <p className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <MapPin className="h-3 w-3" aria-hidden />
-                  {r.loc}
-                </p>
-              </div>
-              <span className="text-xs text-muted-foreground">{r.date}</span>
-            </header>
-            <div className="mt-2.5 flex items-center gap-2">
-              <Stars />
-              <span className="text-sm font-bold">{r.score}</span>
-            </div>
-            <p className="mt-2 text-sm text-muted-foreground">{r.comment}</p>
-          </article>
+        {all.slice(0, PREVIEW_COUNT).map((r) => (
+          <ReviewCard key={r.name} r={r} />
         ))}
       </div>
 
-      {/* Ações */}
-      <div className="mt-3 grid gap-2.5">
-        <button
-          type="button"
-          className="reviews-btn"
-          onClick={() => setExpanded((v) => !v)}
-          aria-expanded={expanded}
-        >
-          {expanded ? "Ver menos avaliações" : `Ver mais avaliações`}
-          <ChevronDown
-            className={`h-4 w-4 transition-transform duration-300 ${expanded ? "rotate-180" : ""}`}
-            aria-hidden
-          />
-        </button>
-        <button type="button" className="reviews-btn" aria-label="Ver mais no Facebook">
-          <Facebook className="h-4 w-4" aria-hidden />
-          Ver mais no Facebook
-        </button>
-      </div>
+      <button
+        type="button"
+        className="reviews-btn mt-3"
+        onClick={() => setOpen(true)}
+        aria-haspopup="dialog"
+      >
+        Ver mais avaliações
+        <ChevronRight className="h-4 w-4" aria-hidden />
+      </button>
+
+      {/* Modal com todas as avaliações */}
+      <Dialog.Root open={open} onOpenChange={setOpen}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="sheet-backdrop" />
+          <Dialog.Content className="reviews-modal" aria-describedby={undefined}>
+            <div className="reviews-modal-head">
+              <div className="min-w-0 flex-1">
+                <Dialog.Title className="font-display text-lg font-semibold">
+                  Todas as avaliações
+                </Dialog.Title>
+                <p className="text-sm text-muted-foreground">
+                  {reviews} avaliações · nota {rating}
+                </p>
+              </div>
+              <Dialog.Close className="reviews-close" aria-label="Fechar avaliações">
+                <X className="h-4 w-4" aria-hidden />
+              </Dialog.Close>
+            </div>
+
+            <div className="reviews-modal-body">
+              <div className="grid gap-2.5">
+                {all.map((r) => (
+                  <ReviewCard key={r.name} r={r} />
+                ))}
+              </div>
+
+              <button type="button" className="reviews-btn mt-3" aria-label="Ver mais no Facebook">
+                <Facebook className="h-4 w-4" aria-hidden />
+                Ver mais no Facebook
+              </button>
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </section>
   );
 }
