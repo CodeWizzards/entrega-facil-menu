@@ -13,12 +13,13 @@ import { formatCep } from "@/lib/format";
 class FirebotRequestError extends Error {}
 
 /**
- * Modo de teste: enquanto PAYMENTS_TEST_MODE=true, nenhuma cobrança real é
- * enviada à Firebot e toda consulta aprova o pagamento. Remover o segredo
- * PAYMENTS_TEST_MODE volta ao comportamento real antes de publicar.
+ * MODO DE TESTE ATIVO: enquanto true, nenhuma cobrança real é enviada à
+ * Firebot e toda consulta aprova o pagamento. Trocar para false (ou remover
+ * esta constante) volta ao comportamento real — OBRIGATÓRIO antes de publicar.
  */
+const PAYMENTS_TEST_MODE = true;
 function paymentsTestMode() {
-  return process.env["PAYMENTS_TEST_MODE"] === "true";
+  return PAYMENTS_TEST_MODE || process.env["PAYMENTS_TEST_MODE"] === "true";
 }
 
 async function hashAccess(access: string) {
