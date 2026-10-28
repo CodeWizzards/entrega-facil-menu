@@ -8,3 +8,12 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+<!-- LOVABLE:BEGIN:PROJECT -->
+> [!IMPORTANT]
+> Cada cardápio é um módulo próprio em `src/lib` (ex.: `lanches.ts`, `sushi.ts`)
+> que exporta um objeto `Menu`; todas as páginas usam o mesmo
+> `src/components/Storefront.tsx` e cada cardápio ganha só um arquivo de rota
+> fino com seu próprio `head()`. Isso evita duplicar o fluxo de sacola e
+> WhatsApp ao adicionar um novo cardápio.
+<!-- LOVABLE:END:PROJECT -->
