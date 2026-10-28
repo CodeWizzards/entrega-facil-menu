@@ -486,14 +486,17 @@ function CartSheet({
   const belowMin = subtotal < menu.store.minOrder;
   const valid = Object.keys(errors).length === 0 && !belowMin && cart.length > 0;
 
-  const invoiceLines = useMemo<InvoiceLine[]>(() => cart.map(i => ({
-    name: i.product.name,
-    qty: i.qty,
-    unitCents: lineCents(i),
-    addons: i.addons.map(a => a.name),
-    note: i.note,
-    image: menu.categoryImg[i.product.category],
-  })), [cart, menu.categoryImg]);
+  const invoiceLines = useMemo<InvoiceLine[]>(() => cart.map(i => {
+    const thumb = menu.categoryImg[i.product.category];
+    return {
+      name: i.product.name,
+      qty: i.qty,
+      unitCents: lineCents(i),
+      addons: i.addons.map(a => a.name),
+      note: i.note,
+      ...(thumb ? { image: thumb } : {}),
+    };
+  }), [cart, menu.categoryImg]);
 
   const message = useMemo(() => {
     const lines = [
