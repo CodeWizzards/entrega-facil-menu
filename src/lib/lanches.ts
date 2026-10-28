@@ -1,4 +1,9 @@
 import cover from "@/assets/cover-lanches.jpg";
+import imgBebidas from "@/assets/menu/lanches-bebidas.jpg";
+import imgBurgers from "@/assets/menu/lanches-burgers.jpg";
+import imgCombos from "@/assets/menu/lanches-combos.jpg";
+import imgPorcoes from "@/assets/menu/lanches-porcoes.jpg";
+import imgSobremesas from "@/assets/menu/lanches-sobremesas.jpg";
 import { WHATSAPP, type Addon, type Menu, type Product } from "@/lib/menu";
 
 // Adicionais que servem para quase todos os sanduíches.
@@ -275,6 +280,13 @@ export const LANCHES: Menu = {
     eta: "35–55 min",
   },
   categories: ["Burgers", "Combos", "Porções", "Bebidas", "Sobremesas"],
+  categoryImg: {
+    Burgers: imgBurgers,
+    Combos: imgCombos,
+    Porções: imgPorcoes,
+    Bebidas: imgBebidas,
+    Sobremesas: imgSobremesas,
+  },
   products,
   cover,
   coverAlt: "Hambúrgueres artesanais com fritas crocantes",
