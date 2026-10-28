@@ -1,4 +1,18 @@
-import { Home, Search, Share2, ShoppingBag } from "lucide-react";
+import {
+  Bike,
+  Check,
+  Clock,
+  Flame,
+  Minus,
+  Plus,
+  Search,
+  Share2,
+  ShoppingBag,
+  Sparkles,
+  Store,
+  Trash2,
+  X,
+} from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { brl, type Addon, type Menu, type Product } from "@/lib/menu";
 
@@ -55,17 +69,32 @@ export function Storefront({ menu }: { menu: Menu }) {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background pb-28">
       <div className="mx-auto max-w-3xl">
         <header className="relative">
-          <img
-            src={menu.cover}
-            alt={menu.coverAlt}
-            className="block h-52 w-full object-cover md:h-72"
-            width={1600}
-            height={640}
-          />
-          <div className="store-card -mt-6">
+          <div className="cover-wrap">
+            <img
+              src={menu.cover}
+              alt={menu.coverAlt}
+              className="block h-60 w-full object-cover md:h-80"
+              width={1600}
+              height={640}
+            />
+            <div className="absolute top-4 right-4 z-10 flex gap-2">
+              <button
+                aria-label="Buscar"
+                onClick={() => searchRef.current?.focus()}
+                className="icon-btn"
+              >
+                <Search className="h-5 w-5" />
+              </button>
+              <button aria-label="Compartilhar" onClick={share} className="icon-btn">
+                <Share2 className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+
+          <div className="store-card mx-3">
             <div className="logo-badge">
               <img
                 src={menu.logoImg}
@@ -73,48 +102,53 @@ export function Storefront({ menu }: { menu: Menu }) {
                 className="h-full w-full object-cover"
               />
             </div>
-            <div className="absolute right-4 top-4 flex items-center gap-4 text-muted-foreground">
-              <button
-                aria-label="Buscar"
-                onClick={() => searchRef.current?.focus()}
-                className="transition-colors hover:text-foreground"
-              >
-                <Search className="h-5 w-5" />
-              </button>
-              <button
-                aria-label="Compartilhar"
-                onClick={share}
-                className="transition-colors hover:text-foreground"
-              >
-                <Share2 className="h-5 w-5" />
-              </button>
+
+            <h1 className="text-center font-display text-2xl font-bold tracking-tight">
+              {menu.store.name}
+            </h1>
+            <p className="mt-1 text-center text-sm text-muted-foreground">
+              {menu.store.tagline}
+            </p>
+
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+              <span className="status-pill status-open">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-success" />
+                Aberto
+              </span>
+              <span className="status-pill status-info">
+                <Clock className="h-3.5 w-3.5" />
+                {menu.store.eta}
+              </span>
+              <span className="status-pill status-info">
+                <Bike className="h-3.5 w-3.5" />
+                {brl(menu.store.deliveryFee)}
+              </span>
+              <span className="status-pill status-info">
+                <ShoppingBag className="h-3.5 w-3.5" />
+                Mín. {brl(menu.store.minOrder)}
+              </span>
             </div>
 
-            <h1 className="text-center font-display text-xl font-bold">{menu.store.name}</h1>
-
-            <div className="status-strip">
-              Aberto · {menu.store.eta} · Entrega {brl(menu.store.deliveryFee)} · Pedido mínimo{" "}
-              {brl(menu.store.minOrder)}
+            <div className="relative mt-4">
+              <Search className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                ref={searchRef}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder={`Buscar em ${menu.label.toLowerCase()}...`}
+                className="field pl-11"
+              />
             </div>
-            <p className="mt-2 text-center text-xs text-muted-foreground">{menu.store.tagline}</p>
-
-            <input
-              ref={searchRef}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={`Buscar em ${menu.label.toLowerCase()}...`}
-              className="field mt-3"
-            />
           </div>
         </header>
 
-        <nav className="sticky top-0 z-10 border-b border-border bg-card">
-          <div className="flex overflow-x-auto px-2">
+        <nav className="sticky top-0 z-30 bg-background/80 py-3 backdrop-blur-xl">
+          <div className="no-scrollbar flex gap-2 overflow-x-auto px-3">
             {menu.categories.map((c) => (
               <button
                 key={c}
                 onClick={() => jump(c)}
-                className={cat === c ? "cat-link cat-link-active" : "cat-link"}
+                className={cat === c ? "cat-pill cat-pill-active" : "cat-pill bg-card"}
               >
                 {c}
               </button>
@@ -124,26 +158,36 @@ export function Storefront({ menu }: { menu: Menu }) {
 
         <main className="px-3">
           {!q && featured.length > 0 && (
-            <section className="pt-5">
-              <h2 className="px-1 text-sm font-bold text-muted-foreground">Destaques</h2>
-              <div className="mt-2 flex snap-x gap-3 overflow-x-auto rounded-2xl bg-card p-3">
+            <section className="pt-4">
+              <h2 className="flex items-center gap-1.5 px-1 font-display text-base font-bold">
+                <Sparkles className="h-4 w-4 text-gold" />
+                Destaques
+              </h2>
+              <div className="no-scrollbar mt-3 flex snap-x gap-3 overflow-x-auto pb-1">
                 {featured.map((p) => (
                   <button
                     key={p.id}
                     onClick={() => setSelected(p)}
                     className="featured-card"
                   >
-                    <span className="product-thumb relative block h-28 w-full">
+                    <span className="relative block h-32 w-full">
                       <img
                         src={menu.categoryImg[p.category]}
                         alt={p.name}
                         loading="lazy"
                         className="h-full w-full object-cover"
                       />
-                      <span className="thumb-add">+</span>
+                      <span className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                      <span className="thumb-add">
+                        <Plus className="h-4 w-4" />
+                      </span>
                     </span>
-                    <span className="mt-1.5 block truncate text-xs font-semibold">{p.name}</span>
-                    <span className="block text-xs font-bold">{brl(p.price)}</span>
+                    <span className="block p-3">
+                      <span className="block truncate text-sm font-semibold">{p.name}</span>
+                      <span className="mt-0.5 block text-sm font-bold text-primary">
+                        {brl(p.price)}
+                      </span>
+                    </span>
                   </button>
                 ))}
               </div>
@@ -154,16 +198,23 @@ export function Storefront({ menu }: { menu: Menu }) {
             const items = filtered.filter((p) => p.category === c);
             if (!items.length) return null;
             return (
-              <section key={c} id={sectionId(c)} className="scroll-mt-14 pt-5">
-                <h2 className="px-1 text-sm font-bold text-muted-foreground">{c}</h2>
-                <div className="mt-2 grid gap-2">
+              <section key={c} id={sectionId(c)} className="scroll-mt-20 pt-6">
+                <h2 className="px-1 font-display text-base font-bold">{c}</h2>
+                <div className="mt-3 grid gap-2.5">
                   {items.map((p) => (
                     <button key={p.id} onClick={() => setSelected(p)} className="product-row">
-                      <div className="min-w-0 text-left">
-                        {p.tag && <span className="tag">{p.tag}</span>}
+                      <div className="min-w-0 flex-1 text-left">
+                        {p.tag && (
+                          <span className="tag">
+                            <Flame className="h-3 w-3" />
+                            {p.tag}
+                          </span>
+                        )}
                         <h3 className="font-semibold">{p.name}</h3>
-                        <p className="line-clamp-2 text-sm text-muted-foreground">{p.desc}</p>
-                        <p className="mt-2 font-bold">{brl(p.price)}</p>
+                        <p className="mt-0.5 line-clamp-2 text-sm text-muted-foreground">
+                          {p.desc}
+                        </p>
+                        <p className="mt-2 font-bold text-primary">{brl(p.price)}</p>
                       </div>
                       <span className="product-thumb">
                         <img
@@ -172,7 +223,9 @@ export function Storefront({ menu }: { menu: Menu }) {
                           loading="lazy"
                           className="h-full w-full object-cover"
                         />
-                        <span className="thumb-add">+</span>
+                        <span className="thumb-add">
+                          <Plus className="h-4 w-4" />
+                        </span>
                       </span>
                     </button>
                   ))}
@@ -193,31 +246,27 @@ export function Storefront({ menu }: { menu: Menu }) {
         </main>
       </div>
 
-      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card">
-        <div className="mx-auto flex max-w-3xl">
-          <button
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="nav-item nav-item-active"
-          >
-            <Home className="h-5 w-5" />
-            Início
-          </button>
-          <button onClick={() => setCartOpen(true)} className="nav-item relative">
+      {count > 0 && !cartOpen && (
+        <button onClick={() => setCartOpen(true)} className="cart-fab text-left">
+          <span className="flex items-center gap-3">
             <span className="relative">
-              <ShoppingBag className="h-5 w-5" />
-              {count > 0 && (
-                <span className="absolute -right-2 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
-                  {count}
-                </span>
-              )}
+              <ShoppingBag className="h-6 w-6 text-primary" />
+              <span className="absolute -top-1.5 -right-1.5 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+                {count}
+              </span>
             </span>
-            Sacola{count > 0 ? ` · ${brl(subtotal)}` : ""}
-          </button>
-        </div>
-      </nav>
+            <span>
+              <span className="block text-xs text-muted-foreground">Sua sacola</span>
+              <span className="block text-sm font-bold">{brl(subtotal)}</span>
+            </span>
+          </span>
+          <span className="btn-primary py-2.5 text-sm">Ver sacola</span>
+        </button>
+      )}
 
       {selected && (
         <ProductSheet
+          menu={menu}
           product={selected}
           onClose={() => setSelected(null)}
           onAdd={add}
@@ -238,11 +287,9 @@ export function Storefront({ menu }: { menu: Menu }) {
 
 function Sheet({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/50 md:items-center"
-      onClick={onClose}
-    >
+    <div className="sheet-backdrop" onClick={onClose}>
       <div className="sheet" onClick={(e) => e.stopPropagation()}>
+        <div className="sheet-grabber" />
         {children}
       </div>
     </div>
@@ -250,10 +297,12 @@ function Sheet({ children, onClose }: { children: React.ReactNode; onClose: () =
 }
 
 function ProductSheet({
+  menu,
   product,
   onClose,
   onAdd,
 }: {
+  menu: Menu;
   product: Product;
   onClose: () => void;
   onAdd: (p: Product, q: number, n: string, a: Addon[]) => void;
@@ -270,23 +319,53 @@ function ProductSheet({
 
   return (
     <Sheet onClose={onClose}>
-      <h3 className="font-display text-xl font-bold">{product.name}</h3>
-      <p className="mt-1 text-muted-foreground">{product.desc}</p>
+      <div className="relative -mx-6 -mt-6 mb-5 h-44 overflow-hidden rounded-t-[2rem]">
+        <img
+          src={menu.categoryImg[product.category]}
+          alt={product.name}
+          className="h-full w-full object-cover"
+        />
+        <span className="absolute inset-0 bg-gradient-to-t from-popover to-transparent" />
+        <button
+          aria-label="Fechar"
+          onClick={onClose}
+          className="icon-btn absolute top-4 right-4"
+        >
+          <X className="h-5 w-5" />
+        </button>
+      </div>
+
+      {product.tag && (
+        <span className="tag">
+          <Flame className="h-3 w-3" />
+          {product.tag}
+        </span>
+      )}
+      <h3 className="font-display text-2xl font-bold tracking-tight">{product.name}</h3>
+      <p className="mt-1 text-sm text-muted-foreground">{product.desc}</p>
+      <p className="mt-2 text-lg font-bold text-primary">{brl(product.price)}</p>
 
       {product.addons && product.addons.length > 0 && (
         <>
-          <p className="mt-4 text-sm font-semibold">Adicionais</p>
-          <div className="mt-2 grid gap-2">
+          <p className="mt-6 mb-2 text-sm font-bold">Turbine seu pedido</p>
+          <div className="grid gap-2">
             {product.addons.map((a) => {
               const on = picked.includes(a.id);
               return (
                 <button
                   key={a.id}
                   onClick={() => toggle(a.id)}
-                  className={on ? "chip chip-active justify-between" : "chip justify-between"}
+                  className={on ? "addon-row addon-row-active" : "addon-row"}
                 >
-                  <span>{a.name}</span>
-                  <span>{a.price ? `+ ${brl(a.price)}` : "escolher"}</span>
+                  <span className="flex items-center gap-3">
+                    <span className={on ? "check-dot check-dot-on" : "check-dot"}>
+                      <Check className="h-3.5 w-3.5" />
+                    </span>
+                    {a.name}
+                  </span>
+                  <span className={on ? "font-bold text-primary" : "text-muted-foreground"}>
+                    {a.price ? `+ ${brl(a.price)}` : "grátis"}
+                  </span>
                 </button>
               );
             })}
@@ -294,20 +373,24 @@ function ProductSheet({
         </>
       )}
 
-      <label className="mt-4 block text-sm font-semibold">Alguma observação?</label>
+      <label className="mt-6 mb-2 block text-sm font-bold">Alguma observação?</label>
       <textarea
         value={note}
         onChange={(e) => setNote(e.target.value)}
         placeholder="Ex: sem cebola, ponto da carne..."
-        className="field mt-1"
+        className="field resize-none"
         rows={2}
       />
 
-      <div className="mt-5 flex items-center gap-3">
+      <div className="mt-6 flex items-center gap-3">
         <div className="stepper">
-          <button onClick={() => setQty(Math.max(1, qty - 1))}>−</button>
+          <button aria-label="Diminuir" onClick={() => setQty(Math.max(1, qty - 1))}>
+            <Minus className="h-4 w-4" />
+          </button>
           <span>{qty}</span>
-          <button onClick={() => setQty(qty + 1)}>+</button>
+          <button aria-label="Aumentar" onClick={() => setQty(qty + 1)}>
+            <Plus className="h-4 w-4" />
+          </button>
         </div>
         <button
           className="btn-primary flex-1"
@@ -380,56 +463,64 @@ function CartSheet({
   return (
     <Sheet onClose={onClose}>
       <div className="flex items-center justify-between">
-        <h3 className="font-display text-xl font-bold">Sua sacola</h3>
-        <button onClick={onClose} className="text-muted-foreground">
-          Fechar
+        <h3 className="font-display text-2xl font-bold tracking-tight">Sua sacola</h3>
+        <button aria-label="Fechar" onClick={onClose} className="icon-btn">
+          <X className="h-5 w-5" />
         </button>
       </div>
 
       {cart.length === 0 && (
-        <p className="py-8 text-center text-sm text-muted-foreground">
-          Sua sacola está vazia. Adicione um item do cardápio.
-        </p>
+        <div className="py-10 text-center">
+          <ShoppingBag className="mx-auto h-10 w-10 text-muted-foreground/40" />
+          <p className="mt-3 text-sm text-muted-foreground">
+            Sua sacola está vazia. Adicione um item do cardápio.
+          </p>
+        </div>
       )}
 
-      <ul className="mt-3 divide-y divide-border">
+      <ul className="mt-4 grid gap-2.5">
         {cart.map((i) => (
-          <li key={i.key} className="flex justify-between gap-3 py-2 text-sm">
-            <div>
+          <li
+            key={i.key}
+            className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-secondary/40 p-3.5 text-sm"
+          >
+            <div className="min-w-0">
               <p className="font-semibold">
                 {i.qty}x {i.product.name}
               </p>
               {i.addons.length > 0 && (
-                <p className="text-muted-foreground">{i.addons.map((a) => a.name).join(", ")}</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {i.addons.map((a) => a.name).join(", ")}
+                </p>
               )}
-              {i.note && <p className="text-muted-foreground">Obs: {i.note}</p>}
+              {i.note && <p className="mt-0.5 text-xs text-muted-foreground">Obs: {i.note}</p>}
             </div>
-            <div className="text-right">
-              <p>{brl(lineTotal(i) * i.qty)}</p>
+            <div className="flex shrink-0 items-center gap-3">
+              <p className="font-bold">{brl(lineTotal(i) * i.qty)}</p>
               <button
-                className="text-xs text-destructive"
+                aria-label="Remover item"
+                className="icon-btn h-8 w-8 text-destructive"
                 onClick={() => setCart((c) => c.filter((x) => x.key !== i.key))}
               >
-                Remover
+                <Trash2 className="h-4 w-4" />
               </button>
             </div>
           </li>
         ))}
       </ul>
 
-      <div className="mt-4 grid grid-cols-2 gap-2">
+      <div className="segmented mt-5">
         {(["entrega", "retirada"] as const).map((m) => (
-          <button
-            key={m}
-            onClick={() => setMode(m)}
-            className={mode === m ? "chip chip-active justify-center" : "chip justify-center"}
-          >
-            {m === "entrega" ? "Entrega" : "Retirar no local"}
+          <button key={m} onClick={() => setMode(m)} className={mode === m ? "on" : ""}>
+            <span className="flex items-center justify-center gap-1.5">
+              {m === "entrega" ? <Bike className="h-4 w-4" /> : <Store className="h-4 w-4" />}
+              {m === "entrega" ? "Entrega" : "Retirar no local"}
+            </span>
           </button>
         ))}
       </div>
 
-      <div className="mt-3 grid gap-2">
+      <div className="mt-3 grid gap-2.5">
         <input className="field" placeholder="Seu nome" value={form.name} onChange={set("name")} />
         <input
           className="field"
@@ -460,21 +551,21 @@ function CartSheet({
         )}
       </div>
 
-      <div className="mt-4 space-y-1 text-sm">
-        <div className="flex justify-between">
+      <div className="mt-5 space-y-1.5 rounded-2xl border border-border bg-secondary/40 p-4 text-sm">
+        <div className="flex justify-between text-muted-foreground">
           <span>Subtotal</span>
           <span>{brl(subtotal)}</span>
         </div>
-        <div className="flex justify-between">
+        <div className="flex justify-between text-muted-foreground">
           <span>Entrega</span>
-          <span>{brl(fee)}</span>
+          <span>{fee === 0 ? "Grátis" : brl(fee)}</span>
         </div>
-        <div className="flex justify-between text-base font-bold">
+        <div className="flex justify-between pt-1 text-base font-bold">
           <span>Total</span>
-          <span>{brl(total)}</span>
+          <span className="text-primary">{brl(total)}</span>
         </div>
         {belowMin && (
-          <p className="text-destructive">
+          <p className="pt-1 text-xs text-destructive">
             Faltam {brl(menu.store.minOrder - subtotal)} para o pedido mínimo de{" "}
             {brl(menu.store.minOrder)}.
           </p>
@@ -486,7 +577,7 @@ function CartSheet({
         href={valid ? `https://wa.me/${menu.store.whatsapp}?text=${encodeURIComponent(message)}` : undefined}
         target="_blank"
         rel="noreferrer"
-        className={`btn-primary mt-4 block text-center ${valid ? "" : "pointer-events-none opacity-50"}`}
+        className={`btn-primary mt-5 block text-center ${valid ? "" : "pointer-events-none opacity-40"}`}
       >
         Enviar pedido pelo WhatsApp
       </a>
