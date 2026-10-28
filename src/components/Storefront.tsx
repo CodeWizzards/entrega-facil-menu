@@ -53,11 +53,11 @@ export function Storefront({ menu, other }: { menu: Menu; other: Menu }) {
         <img
           src={menu.cover}
           alt={menu.coverAlt}
-          className="h-48 w-full object-cover md:h-64"
+          className="block h-48 w-full object-cover md:h-64"
           width={1600}
           height={640}
         />
-        <div className="mx-auto -mt-12 max-w-3xl px-4">
+        <div className="relative z-10 mx-auto -mt-12 max-w-3xl px-4">
           <div className="store-card">
             <div className="flex items-start gap-4">
               <div className="logo-badge">{menu.logo}</div>
