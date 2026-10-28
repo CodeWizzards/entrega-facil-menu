@@ -1,12 +1,31 @@
 import { ufFrom, type Place } from "@/lib/place";
 
+const PLACE_KEY = "casa-brasa:place";
+const PLACE_TTL = 24 * 60 * 60 * 1000;
+
+/** Last confirmed city on this device, so returning visitors skip the network wait. */
+export function rememberedPlace(now = Date.now()): Place | null {
+  try {
+    const saved = JSON.parse(localStorage.getItem(PLACE_KEY) || "null");
+    if (!saved || typeof saved.city !== "string" || !saved.city.trim() || typeof saved.at !== "number" || now - saved.at > PLACE_TTL) return null;
+    const state = ufFrom(String(saved.state || ""));
+    return state ? { city: saved.city.trim(), state } : null;
+  } catch {
+    return null;
+  }
+}
+
+export function rememberPlace(place: Place, now = Date.now()) {
+  try { localStorage.setItem(PLACE_KEY, JSON.stringify({ city: place.city, state: place.state, at: now })); } catch { /* storage unavailable */ }
+}
+
 /** Called in the browser so the provider sees the visitor's IP, not the server's. */
 export async function placeFromIp(signal?: AbortSignal): Promise<Place> {
   const controller = new AbortController();
   const cancel = () => controller.abort(signal?.reason);
   if (signal?.aborted) cancel();
   else signal?.addEventListener("abort", cancel, { once: true });
-  const timeout = setTimeout(() => controller.abort(), 2500);
+  const timeout = setTimeout(() => controller.abort(), 2000);
   const cancelled = new Promise<never>((_, reject) => {
     const rejectAbort = () => reject(new Error("Confirme sua cidade pelo CEP ou escolha manualmente."));
     if (controller.signal.aborted) rejectAbort();

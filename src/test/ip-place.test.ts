@@ -31,11 +31,11 @@ describe("Cidade aproximada pelo IP", () => {
     expect(await placeFromIp()).toEqual({ city: "Sorocaba", state: "SP" });
     expect(fetcher).toHaveBeenCalledTimes(2);
   });
-  it("encerra a espera em 2500 ms quando ambos os serviços travam", async () => {
+  it("encerra a espera em 2000 ms quando ambos os serviços travam", async () => {
     vi.useFakeTimers();
     vi.stubGlobal("fetch", vi.fn(() => new Promise(() => {})));
     const result = expect(placeFromIp()).rejects.toThrow("Confirme sua cidade");
-    await vi.advanceTimersByTimeAsync(2500);
+    await vi.advanceTimersByTimeAsync(2000);
     await result;
   });
   it("cancela os dois serviços ao solicitar entrada manual", async () => {
