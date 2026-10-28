@@ -24,6 +24,7 @@ import { FeaturedRail } from "@/components/FeaturedRail";
 import { CategoryRail } from "@/components/CategoryRail";
 import { SuperReviews } from "@/components/SuperReviews";
 import pixLogo from "@/assets/pix-logo.png.asset.json";
+import verifiedBadge from "@/assets/verified-badge.png.asset.json";
 import { deliveryErrors, deliveryAddress, emptyDelivery, PAYMENT_METHOD, type DeliveryDetails } from "@/lib/checkout";
 import { formatCep, formatCpf, formatEmail, formatPhone } from "@/lib/format";
 import { ProductBadge } from "@/components/ProductBadge";
@@ -148,7 +149,8 @@ export function Storefront({ menu }: { menu: Menu }) {
               />
             </div>
 
-            <h1 className="text-center font-display text-2xl font-semibold">
+            <h1 className="flex items-center justify-center gap-2 text-center font-display text-2xl font-semibold">
+              <img src={verifiedBadge.url} alt="" aria-hidden className="verified-mark" />
               {menu.store.name}
             </h1>
             <p className="mt-1 text-center text-sm text-muted-foreground">
