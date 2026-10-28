@@ -129,6 +129,8 @@ export function Storefront({ menu }: { menu: Menu }) {
               className="block h-60 w-full object-cover md:h-80"
               width={1600}
               height={640}
+              fetchPriority="high"
+              decoding="async"
             />
             <div className="absolute top-4 right-4 z-10 flex gap-2">
               <Button variant="storefront" size="storefront"
@@ -224,6 +226,7 @@ export function Storefront({ menu }: { menu: Menu }) {
                           src={p.image ?? menu.categoryImg[p.category]}
                           alt={p.name}
                           loading="lazy"
+                          decoding="async"
                           className="h-full w-full object-cover"
                         />
                         <span className="thumb-add">
