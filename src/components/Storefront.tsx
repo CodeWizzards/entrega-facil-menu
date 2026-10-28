@@ -1,4 +1,3 @@
-import { Link } from "@tanstack/react-router";
 import { useMemo, useRef, useState } from "react";
 import { brl, type Addon, type Menu, type Product } from "@/lib/menu";
 
@@ -15,7 +14,7 @@ const lineTotal = (i: Item) =>
 
 const sectionId = (c: string) => `cat-${c.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
 
-export function Storefront({ menu, other }: { menu: Menu; other: Menu }) {
+export function Storefront({ menu }: { menu: Menu }) {
   const [cat, setCat] = useState(menu.categories[0]);
   const [search, setSearch] = useState("");
   const [cart, setCart] = useState<Item[]>([]);
@@ -73,15 +72,6 @@ export function Storefront({ menu, other }: { menu: Menu; other: Menu }) {
               </div>
             </div>
 
-            <div className="mt-4 grid grid-cols-2 gap-2">
-              <Link to={menu.to} className="segment segment-active">
-                {menu.label}
-              </Link>
-              <Link to={other.to} className="segment">
-                {other.label}
-              </Link>
-            </div>
-
             <input
               ref={searchRef}
               value={search}
@@ -110,7 +100,7 @@ export function Storefront({ menu, other }: { menu: Menu; other: Menu }) {
           return (
             <section key={c} id={sectionId(c)} className="scroll-mt-16 pt-6">
               <h2 className="font-display mb-3 text-lg font-bold">{c}</h2>
-              <div className="grid gap-3">
+              <div>
                 {items.map((p) => (
                   <button key={p.id} onClick={() => setSelected(p)} className="product-row">
                     <div className="text-left">
@@ -132,15 +122,6 @@ export function Storefront({ menu, other }: { menu: Menu; other: Menu }) {
             Nada encontrado para “{search}”. Tente outro nome.
           </p>
         )}
-
-        <div className="mt-10 rounded-2xl border border-dashed border-border bg-card p-5 text-center">
-          <p className="text-sm text-muted-foreground">
-            Bateu aquela vontade de {other.label.toLowerCase()}?
-          </p>
-          <Link to={other.to} className="btn-primary mt-3 inline-block">
-            Ver cardápio de {other.label.toLowerCase()}
-          </Link>
-        </div>
 
         <footer className="py-10 text-center text-xs text-muted-foreground">
           {menu.store.name} · Pedido direto no WhatsApp · Valores sujeitos a alteração
