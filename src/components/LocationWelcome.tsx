@@ -46,6 +46,7 @@ export function LocationWelcome({ menu }: { menu: Menu }) {
     setBusy("gps");
     setFeedback("");
     const timeout = setTimeout(() => {
+      if (controller.signal.aborted) return;
       controller.abort();
       setBusy(null);
       setFeedback("A localização está demorando. Você pode usar seu CEP ou escolher o estado.");
