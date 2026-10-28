@@ -28,7 +28,7 @@ describe("Cidade e estado pelas coordenadas", () => {
     vi.stubGlobal("fetch", fetcher);
     const place = await placeFromCoords(-22.9099, -47.0626);
     expect(place).toEqual({ city: "Campinas", state: "SP" });
-    expect(fetcher.mock.calls[0][0]).toContain("nominatim.openstreetmap.org/reverse");
+    expect(String(fetcher.mock.calls[0]?.[0])).toContain("nominatim.openstreetmap.org/reverse");
   });
 
   it("pede o CEP quando o serviço não reconhece a região", async () => {

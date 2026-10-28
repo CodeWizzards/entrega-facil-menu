@@ -48,8 +48,8 @@ export function ufFrom(value: string): string {
   if (!raw) return "";
   const upper = raw.toUpperCase();
   if (UFS.includes(upper)) return upper;
-  const iso = /^BR-([A-Z]{2})$/.exec(upper);
-  if (iso && UFS.includes(iso[1])) return iso[1];
+  const isoUf = /^BR-([A-Z]{2})$/.exec(upper)?.[1];
+  if (isoUf && UFS.includes(isoUf)) return isoUf;
   return UF_BY_NAME[normalize(raw)] ?? "";
 }
 
