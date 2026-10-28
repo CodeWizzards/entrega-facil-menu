@@ -529,3 +529,48 @@
 .card-back { visibility: hidden; }
 .card-3d.is-flipped .card-front { visibility: hidden; }
 .card-3d.is-flipped .card-back { visibility: visible; }
+
+/* ---- Selo Super e avaliações ---- */
+.super-card {
+  border-radius: 22px;
+  padding: 18px;
+  background: linear-gradient(160deg, color-mix(in oklab, var(--gold) 12%, var(--card)), var(--card));
+  border: 1px solid color-mix(in oklab, var(--gold) 35%, var(--border));
+  box-shadow: var(--shadow-soft);
+}
+.super-badge {
+  display: grid; place-items: center;
+  width: 32px; height: 32px; border-radius: 10px;
+  color: var(--background);
+  background: linear-gradient(145deg, var(--gold), color-mix(in oklab, var(--gold) 70%, var(--primary)));
+  box-shadow: 0 4px 12px color-mix(in oklab, var(--gold) 40%, transparent);
+}
+.super-stars { display: inline-flex; gap: 1px; color: var(--gold); }
+.super-perk-icon {
+  position: relative;
+  display: grid; place-items: center;
+  width: 30px; height: 30px; border-radius: 999px;
+  color: var(--gold);
+  background: color-mix(in oklab, var(--gold) 14%, transparent);
+  border: 1px solid color-mix(in oklab, var(--gold) 30%, transparent);
+}
+.super-perk-check {
+  position: absolute; right: -3px; bottom: -3px;
+  display: grid; place-items: center;
+  width: 14px; height: 14px; border-radius: 999px;
+  color: var(--background); background: var(--success);
+  border: 2px solid var(--card);
+}
+.review-card {
+  border-radius: 18px; padding: 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+}
+.review-avatar {
+  display: grid; place-items: center;
+  width: 38px; height: 38px; border-radius: 999px;
+  font-size: 13px; font-weight: 800;
+  color: var(--background);
+  background: linear-gradient(145deg, var(--primary), color-mix(in oklab, var(--primary) 60%, black));
+}

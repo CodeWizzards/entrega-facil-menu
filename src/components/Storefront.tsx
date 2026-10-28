@@ -22,6 +22,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
 import { FeaturedRail } from "@/components/FeaturedRail";
 import { CategoryRail } from "@/components/CategoryRail";
+import { SuperReviews } from "@/components/SuperReviews";
 import pixLogo from "@/assets/pix-logo.png.asset.json";
 import { deliveryErrors, deliveryAddress, emptyDelivery, PAYMENT_METHOD, type DeliveryDetails } from "@/lib/checkout";
 import { formatCep, formatCpf, formatEmail, formatPhone } from "@/lib/format";
