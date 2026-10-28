@@ -6,14 +6,14 @@ import { SUSHI } from "@/lib/sushi";
 describe("Localização inicial", () => {
   beforeEach(() => {
     Object.defineProperty(navigator, "geolocation", { configurable: true, value: { getCurrentPosition: vi.fn() } });
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => [{ nome: "Ariquemes" }] }));
+    vi.stubGlobal("fetch", vi.fn().mockImplementation((url: string) => url.includes("ipapi.co") ? new Promise(() => {}) : Promise.resolve({ ok: true, json: async () => [{ nome: "Ariquemes" }] })));
   });
   afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 
-  it("abre sem esperar o GPS e permite confirmar a cidade manualmente enquanto ele está pendente", async () => {
+  it("abre sem esperar o IP e permite confirmar a cidade manualmente enquanto ele está pendente", async () => {
     render(<LocationWelcome menu={SUSHI} />);
     expect(screen.getByRole("dialog")).toBeVisible();
-    expect(navigator.geolocation.getCurrentPosition).toHaveBeenCalledTimes(1);
+    expect(navigator.geolocation.getCurrentPosition).not.toHaveBeenCalled();
     fireEvent.change(screen.getByLabelText("Estado"), { target: { value: "RO" } });
     expect(screen.getByRole("button", { name: "Continuar" })).toBeEnabled();
     fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
@@ -24,13 +24,20 @@ describe("Localização inicial", () => {
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
   });
 
-  it("não deixa um GPS atrasado substituir o estado escolhido manualmente", async () => {
-    let success: PositionCallback | undefined;
-    vi.mocked(navigator.geolocation.getCurrentPosition).mockImplementation(callback => { success = callback; });
+  it("não deixa um IP atrasado substituir o estado escolhido manualmente", async () => {
+    let resolveIp: ((value: unknown) => void) | undefined;
+    vi.stubGlobal("fetch", vi.fn().mockImplementation((url: string) => url.includes("ipapi.co") ? new Promise(resolve => { resolveIp = resolve; }) : Promise.resolve({ ok: true, json: async () => [] })));
     render(<LocationWelcome menu={SUSHI} />);
     fireEvent.change(screen.getByLabelText("Estado"), { target: { value: "RO" } });
-    success?.({ coords: { latitude: -23.5, longitude: -46.6 } } as GeolocationPosition);
+    resolveIp?.({ ok: true, json: async () => ({ city: "São Paulo", region_code: "SP", country_code: "BR" }) });
     await waitFor(() => expect(screen.getByLabelText("Estado")).toHaveValue("RO"));
     expect(vi.mocked(fetch).mock.calls.some(([url]) => String(url).includes("nominatim"))).toBe(false);
+  });
+
+  it("preenche cidade e estado pelo IP sem acionar a permissão de GPS", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockImplementation((url: string) => Promise.resolve({ ok: true, json: async () => url.includes("ipapi.co") ? { city: "Ariquemes", region_code: "RO", country_code: "BR" } : [] })));
+    render(<LocationWelcome menu={SUSHI} />);
+    await waitFor(() => expect(screen.getByLabelText("Cidade")).toHaveValue("Ariquemes"));
+    expect(navigator.geolocation.getCurrentPosition).not.toHaveBeenCalled();
   });
 });

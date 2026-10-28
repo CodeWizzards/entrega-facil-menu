@@ -23,3 +23,4 @@
 - Checkout validation and address formatting live in a shared browser-safe module with rule tests; a future payment handler must independently revalidate these fields and recalculate totals.
 - CEP lookup uses ViaCEP with cancellation and editable fallback; browser coordinates are reverse-geocoded through the keyless Nominatim endpoint wrapped in `src/lib/place.ts` to fill city and state, and the location wizard must never present demo distances as real calculations.
 - The location welcome renders its Radix overlay and content inline for server-rendered first-paint visibility; location requests must never block manual entry or overwrite it after cancellation.
+- Automatic IP location uses a browser request to ipapi.co with no credentials or referrer, a bounded timeout, Brazilian-region validation and editable fallback; server proxying would geolocate the server rather than the visitor.
