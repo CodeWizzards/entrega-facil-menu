@@ -37,6 +37,7 @@ import { cardErrors, emptyCard } from "@/lib/card";
 import type { PixPayment } from "@/lib/pix";
 import { newPixAccess, readPixAttempts, rememberPixAttempt, type PixAttempt } from "@/lib/pix-session";
 import { PixPaymentPanel } from "@/components/PixPaymentPanel";
+import { OrderTracking } from "@/components/OrderTracking";
 
 type Item = {
   key: string;
@@ -454,6 +455,7 @@ function CartSheet({
     finally { setProcessing(false); }
   };
   const [submitted, setSubmitted] = useState(false);
+  const [sentToStore, setSentToStore] = useState(false);
   const [postalStatus, setPostalStatus] = useState("");
   const [secureConnection, setSecureConnection] = useState(false);
   useEffect(() => { setSecureConnection(window.location.protocol === "https:"); }, []);
@@ -548,7 +550,7 @@ function CartSheet({
         </div>
       )}
 
-      <ul className="mt-4 grid gap-2.5">
+      {payment?.status !== "PAID" && <ul className="mt-4 grid gap-2.5">
         {cart.map((i) => (
           <li
             key={i.key}
