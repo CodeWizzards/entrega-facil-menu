@@ -5,17 +5,9 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Design system definition.
- *
- * The @theme inline block maps CSS custom properties to Tailwind utility
- * classes (e.g. --color-primary -> bg-primary, text-primary).
- *
- * The :root and .dark blocks define the actual color values using oklch.
- * All colors MUST use oklch format.
- *
- * To add a new semantic color:
- * 1. Add the variable to :root (light value) and .dark (dark value)
- * 2. Register it in @theme inline as --color-<name>: var(--<name>)
+ * Design system — Casa Brasa
+ * Tema escuro premium estilo iOS: vidro fosco, cantos grandes,
+ * vermelho da logo como acento e dourado nos detalhes.
  */
 
 @theme inline {
@@ -46,114 +38,35 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-ring-offset-background: var(--background);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
-}
-
-:root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
-  --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.968 0.007 247.896);
-  --accent-foreground: oklch(0.208 0.042 265.755);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.929 0.013 255.508);
-  --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.704 0.04 256.788);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.984 0.003 247.858);
-  --sidebar-foreground: oklch(0.129 0.042 264.695);
-  --sidebar-primary: oklch(0.208 0.042 265.755);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.968 0.007 247.896);
-  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
-  --sidebar-border: oklch(0.929 0.013 255.508);
-  --sidebar-ring: oklch(0.704 0.04 256.788);
-}
-
-.dark {
-  --background: oklch(0.129 0.042 264.695);
-  --foreground: oklch(0.984 0.003 247.858);
-  --card: oklch(0.208 0.042 265.755);
-  --card-foreground: oklch(0.984 0.003 247.858);
-  --popover: oklch(0.208 0.042 265.755);
-  --popover-foreground: oklch(0.984 0.003 247.858);
-  --primary: oklch(0.929 0.013 255.508);
-  --primary-foreground: oklch(0.208 0.042 265.755);
-  --secondary: oklch(0.279 0.041 260.031);
-  --secondary-foreground: oklch(0.984 0.003 247.858);
-  --muted: oklch(0.279 0.041 260.031);
-  --muted-foreground: oklch(0.704 0.04 256.788);
-  --accent: oklch(0.279 0.041 260.031);
-  --accent-foreground: oklch(0.984 0.003 247.858);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.551 0.027 264.364);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.208 0.042 265.755);
-  --sidebar-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.279 0.041 260.031);
-  --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.551 0.027 264.364);
-}
-
-:root {
-  --background: oklch(0.3 0.005 60);
-  --foreground: oklch(0.95 0.005 70);
-  --card: oklch(0.25 0.005 60);
-  --card-foreground: oklch(0.95 0.005 70);
-  --primary: oklch(0.58 0.21 27);
-  --primary-foreground: oklch(0.98 0 0);
-  --gold: oklch(0.7 0.12 85);
-  --muted: oklch(0.28 0.005 60);
-  --muted-foreground: oklch(0.68 0.01 60);
-  --border: oklch(1 0 0 / 8%);
-  --input: oklch(1 0 0 / 10%);
-  --ring: oklch(0.58 0.21 27);
-  --success: oklch(0.7 0.15 155);
-  --radius: 0.9rem;
-}
-
-@theme inline {
   --color-success: var(--success);
   --color-gold: var(--gold);
   --font-display: "Sora", sans-serif;
   --font-sans: "Manrope", sans-serif;
+}
+
+:root {
+  --radius: 1rem;
+  --background: oklch(0.155 0.006 60);
+  --foreground: oklch(0.96 0.005 70);
+  --card: oklch(0.205 0.007 60);
+  --card-foreground: oklch(0.96 0.005 70);
+  --popover: oklch(0.22 0.008 60);
+  --popover-foreground: oklch(0.96 0.005 70);
+  --primary: oklch(0.6 0.215 27);
+  --primary-foreground: oklch(0.985 0.005 70);
+  --secondary: oklch(0.26 0.008 60);
+  --secondary-foreground: oklch(0.96 0.005 70);
+  --muted: oklch(0.26 0.008 60);
+  --muted-foreground: oklch(0.66 0.012 60);
+  --accent: oklch(0.26 0.008 60);
+  --accent-foreground: oklch(0.96 0.005 70);
+  --destructive: oklch(0.62 0.2 25);
+  --destructive-foreground: oklch(0.985 0.005 70);
+  --border: oklch(1 0 0 / 9%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.6 0.215 27);
+  --success: oklch(0.72 0.16 155);
+  --gold: oklch(0.76 0.12 85);
 }
 
 @layer base {
@@ -161,34 +74,202 @@
     border-color: var(--color-border);
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--primary) 70%, transparent);
+    color: var(--primary-foreground);
+  }
+
+  /* Barra de rolagem personalizada */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: oklch(0.32 0.01 60);
+    border-radius: 999px;
+    border: 2px solid var(--background);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+  }
+
+  /* Trilhos horizontais (destaques, categorias) sem scrollbar visível */
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
   }
 }
 
 @layer components {
-  .store-card { @apply relative rounded-t-3xl bg-card px-4 pt-14 pb-4; }
-  .logo-badge { @apply absolute -top-12 left-1/2 h-24 w-24 -translate-x-1/2 overflow-hidden rounded-full border-4 border-card bg-card shadow-md; }
-  .field { @apply w-full rounded-xl border border-input bg-card px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring; }
-  .chip { @apply flex shrink-0 items-center rounded-full border border-border bg-card px-4 py-1.5 text-sm font-medium whitespace-nowrap transition-colors; }
-  .chip-active { @apply border-primary bg-primary text-primary-foreground; }
-  .cat-link { @apply shrink-0 border-b-2 border-transparent px-3 py-3 text-sm font-semibold whitespace-nowrap text-muted-foreground transition-colors; }
-  .cat-link-active { @apply border-primary text-primary; }
-  .product-row { @apply flex w-full items-center justify-between gap-4 rounded-2xl bg-card p-4 text-left transition hover:bg-muted; }
-  .product-thumb { @apply relative h-20 w-20 shrink-0 overflow-hidden rounded-xl; }
-  .thumb-add { @apply absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-primary text-base font-bold text-primary-foreground shadow; }
-  .featured-card { @apply w-32 shrink-0 snap-start text-left; }
-  .add-dot { @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-xl text-primary-foreground; }
-  .status-strip { @apply mt-3 rounded-lg bg-black/40 py-2 text-center text-xs font-medium text-foreground; }
-  .nav-item { @apply flex flex-1 flex-col items-center gap-0.5 py-2 text-xs font-semibold text-muted-foreground transition-colors; }
-  .nav-item-active { @apply text-primary; }
-  .sheet { @apply max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-card p-6 md:rounded-3xl; animation: sheet-up .25s ease-out; }
-  .stepper { @apply flex items-center gap-3 rounded-xl border border-border px-3 py-2 font-semibold; }
-  .stepper button { @apply text-lg text-primary; }
-  .btn-primary { @apply rounded-xl bg-primary px-4 py-3 font-semibold text-primary-foreground transition hover:opacity-90; }
-  .tag { @apply mb-1 inline-block rounded-full bg-primary/15 px-2 py-0.5 text-[11px] font-semibold text-primary; }
+  /* ---------- Capa e cartão da loja ---------- */
+  .cover-wrap {
+    @apply relative overflow-hidden;
+  }
+  .cover-wrap::after {
+    content: "";
+    @apply absolute inset-0;
+    background: linear-gradient(
+      to bottom,
+      transparent 30%,
+      color-mix(in oklab, var(--background) 55%, transparent) 75%,
+      var(--background) 100%
+    );
+  }
+  .store-card {
+    @apply relative z-10 -mt-16 rounded-3xl border border-border bg-card/80 px-5 pt-16 pb-5 shadow-2xl backdrop-blur-xl;
+  }
+  .logo-badge {
+    @apply absolute -top-14 left-1/2 h-28 w-28 -translate-x-1/2 overflow-hidden rounded-full border-4 border-card bg-card;
+    box-shadow:
+      0 0 0 3px color-mix(in oklab, var(--gold) 55%, transparent),
+      0 12px 32px -8px color-mix(in oklab, var(--primary) 45%, transparent);
+  }
+  .status-pill {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold;
+  }
+  .status-open {
+    @apply bg-success/15 text-success;
+  }
+  .status-info {
+    @apply bg-secondary text-secondary-foreground;
+  }
+
+  /* ---------- Campos e botões estilo iOS ---------- */
+  .field {
+    @apply w-full rounded-2xl border border-input bg-secondary/60 px-4 py-3 text-sm outline-none transition placeholder:text-muted-foreground focus:border-primary/60 focus:ring-4 focus:ring-primary/15;
+  }
+  .btn-primary {
+    @apply rounded-full bg-primary px-5 py-3.5 font-bold text-primary-foreground shadow-lg transition active:scale-[0.97];
+    box-shadow: 0 10px 24px -8px color-mix(in oklab, var(--primary) 65%, transparent);
+  }
+  .btn-primary:hover {
+    filter: brightness(1.08);
+  }
+  .icon-btn {
+    @apply flex h-10 w-10 items-center justify-center rounded-full bg-secondary/80 text-muted-foreground backdrop-blur transition hover:text-foreground active:scale-90;
+  }
+
+  /* ---------- Categorias: pílulas iOS ---------- */
+  .cat-pill {
+    @apply shrink-0 rounded-full px-4 py-2 text-sm font-semibold whitespace-nowrap text-muted-foreground transition active:scale-95;
+  }
+  .cat-pill-active {
+    @apply bg-primary text-primary-foreground shadow-md;
+    box-shadow: 0 6px 16px -6px color-mix(in oklab, var(--primary) 60%, transparent);
+  }
+
+  /* ---------- Produtos ---------- */
+  .product-row {
+    @apply flex w-full items-center justify-between gap-4 rounded-3xl border border-border bg-card p-3.5 text-left transition hover:border-primary/40 hover:bg-secondary/40 active:scale-[0.99];
+  }
+  .product-thumb {
+    @apply relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl;
+  }
+  .thumb-add {
+    @apply absolute right-1.5 bottom-1.5 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground shadow-lg transition active:scale-90;
+  }
+  .tag {
+    @apply mb-1.5 inline-flex items-center gap-1 rounded-full bg-gold/15 px-2.5 py-0.5 text-[11px] font-bold text-gold;
+  }
+  .featured-card {
+    @apply w-40 shrink-0 snap-start overflow-hidden rounded-3xl border border-border bg-card text-left transition hover:border-primary/40 active:scale-[0.98];
+  }
+
+  /* ---------- Folhas (produto e sacola) ---------- */
+  .sheet-backdrop {
+    @apply fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm md:items-center md:p-6;
+    animation: fade-in 0.2s ease-out;
+  }
+  .sheet {
+    @apply max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-[2rem] border border-border bg-popover p-6 pb-8 md:rounded-[2rem];
+    animation: sheet-up 0.32s cubic-bezier(0.32, 0.72, 0.35, 1);
+  }
+  .sheet-grabber {
+    @apply mx-auto mb-4 h-1.5 w-10 rounded-full bg-muted-foreground/30;
+  }
+  .addon-row {
+    @apply flex w-full items-center justify-between gap-3 rounded-2xl border border-border bg-secondary/40 px-4 py-3 text-sm font-medium transition active:scale-[0.99];
+  }
+  .addon-row-active {
+    @apply border-primary/60 bg-primary/10;
+  }
+  .check-dot {
+    @apply flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-muted-foreground/40 text-transparent transition;
+  }
+  .check-dot-on {
+    @apply border-primary bg-primary text-primary-foreground;
+  }
+  .stepper {
+    @apply flex items-center gap-1 rounded-full border border-border bg-secondary/60 p-1 font-bold;
+  }
+  .stepper button {
+    @apply flex h-9 w-9 items-center justify-center rounded-full text-lg text-primary transition hover:bg-primary/15 active:scale-90;
+  }
+  .stepper span {
+    @apply min-w-7 text-center;
+  }
+
+  /* ---------- Controle segmentado (entrega/retirada) ---------- */
+  .segmented {
+    @apply grid grid-cols-2 gap-1 rounded-full border border-border bg-secondary/60 p-1;
+  }
+  .segmented button {
+    @apply rounded-full py-2.5 text-sm font-semibold text-muted-foreground transition active:scale-[0.97];
+  }
+  .segmented button.on {
+    @apply bg-primary text-primary-foreground shadow-md;
+  }
+
+  /* ---------- Barra flutuante da sacola ---------- */
+  .cart-fab {
+    @apply fixed inset-x-4 bottom-4 z-40 mx-auto flex max-w-lg items-center justify-between gap-3 rounded-full border border-border bg-card/85 py-2.5 pr-2.5 pl-5 shadow-2xl backdrop-blur-xl;
+    animation: fab-up 0.3s cubic-bezier(0.32, 0.72, 0.35, 1);
+  }
 }
 
-@keyframes sheet-up { from { transform: translateY(30px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes sheet-up {
+  from {
+    transform: translateY(48px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fab-up {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
