@@ -262,9 +262,11 @@ export const SUSHI: Menu = {
     name: "Casa Brasa Sushi",
     tagline: "Peixe fresco do dia · Combinados quentes e frios",
     whatsapp: WHATSAPP,
-    deliveryFee: 9,
+    deliveryFee: 0,
     minOrder: 45,
     eta: "45–70 min",
+    rating: 4.9,
+    reviews: 1367,
   },
   categories: [
     "Combos",
