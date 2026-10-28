@@ -1,7 +1,9 @@
 import { ufFrom, type Place } from "@/lib/place";
 
-const PLACE_KEY = "casa-brasa:place";
-const PLACE_TTL = 24 * 60 * 60 * 1000;
+const CITY_COOKIE = "localCidade";
+const STATE_COOKIE = "localEstado";
+const COOKIE_DAYS = 365;
+const GEO_URL = "https://get.geojs.io/v1/ip/geo.json";
 
 declare global {
   interface Window {
@@ -10,29 +12,42 @@ declare global {
   }
 }
 
-/** Last confirmed city on this device, so returning visitors skip the network wait. */
-export function rememberedPlace(now = Date.now()): Place | null {
-  try {
-    const saved = JSON.parse(localStorage.getItem(PLACE_KEY) || "null");
-    if (!saved || typeof saved.city !== "string" || !saved.city.trim() || typeof saved.at !== "number" || now - saved.at > PLACE_TTL) return null;
-    const state = ufFrom(String(saved.state || ""));
-    return state ? { city: saved.city.trim(), state } : null;
-  } catch {
-    return null;
+function getCookie(name: string): string {
+  if (typeof document === "undefined") return "";
+  const prefix = `${name}=`;
+  for (const part of document.cookie.split(";")) {
+    const trimmed = part.trim();
+    if (trimmed.startsWith(prefix)) {
+      try { return decodeURIComponent(trimmed.slice(prefix.length)); } catch { return ""; }
+    }
   }
+  return "";
 }
 
-export function rememberPlace(place: Place, now = Date.now()) {
-  try { localStorage.setItem(PLACE_KEY, JSON.stringify({ city: place.city, state: place.state, at: now })); } catch { /* storage unavailable */ }
+function setCookie(name: string, value: string, days: number) {
+  if (typeof document === "undefined") return;
+  const maxAge = days * 24 * 60 * 60;
+  document.cookie = `${name}=${encodeURIComponent(value)}; max-age=${maxAge}; path=/; SameSite=Lax`;
+}
+
+/** Última cidade confirmada neste aparelho, salva em cookies por 365 dias. */
+export function rememberedPlace(): Place | null {
+  const city = getCookie(CITY_COOKIE).trim();
+  const state = ufFrom(getCookie(STATE_COOKIE));
+  return city && state ? { city, state } : null;
+}
+
+export function rememberPlace(place: Place) {
+  setCookie(CITY_COOKIE, place.city, COOKIE_DAYS);
+  setCookie(STATE_COOKIE, place.state, COOKIE_DAYS);
 }
 
 function parsePlace(data: unknown): Place | null {
   if (!data || typeof data !== "object") return null;
   const d = data as Record<string, unknown>;
   const city = typeof d["city"] === "string" ? d["city"].trim() : "";
-  const region = d["region_code"] || d["region"];
-  const state = ufFrom(typeof region === "string" ? region : "");
-  if (d["error"] || d["success"] === false || d["country_code"] !== "BR" || !city || !state) return null;
+  const state = ufFrom(typeof d["region"] === "string" ? d["region"] : "");
+  if (d["country_code"] !== "BR" || !city || !state) return null;
   return { city, state };
 }
 
@@ -56,18 +71,20 @@ export async function placeFromIp(signal?: AbortSignal): Promise<Place> {
       if (place) return place;
     }
     if (controller.signal.aborted) throw new Error("Consulta cancelada.");
-    const queries = ["https://ipapi.co/json/", "https://ipwho.is/"].map(async url => {
-      const response = await fetch(url, {
+    const response = await Promise.race([
+      fetch(GEO_URL, {
         signal: controller.signal,
         credentials: "omit",
         referrerPolicy: "no-referrer",
-      });
-      if (!response.ok) throw new Error("Consulta indisponível.");
-      const place = parsePlace(await response.json());
-      if (!place) throw new Error("Região inválida.");
-      return place;
-    });
-    return await Promise.race([Promise.any(queries), cancelled]);
+      }).then(async r => {
+        if (!r.ok) throw new Error("Consulta indisponível.");
+        return r.json();
+      }),
+      cancelled,
+    ]);
+    const place = parsePlace(response);
+    if (!place) throw new Error("Região inválida.");
+    return place;
   } catch {
     throw new Error("Confirme sua cidade pelo CEP ou escolha manualmente.");
   } finally {
