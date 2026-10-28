@@ -15,10 +15,7 @@ function CardPreview({ card, flipped, focus }: { card: CardDetails; flipped: boo
   const digits = card.number.replace(/\D/g, "");
   const groups = brand === "amex" ? [4, 6, 5] : [4, 4, 4, 4];
   let i = 0;
-  const shown = groups.map((size, g) => {
-    const chars = Array.from({ length: size }, () => { const d = digits[i]; const pos = i++; return d === undefined ? "•" : g > 0 && g < groups.length - 1 && pos < digits.length - 0 ? d : d; });
-    return chars.join("");
-  });
+  const shown = groups.map(size => Array.from({ length: size }, () => digits[i++] ?? "•").join(""));
   return (
     <div className="card-stage" aria-hidden="true">
       <div className={`card-3d ${flipped ? "is-flipped" : ""}`} data-brand={brand}>
