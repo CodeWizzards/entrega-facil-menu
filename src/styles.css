@@ -788,7 +788,7 @@
 .map-blocks rect { fill: color-mix(in oklab, var(--foreground) 5%, transparent); }
 .map-park { fill: color-mix(in oklab, var(--success) 13%, transparent); }
 .map-streets text {
-  fill: color-mix(in oklab, var(--foreground) 58%, transparent);
+  fill: color-mix(in oklab, var(--foreground) 70%, transparent);
   font-size: 8px; font-weight: 600; letter-spacing: .07em;
 }
 .map-road-major { stroke: color-mix(in oklab, var(--foreground) 12%, transparent); stroke-width: 9; stroke-linecap: round; }
