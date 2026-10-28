@@ -103,12 +103,14 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: color-mix(in oklab, var(--muted-foreground) 45%, transparent);
+    background: linear-gradient(180deg, var(--primary), color-mix(in oklab, var(--primary) 55%, var(--gold)));
     border-radius: 999px;
     border: 0;
+    box-shadow: 0 0 6px color-mix(in oklab, var(--primary) 35%, transparent);
   }
   ::-webkit-scrollbar-thumb:hover {
     background: var(--primary);
+    box-shadow: 0 0 10px color-mix(in oklab, var(--primary) 55%, transparent);
   }
 
   /* Trilhos horizontais (destaques, categorias) sem scrollbar visível */
