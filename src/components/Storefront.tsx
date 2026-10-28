@@ -424,7 +424,7 @@ function CartSheet({
   const field = (key: keyof DeliveryDetails, label: string, autoComplete?: string, optional = false) => (
     <label className="checkout-field">
       <span>{label}{optional && <span className="text-muted-foreground"> · opcional</span>}</span>
-      <input className="field" value={form[key]} autoComplete={autoComplete} required={!optional}
+      <input className="field" aria-label={label} value={form[key]} autoComplete={autoComplete} required={!optional}
         inputMode={key === "cep" || key === "phone" ? "numeric" : undefined}
         maxLength={key === "state" ? 2 : undefined}
         aria-invalid={submitted && Boolean(errors[key])}
