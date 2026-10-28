@@ -8,6 +8,7 @@ describe("Formatação dos campos", () => {
     expect(formatPhone("11 98765-4321")).toBe("(11) 98765-4321");
     expect(formatPhone("+55 11 98765 4321")).toBe("(11) 98765-4321");
     expect(formatPhone("1138765432")).toBe("(11) 3876-5432");
+    expect(formatPhone("1198765432")).toBe("(11) 98765-432");
     expect(formatPhone("11")).toBe("(11");
     expect(formatPhone("")).toBe("");
   });
