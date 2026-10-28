@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Bike, Check, ChefHat, CircleDashed, Home, LoaderCircle, MapPin, MessageCircle, Navigation, ReceiptText, SendHorizontal, Store } from "lucide-react";
+import { Bike, Check, ChefHat, CircleDashed, Home, LoaderCircle, MapPin, MessageCircle, ReceiptText, SendHorizontal, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { brl, type Menu } from "@/lib/menu";
 import type { PixPayment } from "@/lib/pix";
@@ -9,13 +9,17 @@ type Step = { label: string; hint: string; icon: typeof Check; state: "done" | "
 
 const LIVE_FEE = 7.32;
 
+/** Rota desenhada no mapa (coordenadas do viewBox 340x190). */
+const ROUTE = "M 16 146 L 96 146 Q 112 146 112 130 L 112 92 Q 112 76 128 76 L 230 76 Q 246 76 246 92 L 246 130 Q 246 146 262 146 L 306 146";
+const DEST = { x: 306, y: 133 };
+
 /**
  * Acompanhamento do pedido após o pagamento confirmado.
  * As etapas futuras ficam pendentes de verdade: quem atualiza é a loja,
  * pelo WhatsApp do cliente. Nada de distância ou posição inventada.
  *
  * A "localização ao vivo" é uma demonstração de teste: a taxa é simulada
- * no navegador, sem cobrança real, e o mapa não mostra posição verdadeira.
+ * no navegador, sem cobrança real, e o mapa mostra uma rota fictícia.
  */
 export function OrderTracking({ menu, payment, form, total, sentToStore, onSend, onClose }: {
   menu: Menu;
@@ -36,6 +40,8 @@ export function OrderTracking({ menu, payment, form, total, sentToStore, onSend,
     setLive("paying");
     liveTimer.current = setTimeout(() => setLive("on"), 1800);
   }
+
+  const liveFeeText = brl(LIVE_FEE).replace("R$", "").trim();
 
   const steps: Step[] = [
     { label: "Pagamento confirmado", hint: `${payment.method === "CARD" ? "Cartão" : "Pix"} aprovado · ${brl(payment.amount)}`, icon: Check, state: "done" },
@@ -72,11 +78,76 @@ export function OrderTracking({ menu, payment, form, total, sentToStore, onSend,
       {live === "on" ? (
         <div className="tracking-live" aria-label="Localização ao vivo (demonstração)">
           <div className="tracking-live-map">
-            <span className="tracking-live-pin"><Navigation /></span>
-            <span className="tracking-live-pulse" aria-hidden="true" />
+            <svg className="tracking-live-svg" viewBox="0 0 340 190" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+              <g className="map-blocks">
+                <rect x="6" y="4" width="98" height="16" rx="8" />
+                <rect x="6" y="36" width="98" height="32" rx="9" />
+                <rect x="6" y="112" width="98" height="26" rx="8" />
+                <rect x="6" y="158" width="98" height="26" rx="8" />
+                <rect x="124" y="4" width="108" height="16" rx="8" />
+                <rect x="124" y="36" width="108" height="32" rx="9" />
+                <rect x="258" y="4" width="76" height="26" rx="8" />
+                <rect x="258" y="38" width="76" height="30" rx="8" />
+                <rect x="124" y="84" width="38" height="54" rx="9" />
+                <rect x="182" y="84" width="56" height="54" rx="9" />
+                <rect x="258" y="84" width="76" height="24" rx="8" />
+                <rect x="124" y="158" width="38" height="26" rx="8" />
+                <rect x="182" y="158" width="56" height="26" rx="8" />
+              </g>
+              <rect className="map-park" x="182" y="84" width="56" height="54" rx="9" />
+              <g className="map-roads">
+                <line x1="0" y1="146" x2="340" y2="146" className="map-road-major" />
+                <line x1="90" y1="76" x2="340" y2="76" className="map-road-major" />
+                <line x1="112" y1="16" x2="112" y2="190" className="map-road-minor" />
+                <line x1="246" y1="0" x2="246" y2="132" className="map-road-minor" />
+                <line x1="170" y1="76" x2="170" y2="190" className="map-road-minor" />
+                <line x1="0" y1="104" x2="112" y2="104" className="map-road-minor" />
+                <line x1="0" y1="28" x2="240" y2="28" className="map-road-minor" />
+                <line x1="246" y1="120" x2="340" y2="120" className="map-road-minor" />
+              </g>
+              <g className="map-streets">
+                <text x="300" y="70" textAnchor="middle">AV. DA BRASA</text>
+                <text x="56" y="101" textAnchor="middle">R. DAS PALMEIRAS</text>
+                <text x="170" y="110" textAnchor="middle" transform="rotate(-90 170 110)">R. DO FOGO</text>
+                <text x="175" y="25" textAnchor="middle">R. DO MAR</text>
+              </g>
+              <path className="map-route" d={ROUTE} />
+              <path className="map-route-flow" d={ROUTE} />
+              <g className="map-dest" transform={`translate(${DEST.x} ${DEST.y})`}>
+                <circle className="map-dest-halo" cx="0" cy="-4" r="17" />
+                <path className="map-dest-pin" d="M 0 13 C -3.6 6.6 -10.6 3.4 -10.6 -4 A 10.6 10.6 0 1 1 10.6 -4 C 10.6 3.4 3.6 6.6 0 13 Z" />
+                <circle className="map-dest-inner" cx="0" cy="-4" r="3.8" />
+              </g>
+              <g className="map-courier">
+                <circle className="map-courier-halo" r="19" />
+                <rect className="map-courier-badge" x="-12" y="-12" width="24" height="24" rx="8" />
+                <g className="map-courier-glyph" transform="scale(0.62) translate(-12 -12)">
+                  <circle cx="18.5" cy="17.5" r="3.5" />
+                  <circle cx="5.5" cy="17.5" r="3.5" />
+                  <circle cx="15" cy="5" r="1" />
+                  <path d="M12 17.5V14l-3-3 4-3 2 3h2" />
+                </g>
+                <animateMotion dur="9s" repeatCount="indefinite" rotate="0" path={ROUTE} />
+              </g>
+            </svg>
+            <span className="tracking-live-chip is-live"><i aria-hidden="true" /> Ao vivo</span>
+            <span className="tracking-live-chip is-demo">Demonstração</span>
           </div>
-          <p className="tracking-live-title">Localização ao vivo ativada</p>
-          <p className="tracking-live-hint">Demonstração de teste — a posição real do entregador ainda não está conectada.</p>
+
+          <div className="tracking-live-rows">
+            <div className="tracking-live-row">
+              <span className="tracking-live-avatar" aria-hidden="true"><Bike /></span>
+              <div className="min-w-0 flex-1">
+                <p className="tracking-live-row-title">Rota até seu endereço</p>
+                <p className="tracking-live-row-sub">Trajeto simulado para testes</p>
+              </div>
+              <span className="tracking-live-eta">{menu.store.eta}</span>
+            </div>
+            <div className="tracking-live-row is-plain">
+              <span className="tracking-live-row-label">Posição real do entregador</span>
+              <span className="tracking-live-row-value">ainda não conectada</span>
+            </div>
+          </div>
         </div>
       ) : (
         <div className="tracking-live-cta">
@@ -86,13 +157,15 @@ export function OrderTracking({ menu, payment, form, total, sentToStore, onSend,
               <p className="tracking-live-cta-title">Localização ao vivo</p>
               <p className="tracking-live-cta-sub">Acompanhe o entregador no mapa em tempo real</p>
             </div>
-            <span className="tracking-live-price">{brl(LIVE_FEE)}</span>
+            <span className="tracking-live-price"><span>R$</span>{liveFeeText}</span>
           </div>
-          <span className="test-badge">TESTE · NÃO PAGAR</span>
-          <Button variant="storefront" size="storefront" className="btn-primary w-full gap-2" disabled={live === "paying"} onClick={payLiveFee}>
-            {live === "paying" ? <><LoaderCircle className="h-4 w-4 animate-spin" /> Processando pagamento de teste…</> : <>Ativar localização ao vivo · {brl(LIVE_FEE)}</>}
-          </Button>
-          <p className="tracking-live-disclaimer">Cobrança simulada para testes. Nenhum valor é debitado.</p>
+          <div className="tracking-live-flag">
+            <span className="test-badge"><i aria-hidden="true" /> Teste · não pagar</span>
+            <Button variant="storefront" size="storefront" className="btn-primary w-full gap-2" disabled={live === "paying"} onClick={payLiveFee}>
+              {live === "paying" ? <><LoaderCircle className="h-4 w-4 animate-spin" /> Processando pagamento de teste…</> : <>Ativar localização ao vivo</>}
+            </Button>
+            <p className="tracking-live-disclaimer">Cobrança simulada. Nenhum valor é debitado.</p>
+          </div>
         </div>
       )}
 
