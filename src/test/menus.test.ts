@@ -4,9 +4,9 @@ import { SUSHI } from "@/lib/sushi";
 import { WHATSAPP } from "@/lib/menu";
 
 describe("Cardápio de lanches", () => {
-  it("cobra pedido mínimo de R$ 30 e taxa de entrega de R$ 7", () => {
+  it("cobra pedido mínimo de R$ 30 e entrega grátis", () => {
     expect(LANCHES.store.minOrder).toBe(30);
-    expect(LANCHES.store.deliveryFee).toBe(7);
+    expect(LANCHES.store.deliveryFee).toBe(0);
   });
 
   it("abre em / com o nome da hamburgueria", () => {
@@ -26,11 +26,11 @@ describe("Cardápio de lanches", () => {
 });
 
 describe("Página de sushi", () => {
-  it("fica em /sushi e cobra pedido mínimo de R$ 45 com entrega de R$ 9", () => {
+  it("fica em /sushi e cobra pedido mínimo de R$ 45 com entrega grátis", () => {
     expect(SUSHI.to).toBe("/sushi");
     expect(SUSHI.store.name).toBe("Casa Brasa Sushi");
     expect(SUSHI.store.minOrder).toBe(45);
-    expect(SUSHI.store.deliveryFee).toBe(9);
+    expect(SUSHI.store.deliveryFee).toBe(0);
   });
 
   it("tem combos, enrolados, hot rolls, temaki, sashimi e bebidas", () => {
@@ -60,5 +60,12 @@ describe("Regras dos dois cardápios", () => {
   it("os dois cardápios enviam para o mesmo WhatsApp", () => {
     expect(LANCHES.store.whatsapp).toBe(WHATSAPP);
     expect(SUSHI.store.whatsapp).toBe(WHATSAPP);
+  });
+
+  it("os dois cardápios mostram nota 4,9 com 1.367 avaliações", () => {
+    for (const menu of [LANCHES, SUSHI]) {
+      expect(menu.store.rating).toBe(4.9);
+      expect(menu.store.reviews).toBe(1367);
+    }
   });
 });

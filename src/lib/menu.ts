@@ -20,6 +20,10 @@ export type StoreInfo = {
   deliveryFee: number;
   minOrder: number;
   eta: string;
+  /** Nota exibida no cartão da loja, de 0 a 5. */
+  rating: number;
+  /** Quantidade de avaliações que compõem a nota. */
+  reviews: number;
 };
 
 export type Menu = {

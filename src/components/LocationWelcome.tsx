@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { ArrowRight, MapPin, LocateFixed, LoaderCircle, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { lookupPostal } from "@/lib/postal";
+import { UFS, placeFromCoords } from "@/lib/place";
 import type { Menu } from "@/lib/menu";
 
-const states = "AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO RR SC SP SE TO".split(" ");
 export function LocationWelcome({ menu }: { menu: Menu }) {
   const [open, setOpen] = useState(true);
   const [step, setStep] = useState<"state" | "city" | "search" | "result">("state");
@@ -15,6 +15,8 @@ export function LocationWelcome({ menu }: { menu: Menu }) {
   const [busy, setBusy] = useState(false);
   const [feedback, setFeedback] = useState("");
   const [cities, setCities] = useState<string[]>([]);
+  const autoTried = useRef(false);
+
   useEffect(() => {
     if (!state) return;
     const controller = new AbortController();
@@ -24,24 +26,65 @@ export function LocationWelcome({ menu }: { menu: Menu }) {
       .catch(() => setCities([]));
     return () => controller.abort();
   }, [state]);
+
   useEffect(() => {
     if (step !== "search") return;
     const timer = setTimeout(() => setStep("result"), 1600);
     return () => clearTimeout(timer);
   }, [step]);
-  const locate = () => {
-    if (!navigator.geolocation) { setFeedback("Localização indisponível. Informe seu CEP ou escolha o estado."); return; }
-    setBusy(true); setFeedback("");
-    navigator.geolocation.getCurrentPosition(() => {
-      setBusy(false); setFeedback("Localização recebida. Informe o CEP para identificar seu estado e cidade.");
-    }, () => { setBusy(false); setFeedback("Sem acesso à localização. Informe seu CEP ou selecione manualmente."); }, { timeout: 10000, maximumAge: 60000 });
-  };
+
+  async function detect() {
+    if (!navigator.geolocation) {
+      setFeedback("Localização indisponível neste aparelho. Informe seu CEP ou escolha o estado.");
+      return;
+    }
+    setBusy(true);
+    setFeedback("");
+    try {
+      const position = await new Promise<GeolocationPosition>((resolve, reject) =>
+        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000, maximumAge: 60000 }),
+      );
+      const place = await placeFromCoords(position.coords.latitude, position.coords.longitude);
+      setState(place.state);
+      setCity(place.city);
+      setStep("city");
+      setFeedback(`Identificamos ${place.city}/${place.state} pela sua localização.`);
+    } catch (error) {
+      const denied = typeof error === "object" && error !== null && "code" in error && (error as { code: number }).code === 1;
+      setFeedback(
+        denied
+          ? "Você negou o acesso à localização. Informe seu CEP ou escolha o estado."
+          : error instanceof Error
+            ? error.message
+            : "Não foi possível identificar sua cidade automaticamente. Informe seu CEP.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  useEffect(() => {
+    if (autoTried.current) return;
+    autoTried.current = true;
+    void detect();
+  }, []);
+
   const postal = async () => {
-    setBusy(true); setFeedback("");
-    try { const address = await lookupPostal(cep); setState(address.state); setCity(address.city); setFeedback("Estado e cidade encontrados pelo CEP."); }
-    catch (error) { setFeedback(error instanceof Error ? error.message : "Não foi possível consultar o CEP."); }
-    finally { setBusy(false); }
+    setBusy(true);
+    setFeedback("");
+    try {
+      const address = await lookupPostal(cep);
+      setState(address.state);
+      setCity(address.city);
+      setStep("city");
+      setFeedback("Estado e cidade encontrados pelo CEP.");
+    } catch (error) {
+      setFeedback(error instanceof Error ? error.message : "Não foi possível consultar o CEP.");
+    } finally {
+      setBusy(false);
+    }
   };
+
   return <Dialog.Root open={open} onOpenChange={setOpen}><Dialog.Portal>
     <Dialog.Overlay className="sheet-backdrop" />
     <Dialog.Content className="location-modal" aria-describedby="location-description">
@@ -54,9 +97,9 @@ export function LocationWelcome({ menu }: { menu: Menu }) {
         </Dialog.Title>
         <p id="location-description" className="mt-2 text-sm text-muted-foreground">{step === "state" ? "Escolha seu estado ou informe seu CEP." : step === "city" ? "Agora selecione sua cidade." : step === "search" ? `Buscando em ${city}…` : `Você em ${city}, ${state}`}</p>
         {step === "state" && <div className="mt-5 grid gap-3">
-          <Button variant="storefront" size="storefront" className="location-detect" disabled={busy} onClick={locate}>{busy ? <LoaderCircle className="animate-spin" /> : <LocateFixed />}Usar minha localização</Button>
-          <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2"><input aria-label="CEP para localização" className="field" placeholder="Seu CEP" inputMode="numeric" value={cep} onChange={e => setCep(e.target.value)} /><Button variant="storefront" size="storefront" className="location-detect px-3" disabled={busy || cep.replace(/\D/g, "").length !== 8} onClick={postal}>Buscar</Button></div>
-          <label className="checkout-field">Estado<select className="field" aria-label="Estado" value={state} onChange={e => { setState(e.target.value); setCity(""); }}><option value="">Selecione</option>{states.map(uf => <option key={uf}>{uf}</option>)}</select></label>
+          <Button variant="storefront" size="storefront" className="location-detect" disabled={busy} onClick={() => void detect()}>{busy ? <LoaderCircle className="animate-spin" /> : <LocateFixed />}Usar minha localização</Button>
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2"><input aria-label="CEP para localização" className="field" placeholder="Seu CEP" inputMode="numeric" value={cep} onChange={e => setCep(e.target.value)} /><Button variant="storefront" size="storefront" className="location-detect px-3" disabled={busy || cep.replace(/\D/g, "").length !== 8} onClick={() => void postal()}>Buscar</Button></div>
+          <label className="checkout-field">Estado<select className="field" aria-label="Estado" value={state} onChange={e => { setState(e.target.value); setCity(""); }}><option value="">Selecione</option>{UFS.map(uf => <option key={uf}>{uf}</option>)}</select></label>
           <Button variant="storefront" size="storefront" className="btn-primary" disabled={!state || busy} onClick={() => setStep("city")}>Continuar <ArrowRight /></Button>
         </div>}
         {step === "city" && <div className="mt-5 grid gap-3"><label className="checkout-field">Cidade<input className="field" aria-label="Cidade" list="location-cities" value={city} onChange={e => setCity(e.target.value)} /><datalist id="location-cities">{cities.map(c => <option key={c} value={c} />)}</datalist></label><Button variant="storefront" size="storefront" className="btn-primary" disabled={!city.trim()} onClick={() => setStep("search")}>OK <ArrowRight /></Button></div>}

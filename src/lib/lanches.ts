@@ -277,9 +277,11 @@ export const LANCHES: Menu = {
     name: "Casa Brasa Lanches",
     tagline: "Hamburgueria artesanal · Pão na chapa, blend fresquinho",
     whatsapp: WHATSAPP,
-    deliveryFee: 7,
+    deliveryFee: 0,
     minOrder: 30,
     eta: "35–55 min",
+    rating: 4.9,
+    reviews: 1367,
   },
   categories: ["Burgers", "Combos", "Porções", "Bebidas", "Sobremesas"],
   categoryImg: {
