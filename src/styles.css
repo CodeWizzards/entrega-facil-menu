@@ -621,6 +621,91 @@
 }
 .reviews-modal-body::-webkit-scrollbar-thumb:hover { background: var(--primary); }
 
+/* Acompanhamento do pedido — estilo iOS */
+.tracking { display: flex; flex-direction: column; }
+.tracking-hero {
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px; border-radius: 24px;
+  border: 1px solid var(--border);
+  background: linear-gradient(160deg, color-mix(in oklab, var(--primary) 12%, var(--card)), var(--card) 60%);
+  box-shadow: var(--shadow-soft);
+}
+.tracking-logo {
+  display: grid; place-items: center; flex-shrink: 0;
+  width: 64px; height: 64px; border-radius: 20px; overflow: hidden;
+  background: var(--background);
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 18px -8px color-mix(in oklab, var(--primary) 50%, transparent);
+}
+.tracking-logo img { width: 100%; height: 100%; object-fit: cover; }
+.tracking-status {
+  margin: 0; font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--success);
+  display: flex; align-items: center; gap: 6px;
+}
+.tracking-status::before {
+  content: ""; width: 7px; height: 7px; border-radius: 999px; background: var(--success);
+  box-shadow: 0 0 8px var(--success);
+  animation: tracking-status-pulse 1.8s ease-in-out infinite;
+}
+@keyframes tracking-status-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
+.tracking-store { margin: 2px 0; font-size: 17px; font-weight: 800; letter-spacing: -.01em; }
+.tracking-meta { margin: 0; font-size: 12px; color: var(--muted-foreground); }
+.tracking-steps {
+  position: relative; list-style: none; margin: 18px 0 0; padding: 4px 0 0;
+  display: flex; flex-direction: column; gap: 0;
+}
+.tracking-step {
+  position: relative; display: flex; align-items: flex-start; gap: 12px;
+  padding: 9px 2px;
+}
+.tracking-step:not(:last-child)::before {
+  content: ""; position: absolute; left: 15px; top: 34px; bottom: -6px;
+  width: 2px; border-radius: 2px;
+  background: var(--border);
+}
+.tracking-step.is-done:not(:last-child)::before { background: color-mix(in oklab, var(--success) 55%, var(--border)); }
+.tracking-dot {
+  position: relative; z-index: 1; display: grid; place-items: center; flex-shrink: 0;
+  width: 32px; height: 32px; border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--muted-foreground);
+}
+.tracking-step.is-done .tracking-dot {
+  background: var(--success); border-color: transparent; color: var(--primary-foreground);
+  box-shadow: 0 4px 12px -4px color-mix(in oklab, var(--success) 60%, transparent);
+}
+.tracking-step.is-current .tracking-dot {
+  background: var(--primary); border-color: transparent; color: var(--primary-foreground);
+  box-shadow: 0 0 0 5px color-mix(in oklab, var(--primary) 18%, transparent), 0 6px 16px -6px color-mix(in oklab, var(--primary) 70%, transparent);
+  animation: tracking-dot-pulse 1.6s ease-in-out infinite;
+}
+@keyframes tracking-dot-pulse {
+  0%, 100% { box-shadow: 0 0 0 4px color-mix(in oklab, var(--primary) 22%, transparent), 0 6px 16px -6px color-mix(in oklab, var(--primary) 70%, transparent); }
+  50% { box-shadow: 0 0 0 8px color-mix(in oklab, var(--primary) 10%, transparent), 0 6px 16px -6px color-mix(in oklab, var(--primary) 70%, transparent); }
+}
+.tracking-step-label { margin: 0; font-size: 14px; font-weight: 700; }
+.tracking-step.is-next .tracking-step-label { color: var(--muted-foreground); font-weight: 600; }
+.tracking-step-hint { margin: 1px 0 0; font-size: 12px; color: var(--muted-foreground); }
+.tracking-card {
+  margin-top: 16px; padding: 14px 16px; border-radius: 20px;
+  border: 1px solid var(--border);
+  background: color-mix(in oklab, var(--foreground) 3%, var(--card));
+}
+.tracking-card-title {
+  display: flex; align-items: center; gap: 7px;
+  margin: 0 0 8px; font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+.tracking-note {
+  display: flex; align-items: center; gap: 8px;
+  margin: 14px 0 0; padding: 12px 14px; border-radius: 16px;
+  font-size: 12.5px; color: var(--muted-foreground);
+  border: 1px solid var(--border);
+  background: color-mix(in oklab, var(--foreground) 3%, var(--card));
+}
+
 /* Localização ao vivo (demonstração de teste) */
 .test-badge {
   display: inline-flex; align-items: center; align-self: center;
