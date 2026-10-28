@@ -494,15 +494,22 @@ function CartSheet({
     return lines.join("\n");
    }, [cart, form, subtotal, fee, total, menu.store.name, payment]);
 
+  // Máscaras: a pessoa vê o número no formato brasileiro enquanto digita, e o valor guardado já sai formatado.
+  const masks: Partial<Record<keyof DeliveryDetails, (value: string) => string>> = { phone: formatPhone, cpf: formatCpf, cep: formatCep, email: formatEmail };
+  const fieldLimits: Partial<Record<keyof DeliveryDetails, number>> = { state: 2, phone: 15, cpf: 14, cep: 9 };
   const field = (key: keyof DeliveryDetails, label: string, autoComplete?: string, optional = false) => (
     <label className="checkout-field">
       <span>{label}{optional && <span className="text-muted-foreground"> · opcional</span>}</span>
       <input className="field" aria-label={label} value={form[key]} autoComplete={autoComplete} required={!optional}
         inputMode={key === "cep" || key === "phone" || key === "cpf" ? "numeric" : key === "email" ? "email" : undefined}
         type={key === "email" ? "email" : "text"}
-        maxLength={key === "state" ? 2 : undefined}
+        maxLength={fieldLimits[key]}
         aria-invalid={submitted && Boolean(errors[key])}
-        onChange={e => setForm(prev => ({ ...prev, [key]: key === "state" ? e.target.value.toUpperCase() : e.target.value }))} />
+        onChange={e => {
+          const raw = e.target.value;
+          const mask = masks[key];
+          setForm(prev => ({ ...prev, [key]: key === "state" ? raw.toUpperCase() : mask ? mask(raw) : raw }));
+        }} />
       {submitted && errors[key] && <span className="text-xs text-destructive">{errors[key]}</span>}
     </label>
   );
