@@ -14,3 +14,5 @@
 - [x] Exibir avaliação 4,9/5 com 1.367 avaliações e faixa de entrega grátis no cartão da loja.
 - [x] Identificar estado e cidade sozinho pela localização do aparelho, com CEP e escolha manual como reserva.
 - [x] Testar identificação automática de cidade e estado.
+- [ ] Agilizar abertura do modal e redesenhar localização no estilo iOS.
+- [ ] Remover distância demonstrativa e conferir seleção de cidade até o cardápio.
