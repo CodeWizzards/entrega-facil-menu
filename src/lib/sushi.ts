@@ -253,6 +253,36 @@ const products: Product[] = [
   },
 ];
 
+const productImages: Record<string, string> = {
+  "combo-brasa-16": "/menu/sushi/combos/combo-brasa-16.webp",
+  "combo-casa-24": "/menu/sushi/combos/combo-casa-24.webp",
+  "combo-salmao-20": "/menu/sushi/combos/combo-salmao-20.webp",
+  "combo-delivery-12": "/menu/sushi/combos/combo-delivery-12.webp",
+  "combo-festa-40": "/menu/sushi/combos/combo-festa-40.webp",
+  filadelfia: "/menu/sushi/enrolados/filadelfia.webp",
+  "salmao-cremoso": "/menu/sushi/enrolados/salmao-cremoso.webp",
+  california: "/menu/sushi/enrolados/california.webp",
+  "hossomaki-pepa": "/menu/sushi/enrolados/hossomaki-pepa.webp",
+  "uramaki-dragon": "/menu/sushi/enrolados/uramaki-dragon.webp",
+  "sake-hot-crocante": "/menu/sushi/enrolados/sake-hot-crocante.webp",
+  "hot-cronchy": "/menu/sushi/hot-rolls/hot-cronchy.webp",
+  "hot-filadelfia": "/menu/sushi/hot-rolls/hot-filadelfia.webp",
+  "hot-spicy": "/menu/sushi/hot-rolls/hot-spicy.webp",
+  "hot-veg": "/menu/sushi/hot-rolls/hot-veg.webp",
+  "temaki-salmao": "/menu/sushi/temaki/temaki-salmao.webp",
+  "temaki-skin": "/menu/sushi/temaki/temaki-skin.webp",
+  "temaki-spicy": "/menu/sushi/temaki/temaki-spicy.webp",
+  "temaki-vegano": "/menu/sushi/temaki/temaki-vegano.webp",
+  "sashimi-salmao": "/menu/sushi/sashimi-niguiri/sashimi-salmao.webp",
+  "sashimi-misto": "/menu/sushi/sashimi-niguiri/sashimi-misto.webp",
+  "niguiri-salmao": "/menu/sushi/sashimi-niguiri/niguiri-salmao.webp",
+  "niguiri-atum": "/menu/sushi/sashimi-niguiri/niguiri-atum.webp",
+  "cha-verde": "/menu/sushi/bebidas/cha-verde.webp",
+  "refri-sushi": "/menu/sushi/bebidas/refri-sushi.webp",
+  "suco-sushi": "/menu/sushi/bebidas/suco-sushi.webp",
+  "agua-sushi": "/menu/sushi/bebidas/agua-sushi.webp",
+};
+
 export const SUSHI: Menu = {
   label: "Sushi",
   to: "/sushi",
@@ -284,7 +314,10 @@ export const SUSHI: Menu = {
     "Sashimi & Niguiri": imgSashimi,
     Bebidas: imgBebidas,
   },
-  products,
+  products: products.map((product) => ({
+    ...product,
+    image: productImages[product.id],
+  })),
   cover,
   coverAlt: "Combinado de sushi com salmão, hot rolls e temaki",
 };
