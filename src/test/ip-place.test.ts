@@ -11,6 +11,10 @@ describe("Cidade aproximada pelo IP", () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => ({ city: "Paris", region_code: "IDF", country_code: "FR" }) }));
     await expect(placeFromIp()).rejects.toThrow();
   });
+  it("usa o serviço alternativo quando o primeiro falha", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValueOnce({ ok: false }).mockResolvedValueOnce({ ok: true, json: async () => ({ success: true, city: "Sorocaba", region: "São Paulo", country_code: "BR" }) }));
+    expect(await placeFromIp()).toEqual({ city: "Sorocaba", state: "SP" });
+  });
   it("permite cancelar a consulta quando o visitante preenche manualmente", async () => {
     const controller = new AbortController();
     const fetcher = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ city: "Sorocaba", region_code: "SP", country_code: "BR" }) });
