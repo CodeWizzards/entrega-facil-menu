@@ -38,6 +38,7 @@ import type { PixPayment } from "@/lib/pix";
 import { newPixAccess, readPixAttempts, rememberPixAttempt, type PixAttempt } from "@/lib/pix-session";
 import { PixPaymentPanel } from "@/components/PixPaymentPanel";
 import { OrderTracking } from "@/components/OrderTracking";
+import type { InvoiceLine } from "@/lib/invoice";
 
 type Item = {
   key: string;
@@ -49,6 +50,8 @@ type Item = {
 
 const lineTotal = (i: Item) =>
   i.product.price + i.addons.reduce((s, a) => s + a.price, 0);
+
+const lineCents = (i: Item) => Math.round(lineTotal(i) * 100);
 
 const sectionId = (c: string) => `cat-${c.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
 
@@ -455,7 +458,6 @@ function CartSheet({
     finally { setProcessing(false); }
   };
   const [submitted, setSubmitted] = useState(false);
-  const [sentToStore, setSentToStore] = useState(false);
   const [postalStatus, setPostalStatus] = useState("");
   const [secureConnection, setSecureConnection] = useState(false);
   useEffect(() => { setSecureConnection(window.location.protocol === "https:"); }, []);
@@ -481,6 +483,14 @@ function CartSheet({
   const total = subtotal + fee;
   const belowMin = subtotal < menu.store.minOrder;
   const valid = Object.keys(errors).length === 0 && !belowMin && cart.length > 0;
+
+  const invoiceLines = useMemo<InvoiceLine[]>(() => cart.map(i => ({
+    name: i.product.name,
+    qty: i.qty,
+    unitCents: lineCents(i),
+    addons: i.addons.map(a => a.name),
+    note: i.note,
+  })), [cart]);
 
   const message = useMemo(() => {
     const lines = [
@@ -585,7 +595,7 @@ function CartSheet({
         ))}
       </ul>}
 
-       {payment?.status === "PAID" && <OrderTracking menu={menu} payment={payment} form={form} total={total} sentToStore={sentToStore} onClose={onClose} onSend={() => { window.open(`https://wa.me/${menu.store.whatsapp}?text=${encodeURIComponent(payment.whatsappMessage || "")}`, "_blank", "noopener,noreferrer"); setSentToStore(true); }} />}
+       {payment?.status === "PAID" && <OrderTracking menu={menu} payment={payment} form={form} total={total} lines={invoiceLines} onClose={onClose} />}
        {payment && payment.status !== "PAID" && payment.method !== "CARD" && <PixPaymentPanel payment={payment} checking={processing} error={paymentError} onCheck={verifyPayment} />}
        {payment?.method === "CARD" && payment.status !== "PAID" && <section className="checkout-section" aria-label="Pagamento por cartão"><h4><CreditCard /> Cartão · {brl(payment.amount)}</h4><p role="status" className="text-sm">{payment.status === "CANCELLED" ? "Pagamento recusado ou cancelado" : "Pagamento em análise. Não envie uma nova cobrança."}</p><Button variant="storefront" size="storefront" disabled={processing} onClick={verifyPayment} className="mt-3 w-full">Consultar pagamento</Button>{paymentError && <p role="alert" className="text-xs text-destructive">{paymentError}</p>}</section>}
        {payment && payment.status !== "PAID" && <Button variant="storefront" size="storefront" disabled={processing} className="btn-primary mt-4 w-full" onClick={() => { setPayment(null); setPaymentError(""); setSubmitted(false); }}>Novo pagamento</Button>}
