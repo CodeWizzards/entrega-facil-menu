@@ -33,7 +33,7 @@ export function LocationWelcome({ menu }: { menu: Menu }) {
     return () => clearTimeout(timer);
   }, [step]);
 
-  async function detect(auto: boolean) {
+  async function detect() {
     if (!navigator.geolocation) {
       setFeedback("Localização indisponível neste aparelho. Informe seu CEP ou escolha o estado.");
       return;
@@ -66,7 +66,7 @@ export function LocationWelcome({ menu }: { menu: Menu }) {
   useEffect(() => {
     if (autoTried.current) return;
     autoTried.current = true;
-    void detect(true);
+    void detect();
   }, []);
 
   const postal = async () => {
@@ -97,7 +97,7 @@ export function LocationWelcome({ menu }: { menu: Menu }) {
         </Dialog.Title>
         <p id="location-description" className="mt-2 text-sm text-muted-foreground">{step === "state" ? "Escolha seu estado ou informe seu CEP." : step === "city" ? "Agora selecione sua cidade." : step === "search" ? `Buscando em ${city}…` : `Você em ${city}, ${state}`}</p>
         {step === "state" && <div className="mt-5 grid gap-3">
-          <Button variant="storefront" size="storefront" className="location-detect" disabled={busy} onClick={() => void detect(false)}>{busy ? <LoaderCircle className="animate-spin" /> : <LocateFixed />}Usar minha localização</Button>
+          <Button variant="storefront" size="storefront" className="location-detect" disabled={busy} onClick={() => void detect()}>{busy ? <LoaderCircle className="animate-spin" /> : <LocateFixed />}Usar minha localização</Button>
           <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2"><input aria-label="CEP para localização" className="field" placeholder="Seu CEP" inputMode="numeric" value={cep} onChange={e => setCep(e.target.value)} /><Button variant="storefront" size="storefront" className="location-detect px-3" disabled={busy || cep.replace(/\D/g, "").length !== 8} onClick={() => void postal()}>Buscar</Button></div>
           <label className="checkout-field">Estado<select className="field" aria-label="Estado" value={state} onChange={e => { setState(e.target.value); setCity(""); }}><option value="">Selecione</option>{UFS.map(uf => <option key={uf}>{uf}</option>)}</select></label>
           <Button variant="storefront" size="storefront" className="btn-primary" disabled={!state || busy} onClick={() => setStep("city")}>Continuar <ArrowRight /></Button>
