@@ -2,9 +2,11 @@
 
 const digits = (value: string) => value.replace(/\D/g, "");
 
-/** (11) 98765-4321 ou (11) 3876-5432. Começa com 9 = celular, então apagar o último dígito não vira um telefone fixo. */
+/** (11) 98765-4321 ou (11) 3876-5432. Ignora o +55 colado e, sendo celular (começa com 9), apagar o último dígito não vira um fixo. */
 export function formatPhone(value: string) {
-  const d = digits(value).slice(0, 11);
+  let d = digits(value);
+  if (d.length > 11 && d.startsWith("55")) d = d.slice(2);
+  d = d.slice(0, 11);
   if (!d.length) return "";
   if (d.length <= 2) return `(${d}`;
   const ddd = `(${d.slice(0, 2)}) `;
