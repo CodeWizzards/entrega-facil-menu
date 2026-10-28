@@ -61,4 +61,11 @@ describe("Regras dos dois cardápios", () => {
     expect(LANCHES.store.whatsapp).toBe(WHATSAPP);
     expect(SUSHI.store.whatsapp).toBe(WHATSAPP);
   });
+
+  it("os dois cardápios mostram nota 4,9 com 1.367 avaliações", () => {
+    for (const menu of [LANCHES, SUSHI]) {
+      expect(menu.store.rating).toBe(4.9);
+      expect(menu.store.reviews).toBe(1367);
+    }
+  });
 });
