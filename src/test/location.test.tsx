@@ -8,7 +8,7 @@ describe("Localização inicial", () => {
     Object.defineProperty(navigator, "geolocation", { configurable: true, value: { getCurrentPosition: vi.fn() } });
     vi.stubGlobal("fetch", vi.fn().mockImplementation((url: string) => url.includes("ipapi.co") ? new Promise(() => {}) : Promise.resolve({ ok: true, json: async () => [{ nome: "Ariquemes" }] })));
   });
-  afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+  afterEach(() => { cleanup(); vi.unstubAllGlobals(); localStorage.clear(); });
 
   it("abre sem esperar o IP e permite confirmar a cidade manualmente enquanto ele está pendente", async () => {
     render(<LocationWelcome menu={SUSHI} />);
@@ -43,5 +43,19 @@ describe("Localização inicial", () => {
     expect(screen.queryByLabelText("Estado")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Cidade")).not.toBeInTheDocument();
     expect(navigator.geolocation.getCurrentPosition).not.toHaveBeenCalled();
+  });
+
+  it("mostra na hora a cidade confirmada antes, sem consultar o IP de novo", async () => {
+    localStorage.setItem("casa-brasa:place", JSON.stringify({ city: "Sorocaba", state: "SP", at: Date.now() }));
+    render(<LocationWelcome menu={SUSHI} />);
+    expect(await screen.findByText("Sorocaba, SP")).toBeInTheDocument();
+    expect(vi.mocked(fetch).mock.calls.some(([url]) => String(url).includes("ipapi.co") || String(url).includes("ipwho.is"))).toBe(false);
+  });
+
+  it("ignora a cidade guardada depois de 24 horas", () => {
+    localStorage.setItem("casa-brasa:place", JSON.stringify({ city: "Sorocaba", state: "SP", at: Date.now() - 25 * 60 * 60 * 1000 }));
+    render(<LocationWelcome menu={SUSHI} />);
+    expect(screen.queryByText("Sorocaba, SP")).not.toBeInTheDocument();
+    expect(vi.mocked(fetch).mock.calls.some(([url]) => String(url).includes("ipapi.co"))).toBe(true);
   });
 });

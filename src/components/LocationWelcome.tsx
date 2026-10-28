@@ -4,7 +4,7 @@ import { ArrowLeft, ArrowRight, MapPin, LocateFixed, LoaderCircle, Check, X, Che
 import { Button } from "@/components/ui/button";
 import { lookupPostal } from "@/lib/postal";
 import { UFS, placeFromCoords } from "@/lib/place";
-import { placeFromIp } from "@/lib/ip-place";
+import { placeFromIp, rememberPlace, rememberedPlace } from "@/lib/ip-place";
 import { formatCep } from "@/lib/format";
 import type { Menu } from "@/lib/menu";
 
@@ -74,6 +74,13 @@ export function LocationWelcome({ menu }: { menu: Menu }) {
 
   function detectIp() {
     stopLookup();
+    const saved = rememberedPlace();
+    if (saved) {
+      setState(saved.state);
+      setCity(saved.city);
+      setStep("result");
+      return;
+    }
     setStep("ip");
     const controller = new AbortController();
     request.current = controller;
@@ -149,7 +156,7 @@ export function LocationWelcome({ menu }: { menu: Menu }) {
             <Button variant="storefront" size="storefront" className="btn-primary location-primary" disabled={!state} onClick={() => { stopLookup(); setStep("city"); }}>Continuar <ArrowRight /></Button>
           </div>}
           {step === "city" && <div className="location-form"><div className="location-region"><MapPin /><span>Seu estado<strong>{state}</strong></span><Button variant="storefront" size="storefront" className="location-edit" onClick={() => { stopLookup(); setStep("state"); }}>Alterar</Button></div><label className="checkout-field">Cidade<input className="field" aria-label="Cidade" list="location-cities" autoComplete="address-level2" placeholder="Nome da sua cidade" value={city} onChange={e => { stopLookup(); setCity(e.target.value); }} /><datalist id="location-cities">{cities.map(c => <option key={c} value={c} />)}</datalist></label><Button variant="storefront" size="storefront" className="btn-primary location-primary" disabled={!city.trim()} onClick={() => { stopLookup(); setStep("result"); }}>Confirmar localização <ArrowRight /></Button></div>}
-          {step === "result" && <div className="location-form"><div className="location-destination"><MapPin /><div><span>Você está em</span><strong>{city}, {state}</strong></div><Button variant="storefront" size="storefront" className="location-edit" aria-label="Alterar cidade" onClick={() => setStep("city")}>Alterar</Button></div><div className="location-store"><strong>{menu.store.name}</strong><span>Entrega grátis</span></div><p className="location-coverage">Disponibilidade de entrega a confirmar.</p><Button variant="storefront" size="storefront" className="btn-primary location-primary" onClick={() => changeOpen(false)}>Ver cardápio <ArrowRight /></Button></div>}
+          {step === "result" && <div className="location-form"><div className="location-destination"><MapPin /><div><span>Você está em</span><strong>{city}, {state}</strong></div><Button variant="storefront" size="storefront" className="location-edit" aria-label="Alterar cidade" onClick={() => setStep("city")}>Alterar</Button></div><div className="location-store"><strong>{menu.store.name}</strong><span>Entrega grátis</span></div><p className="location-coverage">Disponibilidade de entrega a confirmar.</p><Button variant="storefront" size="storefront" className="btn-primary location-primary" onClick={() => { if (city.trim() && state) rememberPlace({ city: city.trim(), state }); changeOpen(false); }}>Ver cardápio <ArrowRight /></Button></div>}
           {feedback && <p role="status" className="location-feedback">{feedback}</p>}
         </div>
       </div>
