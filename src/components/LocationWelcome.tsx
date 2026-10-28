@@ -110,7 +110,7 @@ export function LocationWelcome({ menu }: { menu: Menu }) {
 
   useEffect(() => {
     detectIp();
-    return () => request.current?.abort();
+    return () => { request.current?.abort(); if (searchTimer.current) clearTimeout(searchTimer.current); };
   }, []);
 
   async function postal() {
@@ -165,7 +165,7 @@ export function LocationWelcome({ menu }: { menu: Menu }) {
             <label className="checkout-field">Estado<div className="location-select"><select className="field" aria-label="Estado" value={state} onChange={e => { stopLookup(); setState(e.target.value); setCity(""); }}><option value="">Selecione seu estado</option>{UFS.map(uf => <option key={uf}>{uf}</option>)}</select><ChevronDown /></div></label>
             <Button variant="storefront" size="storefront" className="btn-primary location-primary" disabled={!state} onClick={() => { stopLookup(); setStep("city"); }}>Continuar <ArrowRight /></Button>
           </div>}
-          {step === "city" && <div className="location-form"><div className="location-region"><MapPin /><span>Seu estado<strong>{state}</strong></span><Button variant="storefront" size="storefront" className="location-edit" onClick={() => { stopLookup(); setStep("state"); }}>Alterar</Button></div><label className="checkout-field">Cidade<input className="field" aria-label="Cidade" list="location-cities" autoComplete="address-level2" placeholder="Nome da sua cidade" value={city} onChange={e => { stopLookup(); setCity(e.target.value); }} /><datalist id="location-cities">{cities.map(c => <option key={c} value={c} />)}</datalist></label><Button variant="storefront" size="storefront" className="btn-primary location-primary" disabled={!city.trim()} onClick={() => { stopLookup(); setStep("result"); }}>Confirmar localização <ArrowRight /></Button></div>}
+          {step === "city" && <div className="location-form"><div className="location-region"><MapPin /><span>Seu estado<strong>{state}</strong></span><Button variant="storefront" size="storefront" className="location-edit" onClick={() => { stopLookup(); setStep("state"); }}>Alterar</Button></div><label className="checkout-field">Cidade<input className="field" aria-label="Cidade" list="location-cities" autoComplete="address-level2" placeholder="Nome da sua cidade" value={city} onChange={e => { stopLookup(); setCity(e.target.value); }} /><datalist id="location-cities">{cities.map(c => <option key={c} value={c} />)}</datalist></label><Button variant="storefront" size="storefront" className="btn-primary location-primary" disabled={!city.trim()} onClick={confirmCity}>Confirmar localização <ArrowRight /></Button></div>}
           {step === "result" && <div className="location-form"><div className="location-destination"><MapPin /><div><span>Você está em</span><strong>{city}, {state}</strong></div><Button variant="storefront" size="storefront" className="location-edit" aria-label="Alterar cidade" onClick={() => setStep("city")}>Alterar</Button></div><div className="location-store"><strong>{menu.store.name}</strong><span>Entrega grátis</span></div><p className="location-coverage">Disponibilidade de entrega a confirmar.</p><Button variant="storefront" size="storefront" className="btn-primary location-primary" onClick={() => { if (city.trim() && state) rememberPlace({ city: city.trim(), state }); changeOpen(false); }}>Ver cardápio <ArrowRight /></Button></div>}
           {feedback && <p role="status" className="location-feedback">{feedback}</p>}
         </div>
