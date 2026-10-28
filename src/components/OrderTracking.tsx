@@ -59,7 +59,7 @@ export function OrderTracking({ menu, payment, form, total, sentToStore, onSend,
         {steps.map(step => (
           <li key={step.label} className={`tracking-step is-${step.state}`}>
             <span className="tracking-dot" aria-hidden="true">
-              {step.state === "next" ? <CircleDashed className="h-4 w-4" /> : <step.icon className="h-4 w-4" />}
+              {step.state === "next" ? <CircleDashed className="h-4 w-4" strokeWidth={2.2} /> : <step.icon className="h-4 w-4" strokeWidth={2.6} />}
             </span>
             <div className="min-w-0">
               <p className="tracking-step-label">{step.label}</p>
