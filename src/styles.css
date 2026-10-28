@@ -50,20 +50,20 @@
   --scrim: oklch(0.08 0 0 / 65%);
   --shadow-soft: 0 8px 24px oklch(0.08 0 0 / 12%);
   --shadow-sheet: 0 -12px 60px oklch(0.08 0 0 / 25%);
-  --background: oklch(0.205 0.002 60);
-  --foreground: oklch(0.96 0.005 70);
-  --card: oklch(0.255 0.003 60);
-  --card-foreground: oklch(0.96 0.005 70);
-  --popover: oklch(0.245 0.003 60);
-  --popover-foreground: oklch(0.96 0.005 70);
+  --background: oklch(0.18 0 0);
+  --foreground: oklch(0.96 0 0);
+  --card: oklch(0.245 0 0);
+  --card-foreground: oklch(0.96 0 0);
+  --popover: oklch(0.235 0 0);
+  --popover-foreground: oklch(0.96 0 0);
   --primary: oklch(0.6 0.215 27);
-  --primary-foreground: oklch(0.985 0.005 70);
-  --secondary: oklch(0.26 0.008 60);
-  --secondary-foreground: oklch(0.96 0.005 70);
-  --muted: oklch(0.26 0.008 60);
-  --muted-foreground: oklch(0.73 0.006 60);
-  --accent: oklch(0.26 0.008 60);
-  --accent-foreground: oklch(0.96 0.005 70);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.28 0 0);
+  --secondary-foreground: oklch(0.96 0 0);
+  --muted: oklch(0.28 0 0);
+  --muted-foreground: oklch(0.73 0 0);
+  --accent: oklch(0.28 0 0);
+  --accent-foreground: oklch(0.96 0 0);
   --destructive: oklch(0.62 0.2 25);
   --destructive-foreground: oklch(0.985 0.005 70);
   --border: oklch(1 0 0 / 9%);
@@ -325,8 +325,27 @@
 .segmented { border-radius: 14px; }
 .segmented button { border-radius: 11px; }
 .segmented button.on { background: var(--card); color: var(--foreground); box-shadow: var(--shadow-soft); }
-.cart-fab { border-radius: 24px; bottom: max(16px, env(safe-area-inset-bottom)); box-shadow: var(--shadow-sheet); background: color-mix(in oklab, var(--card) 90%, transparent); }
+.cart-fab { border-radius: 24px; bottom: calc(90px + env(safe-area-inset-bottom)); box-shadow: var(--shadow-sheet); background: color-mix(in oklab, var(--card) 90%, transparent); }
 .cart-fab .btn-primary { border-radius: 16px; }
 @media (min-width: 768px) { .sheet { bottom: auto; top: 50%; transform: translate(-50%,-50%); border-radius: 28px; animation: fade-in .2s ease-out; } .featured-card { flex-basis: 204px; } }
 @keyframes sheet-enter { from { opacity: 0; translate: 0 40px; } to { opacity: 1; translate: 0 0; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+
+.store-availability { display: flex; justify-content: center; align-items: center; gap: 7px; font-size: 12px; font-weight: 600; color: var(--success); }
+.availability-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); box-shadow: 0 0 0 4px color-mix(in oklab, var(--success) 10%, transparent); }
+.store-metrics { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); padding: 14px 0; border-block: 1px solid var(--border); }
+.store-metrics > div { min-width: 0; text-align: center; padding: 0 5px; }
+.store-metrics > div + div { border-left: 1px solid var(--border); }
+.store-metrics dt { display: flex; justify-content: center; align-items: center; gap: 5px; color: var(--muted-foreground); font-size: 11px; }
+.store-metrics dt svg { width: 14px; height: 14px; }
+.store-metrics dd { margin-top: 7px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.product-badge { display: inline-flex; align-items: center; gap: 5px; border-radius: 7px; padding: 4px 7px; font-size: 10px; line-height: 1.3; font-weight: 600; margin-bottom: 8px; max-width: 100%; text-align: left; }
+.product-badge svg { width: 12px; height: 12px; flex-shrink: 0; }
+.badge-popular { color: var(--primary); background: color-mix(in oklab, var(--primary) 10%, var(--card)); border: 1px solid color-mix(in oklab, var(--primary) 20%, transparent); }
+.badge-serving { color: var(--foreground); background: var(--secondary); border: 1px solid var(--border); }
+.badge-special { color: var(--success); background: color-mix(in oklab, var(--success) 8%, var(--card)); border: 1px solid color-mix(in oklab, var(--success) 15%, transparent); }
+.bottom-nav { position: fixed; z-index: 40; bottom: 12px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 480px; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); padding: 6px; padding-bottom: max(6px, env(safe-area-inset-bottom)); border: 1px solid var(--border); border-radius: 26px; background: color-mix(in oklab, var(--card) 90%, transparent); backdrop-filter: blur(28px) saturate(140%); box-shadow: var(--shadow-sheet); }
+.bottom-tab { display: flex; flex-direction: column; gap: 4px; min-height: 54px; border-radius: 20px; color: var(--muted-foreground); font-size: 10px; font-weight: 600; }
+.bottom-tab svg { width: 21px; height: 21px; }
+.bottom-tab.active { color: var(--primary); background: color-mix(in oklab, var(--foreground) 5%, transparent); }
+.tab-count { position: absolute; top: -5px; right: -9px; min-width: 15px; height: 15px; display: grid; place-items: center; border-radius: 50%; background: var(--primary); color: var(--primary-foreground); font-size: 9px; padding: 0 3px; }

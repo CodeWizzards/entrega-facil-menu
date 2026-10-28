@@ -2,7 +2,8 @@ import {
   Bike,
   Check,
   Clock,
-  Flame,
+  Home,
+  ReceiptText,
   Minus,
   Plus,
   Search,
@@ -16,6 +17,7 @@ import { useMemo, useRef, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
 import { FeaturedRail } from "@/components/FeaturedRail";
+import { ProductBadge } from "@/components/ProductBadge";
 import { brl, type Addon, type Menu, type Product } from "@/lib/menu";
 
 type Item = {
@@ -112,24 +114,14 @@ export function Storefront({ menu }: { menu: Menu }) {
               {menu.store.tagline}
             </p>
 
-            <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-              <span className="status-pill status-open">
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-success" />
-                Aberto
-              </span>
-              <span className="status-pill status-info">
-                <Clock className="h-3.5 w-3.5" />
-                {menu.store.eta}
-              </span>
-              <span className="status-pill status-info">
-                <Bike className="h-3.5 w-3.5" />
-                {brl(menu.store.deliveryFee)}
-              </span>
-              <span className="status-pill status-info">
-                <ShoppingBag className="h-3.5 w-3.5" />
-                Mín. {brl(menu.store.minOrder)}
-              </span>
+            <div className="store-availability mt-4">
+              <span className="availability-dot" /> Aberto agora
             </div>
+            <dl className="store-metrics mt-4">
+              <div><dt><Clock />Tempo</dt><dd>{menu.store.eta}</dd></div>
+              <div><dt><Bike />Frete</dt><dd>{brl(menu.store.deliveryFee)}</dd></div>
+              <div><dt><ShoppingBag />Mínimo</dt><dd>{brl(menu.store.minOrder)}</dd></div>
+            </dl>
 
             <div className="relative mt-4">
               <Search className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -174,10 +166,7 @@ export function Storefront({ menu }: { menu: Menu }) {
                     <Button variant="storefront" size="storefront" key={p.id} onClick={() => setSelected(p)} className="product-row">
                       <div className="min-w-0 flex-1 text-left">
                         {p.tag && (
-                          <span className="tag">
-                            <Flame className="h-3 w-3" />
-                            {p.tag}
-                          </span>
+                          <ProductBadge label={p.tag} />
                         )}
                         <h3 className="font-semibold">{p.name}</h3>
                         <p className="mt-0.5 line-clamp-2 text-sm text-muted-foreground">
@@ -232,6 +221,16 @@ export function Storefront({ menu }: { menu: Menu }) {
           <span className="btn-primary py-2.5 text-sm">Ver sacola</span>
         </Button>
       )}
+
+      <nav className="bottom-nav" aria-label="Navegação principal">
+        <Button variant="storefront" size="storefront" className={!cartOpen ? "bottom-tab active" : "bottom-tab"} aria-current={!cartOpen ? "page" : undefined} onClick={() => {
+          setCartOpen(false); setSelected(null); setSearch("");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}><Home /><span>Início</span></Button>
+        <Button variant="storefront" size="storefront" aria-label="Pedidos" className={cartOpen ? "bottom-tab active" : "bottom-tab"} onClick={() => setCartOpen(true)}>
+          <span className="relative"><ReceiptText />{count > 0 && <span className="tab-count">{count}</span>}</span><span>Pedidos</span>
+        </Button>
+      </nav>
 
       {selected && (
         <ProductSheet
@@ -309,10 +308,7 @@ function ProductSheet({
       </div>
 
       {product.tag && (
-        <span className="tag">
-          <Flame className="h-3 w-3" />
-          {product.tag}
-        </span>
+        <ProductBadge label={product.tag} />
       )}
       <h3 className="font-display text-2xl font-semibold">{product.name}</h3>
       <p className="mt-1 text-sm text-muted-foreground">{product.desc}</p>
