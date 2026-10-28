@@ -20,6 +20,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
 import { FeaturedRail } from "@/components/FeaturedRail";
+import { CategoryRail } from "@/components/CategoryRail";
 import pixLogo from "@/assets/pix-logo.png.asset.json";
 import { deliveryErrors, deliveryAddress, emptyDelivery, PAYMENT_METHOD, type DeliveryDetails } from "@/lib/checkout";
 import { ProductBadge } from "@/components/ProductBadge";
@@ -160,19 +161,7 @@ export function Storefront({ menu }: { menu: Menu }) {
           </div>
         </header>
 
-        <nav className="category-nav sticky top-0 z-30 py-3">
-          <div className="no-scrollbar flex gap-2 overflow-x-auto px-3">
-            {menu.categories.map((c) => (
-              <Button variant="storefront" size="storefront"
-                key={c}
-                onClick={() => jump(c)}
-                className={cat === c ? "cat-pill cat-pill-active" : "cat-pill bg-card"}
-              >
-                {c}
-              </Button>
-            ))}
-          </div>
-        </nav>
+        <CategoryRail menu={menu} active={cat} onSelect={jump} />
 
         <main className="px-3">
           {!q && featured.length > 0 && (
@@ -267,12 +256,12 @@ export function Storefront({ menu }: { menu: Menu }) {
   );
 }
 
-function Sheet({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
+function Sheet({ children, onClose, product = false }: { children: React.ReactNode; onClose: () => void; product?: boolean }) {
   return (
     <Dialog.Root open onOpenChange={(open) => { if (!open) onClose(); }}>
       <Dialog.Portal>
         <Dialog.Overlay className="sheet-backdrop" />
-        <Dialog.Content className="sheet" aria-describedby={undefined}>
+        <Dialog.Content className={`sheet ${product ? "sheet-product" : ""}`} aria-describedby={undefined}>
           <Dialog.Title className="sr-only">Personalizar pedido</Dialog.Title>
           <div className="sheet-grabber" />
           {children}
@@ -304,7 +293,7 @@ function ProductSheet({
     setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
 
   return (
-    <Sheet onClose={onClose}>
+    <Sheet onClose={onClose} product>
       <div className="product-sheet-photo relative -mx-6 mb-5 h-52 overflow-hidden">
         <img
           src={menu.categoryImg[product.category]}
