@@ -1,5 +1,6 @@
 import { Home, Search, Share2, ShoppingBag } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
+import logoAsset from "@/assets/casa-brasa-logo.png.asset.json";
 import { brl, type Addon, type Menu, type Product } from "@/lib/menu";
 
 type Item = {
@@ -65,7 +66,13 @@ export function Storefront({ menu }: { menu: Menu }) {
             height={640}
           />
           <div className="store-card -mt-6">
-            <div className="logo-badge">{menu.logo}</div>
+            <div className="logo-badge">
+              <img
+                src={logoAsset.url}
+                alt={`Logo ${menu.store.name}`}
+                className="h-full w-full object-cover"
+              />
+            </div>
             <div className="absolute right-4 top-4 flex items-center gap-4 text-muted-foreground">
               <button
                 aria-label="Buscar"

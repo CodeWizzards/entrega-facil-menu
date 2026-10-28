@@ -133,23 +133,25 @@
 }
 
 :root {
-  --background: oklch(0.93 0.005 90);
-  --foreground: oklch(0.25 0.02 60);
+  --background: oklch(0.95 0.025 95);
+  --foreground: oklch(0.22 0.01 60);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.25 0.02 60);
-  --primary: oklch(0.75 0.16 65);
-  --primary-foreground: oklch(0.99 0 0);
-  --muted: oklch(0.96 0.005 90);
-  --muted-foreground: oklch(0.5 0.02 60);
-  --border: oklch(0.9 0.008 90);
-  --input: oklch(0.9 0.008 90);
-  --ring: oklch(0.75 0.16 65);
+  --card-foreground: oklch(0.22 0.01 60);
+  --primary: oklch(0.55 0.21 27);
+  --primary-foreground: oklch(0.98 0 0);
+  --gold: oklch(0.66 0.11 85);
+  --muted: oklch(0.93 0.02 95);
+  --muted-foreground: oklch(0.48 0.02 60);
+  --border: oklch(0.88 0.015 90);
+  --input: oklch(0.88 0.015 90);
+  --ring: oklch(0.55 0.21 27);
   --success: oklch(0.6 0.15 150);
   --radius: 0.9rem;
 }
 
 @theme inline {
   --color-success: var(--success);
+  --color-gold: var(--gold);
   --font-display: "Sora", sans-serif;
   --font-sans: "Manrope", sans-serif;
 }
@@ -168,7 +170,7 @@
 
 @layer components {
   .store-card { @apply relative rounded-t-3xl bg-card px-4 pt-14 pb-4; }
-  .logo-badge { @apply font-display absolute -top-12 left-1/2 flex h-24 w-24 -translate-x-1/2 items-center justify-center rounded-full border-4 border-card bg-primary text-3xl font-bold text-primary-foreground shadow-md; }
+  .logo-badge { @apply absolute -top-12 left-1/2 h-24 w-24 -translate-x-1/2 overflow-hidden rounded-full border-4 border-card bg-card shadow-md; }
   .field { @apply w-full rounded-xl border border-input bg-card px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring; }
   .chip { @apply flex shrink-0 items-center rounded-full border border-border bg-card px-4 py-1.5 text-sm font-medium whitespace-nowrap transition-colors; }
   .chip-active { @apply border-primary bg-primary text-primary-foreground; }
