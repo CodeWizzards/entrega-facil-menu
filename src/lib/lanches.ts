@@ -268,6 +268,38 @@ const products: Product[] = [
   },
 ];
 
+const productImages: Record<string, string> = {
+  "brasa-classico": "/menu/lanches/hamburgueres/brasa-classico.webp",
+  "duplo-fogo": "/menu/lanches/hamburgueres/duplo-fogo.webp",
+  "cheddar-bacon": "/menu/lanches/hamburgueres/cheddar-bacon-da-casa.webp",
+  "smash-duplo": "/menu/lanches/hamburgueres/smash-duplo.webp",
+  "bbq-brasa": "/menu/lanches/hamburgueres/bbq-brasa.webp",
+  "frango-crocante": "/menu/lanches/hamburgueres/frango-crocante.webp",
+  "veggie-brasa": "/menu/lanches/hamburgueres/veggie-brasa.webp",
+  "bacon-supreme": "/menu/lanches/hamburgueres/brasa-bacon-supreme.webp",
+  "cheese-bread": "/menu/lanches/hamburgueres/cheese-brasa-da-brasa.webp",
+  "smash-simples": "/menu/lanches/hamburgueres/smash-simples.webp",
+  "combo-classico": "/menu/lanches/combos/combo-brasa-classico.webp",
+  "combo-duplo": "/menu/lanches/combos/combo-duplo-fogo.webp",
+  "combo-casal": "/menu/lanches/combos/combo-casal.webp",
+  "combo-familia": "/menu/lanches/combos/combo-familia-brasa.webp",
+  "fritas-rusticas": "/menu/lanches/porcoes/fritas-rusticas.webp",
+  "fritas-cheddar-bacon": "/menu/lanches/porcoes/fritas-cheddar-bacon.webp",
+  "onion-rings": "/menu/lanches/porcoes/onion-rings.webp",
+  dadinho: "/menu/lanches/porcoes/dadinho-de-tapioca.webp",
+  "bolinho-costela": "/menu/lanches/porcoes/bolinho-de-costela.webp",
+  asinha: "/menu/lanches/porcoes/asinhas-bbq.webp",
+  "refri-lata": "/menu/lanches/bebidas/refrigerante-lata.webp",
+  "suco-natural": "/menu/lanches/bebidas/suco-natural.webp",
+  limonada: "/menu/lanches/bebidas/limonada-suica.webp",
+  "cha-gelado": "/menu/lanches/bebidas/cha-gelado.webp",
+  agua: "/menu/lanches/bebidas/agua-mineral.webp",
+  petit: "/menu/lanches/sobremesas/petit-gateau.webp",
+  milkshake: "/menu/lanches/sobremesas/milk-shake.webp",
+  brownie: "/menu/lanches/sobremesas/brownie-com-sorvete.webp",
+  casquinha: "/menu/lanches/sobremesas/casquinha-dupla.webp",
+};
+
 export const LANCHES: Menu = {
   label: "Lanches",
   to: "/",
@@ -291,7 +323,10 @@ export const LANCHES: Menu = {
     Bebidas: imgBebidas,
     Sobremesas: imgSobremesas,
   },
-  products,
+  products: products.map((product) => ({
+    ...product,
+    image: productImages[product.id],
+  })),
   cover,
   coverAlt: "Hambúrgueres artesanais com fritas crocantes",
 };
