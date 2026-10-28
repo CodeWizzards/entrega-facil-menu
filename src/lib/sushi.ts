@@ -1,4 +1,5 @@
 import cover from "@/assets/cover-sushi.jpg";
+import logoImg from "@/assets/logo-sushi.png";
 import imgBebidas from "@/assets/menu/sushi-bebidas.jpg";
 import imgCombos from "@/assets/menu/sushi-combos.jpg";
 import imgEnrolados from "@/assets/menu/sushi-enrolados.jpg";
@@ -256,6 +257,7 @@ export const SUSHI: Menu = {
   label: "Sushi",
   to: "/sushi",
   logo: "S",
+  logoImg,
   store: {
     name: "Casa Brasa Sushi",
     tagline: "Peixe fresco do dia · Combinados quentes e frios",
