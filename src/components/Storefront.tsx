@@ -123,15 +123,6 @@ export function Storefront({ menu }: { menu: Menu }) {
           </p>
         )}
 
-        <div className="mt-10 rounded-2xl border border-dashed border-border bg-card p-5 text-center">
-          <p className="text-sm text-muted-foreground">
-            Bateu aquela vontade de {other.label.toLowerCase()}?
-          </p>
-          <Link to={other.to} className="btn-primary mt-3 inline-block">
-            Ver cardápio de {other.label.toLowerCase()}
-          </Link>
-        </div>
-
         <footer className="py-10 text-center text-xs text-muted-foreground">
           {menu.store.name} · Pedido direto no WhatsApp · Valores sujeitos a alteração
         </footer>
