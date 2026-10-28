@@ -325,7 +325,7 @@ export const LANCHES: Menu = {
   },
   products: products.map((product) => ({
     ...product,
-    image: productImages[product.id],
+    ...(productImages[product.id] ? { image: productImages[product.id]! } : {}),
   })),
   cover,
   coverAlt: "Hambúrgueres artesanais com fritas crocantes",
