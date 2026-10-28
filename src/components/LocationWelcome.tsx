@@ -9,14 +9,13 @@ import type { Menu } from "@/lib/menu";
 
 export function LocationWelcome({ menu }: { menu: Menu }) {
   const [open, setOpen] = useState(true);
-  const [step, setStep] = useState<"state" | "city" | "result">("state");
+  const [step, setStep] = useState<"ip" | "unavailable" | "state" | "city" | "result">("ip");
   const [state, setState] = useState("");
   const [city, setCity] = useState("");
   const [cep, setCep] = useState("");
   const [busy, setBusy] = useState<"ip" | "gps" | "postal" | null>(null);
   const [feedback, setFeedback] = useState("");
   const [cities, setCities] = useState<string[]>([]);
-  const autoTried = useRef(false);
   const request = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -72,9 +71,9 @@ export function LocationWelcome({ menu }: { menu: Menu }) {
     }
   }
 
-  useEffect(() => {
-    if (autoTried.current) return;
-    autoTried.current = true;
+  function detectIp() {
+    stopLookup();
+    setStep("ip");
     const controller = new AbortController();
     request.current = controller;
     setBusy("ip");
@@ -82,21 +81,25 @@ export function LocationWelcome({ menu }: { menu: Menu }) {
       if (controller.signal.aborted) return;
       controller.abort();
       setBusy(null);
-      setFeedback("Confirme sua localização pelo CEP ou escolha seu estado.");
+      setStep("unavailable");
     }, 4000);
     void placeFromIp(controller.signal).then(place => {
       if (controller.signal.aborted) return;
       setState(place.state);
       setCity(place.city);
-      setStep("city");
+      setStep("result");
       setFeedback("Localização aproximada pelo IP. Confira sua cidade antes de continuar.");
     }).catch(() => {
-      if (!controller.signal.aborted) setFeedback("Não foi possível estimar sua cidade pelo IP. Use o CEP ou escolha seu estado.");
+      if (!controller.signal.aborted) setStep("unavailable");
     }).finally(() => {
       clearTimeout(timeout);
       if (!controller.signal.aborted) setBusy(null);
     });
-    return () => { clearTimeout(timeout); controller.abort(); };
+  }
+
+  useEffect(() => {
+    detectIp();
+    return () => request.current?.abort();
   }, []);
 
   async function postal() {
@@ -126,7 +129,7 @@ export function LocationWelcome({ menu }: { menu: Menu }) {
     <Dialog.Overlay className="sheet-backdrop location-backdrop" />
     <Dialog.Content className="location-modal" aria-describedby="location-description">
       <div className="location-toolbar">
-        {step !== "state" ? <Button variant="storefront" size="storefront" className="icon-btn" aria-label="Voltar localização" onClick={() => { stopLookup(); setStep(step === "result" ? "city" : "state"); }}><ArrowLeft /></Button> : <span className="location-toolbar-spacer" />}
+        {(step === "city" || step === "result") ? <Button variant="storefront" size="storefront" className="icon-btn" aria-label="Voltar localização" onClick={() => { stopLookup(); setStep(step === "result" ? "city" : "state"); }}><ArrowLeft /></Button> : <span className="location-toolbar-spacer" />}
         <div className="location-progress" aria-label={`Etapa ${step === "state" ? 1 : step === "city" ? 2 : 3} de 3`}><span className="on" /><span className={step !== "state" ? "on" : ""} /><span className={step === "result" ? "on" : ""} /></div>
         <Button variant="storefront" size="storefront" className="icon-btn" aria-label="Fechar localização" onClick={() => changeOpen(false)}><X /></Button>
       </div>
@@ -137,10 +140,12 @@ export function LocationWelcome({ menu }: { menu: Menu }) {
           <div className="location-emblem">{step === "result" ? <><img src={menu.logoImg} alt="" /><span className="location-confirmed"><Check /></span></> : <MapPin />}</div>
         </div>
         <div className="location-body">
-          <p className="location-eyebrow">{step === "result" ? "LOCALIZAÇÃO SELECIONADA" : "SEU DELIVERY COMEÇA AQUI"}</p>
-          <Dialog.Title className="location-title">{step === "state" ? "Procure o delivery mais próximo de você" : step === "city" ? "Estamos quase lá" : "Tudo pronto para escolher?"}</Dialog.Title>
-          <p id="location-description" className="location-description">{step === "state" ? "Onde você quer receber seu pedido?" : step === "city" ? "Confirme a cidade para continuar." : "Seu próximo pedido começa na Casa Brasa."}</p>
+          <p className="location-eyebrow">{step === "result" ? "LOCALIZAÇÃO SELECIONADA" : step === "ip" || step === "unavailable" ? "LOCALIZAÇÃO AUTOMÁTICA" : "SEU DELIVERY COMEÇA AQUI"}</p>
+          <Dialog.Title className="location-title">{step === "ip" ? "Identificando sua região" : step === "unavailable" ? "Não conseguimos localizar você" : step === "state" ? "Informe sua localização" : step === "city" ? "Estamos quase lá" : "Tudo pronto para escolher?"}</Dialog.Title>
+          <p id="location-description" className="location-description">{step === "ip" ? "Buscando cidade e estado pelo IP." : step === "unavailable" ? "Sua conexão não informou uma cidade válida." : step === "state" ? "Onde você quer receber seu pedido?" : step === "city" ? "Confirme a cidade para continuar." : "Seu próximo pedido começa na Casa Brasa."}</p>
 
+          {step === "ip" && <div className="location-loading" role="status"><LoaderCircle className="animate-spin" /><p>Sem precisar liberar o GPS.</p><Button variant="storefront" size="storefront" className="location-edit" onClick={() => { stopLookup(); setStep("state"); }}>Informar minha cidade</Button></div>}
+          {step === "unavailable" && <div className="location-form"><Button variant="storefront" size="storefront" className="btn-primary location-primary" onClick={detectIp}>Tentar novamente <ArrowRight /></Button><Button variant="storefront" size="storefront" className="location-edit" onClick={() => { stopLookup(); setStep("state"); }}>Informar minha cidade</Button></div>}
           {step === "state" && <div className="location-form">
             {busy === "ip" && <p role="status" className="flex items-center gap-2 text-xs text-muted-foreground"><LoaderCircle className="h-4 w-4 animate-spin" />Identificando sua região pelo IP…</p>}
             <Button variant="storefront" size="storefront" className="location-detect" disabled={busy === "gps"} onClick={() => void detect()}><span className="location-control-icon">{busy === "gps" ? <LoaderCircle className="animate-spin" /> : <LocateFixed />}</span><span>{busy === "gps" ? "Localizando você…" : "Usar minha localização"}<small>{busy === "gps" ? "Você também pode preencher abaixo" : "Estado e cidade automaticamente"}</small></span>{busy !== "gps" && <ArrowRight />}</Button>

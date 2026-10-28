@@ -6,7 +6,7 @@ export function ProductBadge({ label }: { label: string }) {
   const veggie = /veg/i.test(label);
   const Icon = serving ? Users : popular ? Flame : veggie ? Leaf : Heart;
   return <span className={`product-badge ${serving ? "badge-serving" : popular ? "badge-popular" : "badge-special"}`}>
-    <Icon aria-hidden="true" />
-    {label}
+    <span className="badge-icon"><Icon aria-hidden="true" /></span>
+    <span>{label}</span>
   </span>;
 }
