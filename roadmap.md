@@ -4,3 +4,6 @@
 - [x] Restaurar navegação Início e Pedidos para o pedido atual.
 - [x] Remover tons marrons e redesenhar selos e informações da loja.
 - [x] Conferir navegação e aparência no celular.
+- [x] Redesenhar botão Ver sacola e animação.
+- [x] Finalização com contato, endereço completo, apenas entrega e Pix com logo PNG.
+- [x] Testar validação e mensagem de finalização sem simular pagamento.

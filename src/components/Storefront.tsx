@@ -9,7 +9,9 @@ import {
   Search,
   Share2,
   ShoppingBag,
-  Store,
+  ArrowRight,
+  MapPin,
+  ShieldCheck,
   Trash2,
   X,
 } from "lucide-react";
@@ -17,6 +19,8 @@ import { useMemo, useRef, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
 import { FeaturedRail } from "@/components/FeaturedRail";
+import pixLogo from "@/assets/pix-logo.png.asset.json";
+import { deliveryErrors, deliveryAddress, emptyDelivery, PAYMENT_METHOD, type DeliveryDetails } from "@/lib/checkout";
 import { ProductBadge } from "@/components/ProductBadge";
 import { brl, type Addon, type Menu, type Product } from "@/lib/menu";
 
@@ -206,19 +210,9 @@ export function Storefront({ menu }: { menu: Menu }) {
 
       {count > 0 && !cartOpen && (
         <Button variant="storefront" size="storefront" onClick={() => setCartOpen(true)} className="cart-fab text-left">
-          <span className="flex items-center gap-3">
-            <span className="relative">
-              <ShoppingBag className="h-6 w-6 text-primary" />
-              <span className="absolute -top-1.5 -right-1.5 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
-                {count}
-              </span>
-            </span>
-            <span>
-              <span className="block text-xs text-muted-foreground">Sua sacola</span>
-              <span className="block text-sm font-bold">{brl(subtotal)}</span>
-            </span>
-          </span>
-          <span className="btn-primary py-2.5 text-sm">Ver sacola</span>
+          <span className="cart-launch-icon"><ShoppingBag /><span>{count}</span></span>
+          <span className="min-w-0"><span className="block font-semibold">Ver sacola</span><span className="block text-xs opacity-80">{count} {count === 1 ? "item" : "itens"} · {brl(subtotal)}</span></span>
+          <ArrowRight className="cart-launch-arrow" />
         </Button>
       )}
 
@@ -389,12 +383,13 @@ function CartSheet({
   subtotal: number;
   onClose: () => void;
 }) {
-  const [mode, setMode] = useState<"entrega" | "retirada">("entrega");
-  const [form, setForm] = useState({ name: "", phone: "", address: "", pay: "Pix", change: "" });
-  const fee = mode === "entrega" ? menu.store.deliveryFee : 0;
+  const [form, setForm] = useState<DeliveryDetails>(emptyDelivery);
+  const [submitted, setSubmitted] = useState(false);
+  const errors = deliveryErrors(form);
+  const fee = menu.store.deliveryFee;
   const total = subtotal + fee;
   const belowMin = subtotal < menu.store.minOrder;
-  const valid = Boolean(form.name && (mode === "retirada" || form.address) && !belowMin && cart.length);
+  const valid = Object.keys(errors).length === 0 && !belowMin && cart.length > 0;
 
   const message = useMemo(() => {
     const lines = [
@@ -419,16 +414,24 @@ function CartSheet({
       "",
       `Nome: ${form.name}`,
       `Telefone: ${form.phone}`,
-      mode === "entrega" ? `Endereço: ${form.address}` : "Retirada no local",
-      `Pagamento: ${form.pay}${form.pay === "Dinheiro" && form.change ? ` (troco para ${form.change})` : ""}`,
+      `Endereço: ${deliveryAddress(form)}`,
+      form.reference ? `Referência: ${form.reference}` : "",
+      `Pagamento: ${PAYMENT_METHOD} — aguardando pagamento`,
     ];
     return lines.join("\n");
-  }, [cart, form, mode, subtotal, fee, total, menu.store.name]);
+  }, [cart, form, subtotal, fee, total, menu.store.name]);
 
-  const set =
-    (k: keyof typeof form) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
-      setForm({ ...form, [k]: e.target.value });
+  const field = (key: keyof DeliveryDetails, label: string, autoComplete?: string, optional = false) => (
+    <label className="checkout-field">
+      <span>{label}{optional && <span className="text-muted-foreground"> · opcional</span>}</span>
+      <input className="field" aria-label={label} value={form[key]} autoComplete={autoComplete} required={!optional}
+        inputMode={key === "cep" || key === "phone" ? "numeric" : undefined}
+        maxLength={key === "state" ? 2 : undefined}
+        aria-invalid={submitted && Boolean(errors[key])}
+        onChange={e => setForm(prev => ({ ...prev, [key]: key === "state" ? e.target.value.toUpperCase() : e.target.value }))} />
+      {submitted && errors[key] && <span className="text-xs text-destructive">{errors[key]}</span>}
+    </label>
+  );
 
   return (
     <Sheet onClose={onClose}>
@@ -482,47 +485,35 @@ function CartSheet({
         ))}
       </ul>
 
-      <div className="segmented mt-5">
-        {(["entrega", "retirada"] as const).map((m) => (
-          <Button variant="storefront" size="storefront" key={m} onClick={() => setMode(m)} className={mode === m ? "on" : ""}>
-            <span className="flex items-center justify-center gap-1.5">
-              {m === "entrega" ? <Bike className="h-4 w-4" /> : <Store className="h-4 w-4" />}
-              {m === "entrega" ? "Entrega" : "Retirar no local"}
-            </span>
-          </Button>
-        ))}
+      {cart.length > 0 && <form noValidate onSubmit={e => {
+        e.preventDefault(); setSubmitted(true);
+        if (!valid) return;
+        window.open(`https://wa.me/${menu.store.whatsapp}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
+      }}>
+      <div className="delivery-summary mt-5">
+        <span className="delivery-icon"><Bike /></span>
+        <div className="min-w-0"><p className="text-sm font-semibold">Entrega no seu endereço</p><p className="mt-1 text-xs text-muted-foreground">{menu.store.eta} · {brl(fee)}</p></div>
+        <Check className="h-4 w-4 shrink-0 text-success" />
       </div>
-
-      <div className="mt-3 grid gap-2.5">
-        <input className="field" placeholder="Seu nome" value={form.name} onChange={set("name")} />
-        <input
-          className="field"
-          placeholder="WhatsApp"
-          value={form.phone}
-          onChange={set("phone")}
-        />
-        {mode === "entrega" && (
-          <input
-            className="field"
-            placeholder="Rua, número, bairro"
-            value={form.address}
-            onChange={set("address")}
-          />
-        )}
-        <select className="field" value={form.pay} onChange={set("pay")}>
-          <option>Pix</option>
-          <option>Cartão na entrega</option>
-          <option>Dinheiro</option>
-        </select>
-        {form.pay === "Dinheiro" && (
-          <input
-            className="field"
-            placeholder="Troco para quanto?"
-            value={form.change}
-            onChange={set("change")}
-          />
-        )}
-      </div>
+      <section className="checkout-section">
+        <h4><ReceiptText /> Seus dados</h4>
+        <div className="grid gap-3">{field("name", "Nome completo", "name")}{field("phone", "WhatsApp com DDD", "tel")}</div>
+      </section>
+      <section className="checkout-section">
+        <h4><MapPin /> Endereço de entrega</h4>
+        <div className="grid gap-3">
+          {field("cep", "CEP", "postal-code")}
+          {field("street", "Rua / avenida", "address-line1")}
+          <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] gap-3">{field("number", "Número")}{field("complement", "Complemento", "address-line2", true)}</div>
+          {field("neighborhood", "Bairro")}
+          <div className="grid grid-cols-[minmax(0,1fr)_80px] gap-3">{field("city", "Cidade", "address-level2")}{field("state", "UF", "address-level1")}</div>
+          {field("reference", "Ponto de referência", undefined, true)}
+        </div>
+      </section>
+      <section className="checkout-section">
+        <h4><ShieldCheck /> Pagamento</h4>
+        <div className="pix-method"><img src={pixLogo.url} alt="Pix" width={32} height={32} /><div className="min-w-0"><p className="font-semibold">Pix</p><p className="mt-1 text-xs text-muted-foreground">Pagamento ainda não realizado</p></div><span className="check-dot check-dot-on"><Check /></span></div>
+      </section>
 
       <div className="mt-5 space-y-2 border-t border-border pt-5 text-sm">
         <div className="flex justify-between text-muted-foreground">
@@ -545,15 +536,12 @@ function CartSheet({
         )}
       </div>
 
-      <Button asChild variant="storefront" size="storefront"><a
-        aria-disabled={!valid}
-        href={valid ? `https://wa.me/${menu.store.whatsapp}?text=${encodeURIComponent(message)}` : undefined}
-        target="_blank"
-        rel="noreferrer"
-        className={`btn-primary mt-5 block text-center ${valid ? "" : "pointer-events-none opacity-40"}`}
-      >
-        Enviar pedido pelo WhatsApp
-      </a></Button>
+      {submitted && Object.keys(errors).length > 0 && <p role="alert" className="mt-4 text-xs text-destructive">Confira os campos destacados para continuar.</p>}
+      <div className="sheet-actions mt-5">
+        <Button type="submit" variant="storefront" size="storefront" disabled={belowMin} className="btn-primary w-full gap-2">Enviar pedido pelo WhatsApp <ArrowRight /></Button>
+      </div>
+      </form>}
+
     </Sheet>
   );
 }
