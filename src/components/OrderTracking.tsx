@@ -10,8 +10,8 @@ type Step = { label: string; hint: string; icon: typeof Check; state: "done" | "
 const LIVE_FEE = 7.32;
 
 /** Rota desenhada no mapa (coordenadas do viewBox 340x190). */
-const ROUTE = "M 12 146 L 92 146 Q 112 146 112 126 L 112 96 Q 112 76 132 76 L 226 76 Q 246 76 246 56 L 246 26";
-const DEST = { x: 246, y: 26 };
+const ROUTE = "M 16 146 L 96 146 Q 112 146 112 130 L 112 92 Q 112 76 128 76 L 230 76 Q 246 76 246 92 L 246 130 Q 246 146 262 146 L 306 146";
+const DEST = { x: 306, y: 146 };
 
 /**
  * Acompanhamento do pedido após o pagamento confirmado.
@@ -80,38 +80,49 @@ export function OrderTracking({ menu, payment, form, total, sentToStore, onSend,
           <div className="tracking-live-map">
             <svg className="tracking-live-svg" viewBox="0 0 340 190" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
               <g className="map-blocks">
-                <rect x="6" y="4" width="100" height="16" rx="8" />
-                <rect x="6" y="36" width="100" height="32" rx="9" />
-                <rect x="6" y="112" width="100" height="26" rx="8" />
-                <rect x="124" y="8" width="110" height="60" rx="11" />
-                <rect x="258" y="8" width="76" height="60" rx="11" />
+                <rect x="6" y="4" width="98" height="16" rx="8" />
+                <rect x="6" y="36" width="98" height="32" rx="9" />
+                <rect x="6" y="112" width="98" height="26" rx="8" />
+                <rect x="6" y="158" width="98" height="26" rx="8" />
+                <rect x="124" y="4" width="108" height="64" rx="11" />
+                <rect x="258" y="4" width="76" height="26" rx="8" />
+                <rect x="258" y="38" width="76" height="30" rx="8" />
                 <rect x="124" y="84" width="38" height="54" rx="9" />
                 <rect x="182" y="84" width="56" height="54" rx="9" />
-                <rect x="258" y="84" width="76" height="54" rx="9" />
+                <rect x="258" y="84" width="76" height="24" rx="8" />
                 <rect x="124" y="158" width="38" height="26" rx="8" />
                 <rect x="182" y="158" width="56" height="26" rx="8" />
-                <rect x="258" y="158" width="76" height="26" rx="8" />
               </g>
+              <rect className="map-park" x="182" y="84" width="56" height="54" rx="9" />
               <g className="map-roads">
                 <line x1="0" y1="146" x2="340" y2="146" className="map-road-major" />
                 <line x1="90" y1="76" x2="340" y2="76" className="map-road-major" />
-                <line x1="112" y1="20" x2="112" y2="190" className="map-road-minor" />
-                <line x1="246" y1="0" x2="246" y2="120" className="map-road-minor" />
+                <line x1="112" y1="16" x2="112" y2="190" className="map-road-minor" />
+                <line x1="246" y1="0" x2="246" y2="132" className="map-road-minor" />
                 <line x1="170" y1="76" x2="170" y2="190" className="map-road-minor" />
                 <line x1="0" y1="104" x2="112" y2="104" className="map-road-minor" />
                 <line x1="0" y1="28" x2="106" y2="28" className="map-road-minor" />
+                <line x1="246" y1="120" x2="340" y2="120" className="map-road-minor" />
+              </g>
+              <g className="map-streets">
+                <text x="18" y="140">AV. DA BRASA</text>
+                <text x="128" y="70">R. DAS PALMEIRAS</text>
+                <text x="240" y="112" transform="rotate(-90 240 112)">R. DO FOGO</text>
+                <text x="176" y="176">R. DO MAR</text>
               </g>
               <path className="map-route" d={ROUTE} />
               <path className="map-route-flow" d={ROUTE} />
               <g className="map-dest" transform={`translate(${DEST.x} ${DEST.y})`}>
-                <circle className="map-dest-halo" r="17" />
+                <circle className="map-dest-halo" r="16" />
                 <circle className="map-dest-dot" r="11" />
-                <path className="map-dest-glyph" d="M -4.6 3 L -4.6 -1 L 0 -5 L 4.6 -1 L 4.6 3 Z" />
+                <path className="map-dest-glyph" d="M -5.4 -0.8 L 0 -6.4 L 5.4 -0.8 Z" />
+                <rect className="map-dest-glyph" x="-3.4" y="-0.8" width="6.8" height="5.6" rx="1.2" />
               </g>
               <g className="map-courier">
-                <circle className="map-courier-halo" r="15" />
-                <circle className="map-courier-dot" r="9" />
-                <path className="map-courier-glyph" d="M 3.6 0 L -2.4 -3.2 L -2.4 3.2 Z" />
+                <path className="map-courier-beam" d="M 0 0 L 27 -14 A 30 30 0 0 1 27 14 Z" />
+                <circle className="map-courier-halo" r="17" />
+                <circle className="map-courier-ring" r="12" />
+                <circle className="map-courier-dot" r="7.5" />
                 <animateMotion dur="9s" repeatCount="indefinite" rotate="auto" path={ROUTE} />
               </g>
             </svg>
@@ -144,11 +155,13 @@ export function OrderTracking({ menu, payment, form, total, sentToStore, onSend,
             </div>
             <span className="tracking-live-price"><span>R$</span>{liveFeeText}</span>
           </div>
-          <span className="test-badge"><i aria-hidden="true" /> Teste · não pagar</span>
-          <Button variant="storefront" size="storefront" className="btn-primary w-full gap-2" disabled={live === "paying"} onClick={payLiveFee}>
-            {live === "paying" ? <><LoaderCircle className="h-4 w-4 animate-spin" /> Processando pagamento de teste…</> : <>Ativar localização ao vivo</>}
-          </Button>
-          <p className="tracking-live-disclaimer">Cobrança simulada. Nenhum valor é debitado.</p>
+          <div className="tracking-live-flag">
+            <span className="test-badge"><i aria-hidden="true" /> Teste · não pagar</span>
+            <Button variant="storefront" size="storefront" className="btn-primary w-full gap-2" disabled={live === "paying"} onClick={payLiveFee}>
+              {live === "paying" ? <><LoaderCircle className="h-4 w-4 animate-spin" /> Processando pagamento de teste…</> : <>Ativar localização ao vivo</>}
+            </Button>
+            <p className="tracking-live-disclaimer">Cobrança simulada. Nenhum valor é debitado.</p>
+          </div>
         </div>
       )}
 
