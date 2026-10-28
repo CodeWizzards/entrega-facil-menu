@@ -18,3 +18,13 @@ export function cardErrors(card: CardDetails, now = new Date()) {
 }
 export const cardCheckoutSchema = pixCheckoutSchema.extend({ card: z.object({ number: z.string().max(24), owner: z.string().trim().min(1).max(200), expiresAt: z.string().max(5), cvv: z.string().max(4) }) });
 export const cardResultSchema = z.object({ success: z.literal(true), transactionId: z.string().startsWith("fire_card_"), status: z.enum(["PAID", "PENDING", "CANCELLED"]), amount: z.number().positive(), currency: z.literal("BRL") });
+export type CardBrand = "visa" | "mastercard" | "amex" | "elo" | "hipercard" | "unknown";
+export function cardBrand(value: string): CardBrand {
+  const n = value.replace(/\D/g, "");
+  if (/^(4011|4312|4389|4514|4576|5041|5066|5067|509|6277|6362|6363|650|6516|6550)/.test(n)) return "elo";
+  if (/^(606282|3841)/.test(n)) return "hipercard";
+  if (/^3[47]/.test(n)) return "amex";
+  if (/^4/.test(n)) return "visa";
+  if (/^(5[1-5]|2[2-7])/.test(n)) return "mastercard";
+  return "unknown";
+}

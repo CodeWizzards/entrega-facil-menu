@@ -1,5 +1,8 @@
 // Never display or log raw provider responses: they may echo buyer data or credentials.
 export function firebotFailureMessage(status: number, response: unknown): string {
+  const text = JSON.stringify(response ?? {}).toLowerCase();
+  if (/credit_card/.test(text)) return "O cartão ainda não está ativado na sua conta Firebot. Peça a liberação ao suporte da Firebot ou ative em Finanças > Adquirentes.";
+  if (/pix n[ãa]o est[áa] habilitado/.test(text)) return "O Pix ainda não está ativado na sua conta Firebot. Peça a liberação do Pix ao suporte da Firebot.";
   if (status === 401 || status === 403) return "A Firebot recusou o acesso ao pagamento. Confira a chave e a habilitação do método na sua conta.";
   if (status === 429) return "A Firebot recebeu muitas solicitações. Aguarde um pouco antes de tentar novamente.";
   if (status === 400 || status === 422) {
