@@ -7,7 +7,7 @@ export function newPixAccess() {
 export function rememberPixAttempt(previous: PixAttempt[], access: string, payment?: PixPayment): PixAttempt[] {
   const existing = previous.find(attempt => attempt.access === access);
   // Persist payment display only; payment status must be verified again after reload.
-  const display = payment ? { orderId: payment.orderId, amount: payment.amount, code: payment.code, status: "PENDING" } : existing?.payment;
+  const display = payment ? { orderId: payment.orderId, amount: payment.amount, code: payment.code, status: "PENDING", ...(payment.method ? { method: payment.method } : {}) } : existing?.payment;
   return [...previous.filter(attempt => attempt.access !== access), { access, ...(display ? { payment: display } : {}) }];
 }
 export function readPixAttempts(menuPath: string): PixAttempt[] {

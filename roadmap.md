@@ -28,4 +28,5 @@
 - [x] Liberar novas tentativas manuais de Pix, preservar consultas anteriores e testar sem gerar cobranças reais.
 - [x] Mostrar motivo seguro da recusa da Firebot, sem expor dados do comprador ou chave.
 - [ ] Confirmar a causa da rejeição do Pix — aguarda uma nova tentativa do usuário para obter o motivo retornado pela Firebot; as duas respostas anteriores guardaram apenas HTTP 400.
-- [ ] Disponibilizar cartão — requer confirmar habilitação e fluxo seguro de coleta do cartão na Firebot.
+- [x] Disponibilizar seleção Pix/cartão e cobrança direta Firebot com validação e dados do cartão transitórios; teste no celular sem cobrar valores reais.
+- [ ] Homologar cartão em produção — aguarda confirmação da habilitação na Firebot e das obrigações PCI aplicáveis à coleta direta, além de teste autorizado; a documentação não fornece consulta para cartão pendente.

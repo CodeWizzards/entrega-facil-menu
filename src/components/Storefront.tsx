@@ -1,5 +1,6 @@
 import {
   Bike,
+  CreditCard,
   Check,
   Clock,
   Home,
@@ -29,7 +30,9 @@ import { LocationWelcome } from "@/components/LocationWelcome";
 import { lookupPostal } from "@/lib/postal";
 import { brl, type Addon, type Menu, type Product } from "@/lib/menu";
 import { useServerFn } from "@tanstack/react-start";
-import { createPix, checkPix } from "@/lib/pix.functions";
+import { createPix, checkPix, chargeCard } from "@/lib/pix.functions";
+import { CardFields } from "@/components/CardFields";
+import { cardErrors, emptyCard } from "@/lib/card";
 import type { PixPayment } from "@/lib/pix";
 import { newPixAccess, readPixAttempts, rememberPixAttempt, type PixAttempt } from "@/lib/pix-session";
 import { PixPaymentPanel } from "@/components/PixPaymentPanel";
@@ -423,11 +426,14 @@ function CartSheet({
   setPixAccess: React.Dispatch<React.SetStateAction<string>>;
 }) {
   const [form, setForm] = useState<DeliveryDetails>(emptyDelivery);
+  const [method, setMethod] = useState<"PIX" | "CARD">("PIX");
+  const [card, setCard] = useState(emptyCard);
   const [processing, setProcessing] = useState(false);
   const [paymentError, setPaymentError] = useState("");
   const [attempts, setAttempts] = useState<PixAttempt[]>([]);
   useEffect(() => { setAttempts(readPixAttempts(menu.to)); }, [menu.to]);
   const createPayment = useServerFn(createPix);
+  const createCardPayment = useServerFn(chargeCard);
   const checkPayment = useServerFn(checkPix);
   const savePayment = (access: string, value?: PixPayment) => {
     const next = rememberPixAttempt(attempts, access, value);
@@ -574,22 +580,25 @@ function CartSheet({
         ))}
       </ul>
 
-       {payment && <PixPaymentPanel payment={payment} checking={processing} error={paymentError} onCheck={verifyPayment} />}
-       {payment && <Button variant="storefront" size="storefront" disabled={processing} className="btn-primary mt-4 w-full" onClick={() => { setPayment(null); setPaymentError(""); setSubmitted(false); }}>Gerar outro Pix</Button>}
+       {payment && payment.method !== "CARD" && <PixPaymentPanel payment={payment} checking={processing} error={paymentError} onCheck={verifyPayment} />}
+       {payment?.method === "CARD" && <section className="checkout-section" aria-label="Pagamento por cartão"><h4><CreditCard /> Cartão · {brl(payment.amount)}</h4><p role="status" className="text-sm">{payment.status === "PAID" ? "Pagamento aprovado pela Firebot" : payment.status === "CANCELLED" ? "Pagamento recusado ou cancelado" : "Pagamento em análise. Não envie uma nova cobrança."}</p><Button variant="storefront" size="storefront" disabled={processing} onClick={verifyPayment} className="mt-3 w-full">Consultar pagamento</Button>{paymentError && <p role="alert" className="text-xs text-destructive">{paymentError}</p>}</section>}
+       {payment && <Button variant="storefront" size="storefront" disabled={processing} className="btn-primary mt-4 w-full" onClick={() => { setPayment(null); setPaymentError(""); setSubmitted(false); }}>Novo pagamento</Button>}
        {attempts.length > 0 && <section className="checkout-section" aria-label="Tentativas anteriores de Pix"><h4><ReceiptText /> Tentativas de Pix</h4><div className="grid gap-2">{attempts.map((attempt, index) => <Button key={attempt.access} variant="storefront" size="storefront" disabled={processing} className="w-full text-sm" onClick={() => { setPixAccess(attempt.access); setPayment(attempt.payment || null); setPaymentError(""); }}>Consultar tentativa {index + 1}{attempt.payment ? ` · ${brl(attempt.payment.amount)}` : ""}</Button>)}</div>{!payment && pixAccess && <Button variant="storefront" size="storefront" disabled={processing} onClick={verifyPayment} className="mt-3 w-full">Verificar tentativa selecionada</Button>}</section>}
        {!payment && paymentError && <p role="alert" className="mt-3 text-xs text-destructive">{paymentError}</p>}
        {payment?.status === "PAID" && payment.whatsappMessage && <Button variant="storefront" size="storefront" className="btn-primary mt-5 w-full" onClick={() => window.open(`https://wa.me/${menu.store.whatsapp}?text=${encodeURIComponent(payment.whatsappMessage || "")}`, "_blank", "noopener,noreferrer")}>Enviar pedido à loja <ArrowRight /></Button>}
        {cart.length > 0 && !payment && <form noValidate onSubmit={async e => {
         e.preventDefault(); setSubmitted(true);
          if (!valid || processing) return;
+         if (method === "CARD" && Object.keys(cardErrors(card)).length) return;
          setProcessing(true); setPaymentError("");
          const access = newPixAccess();
          setPixAccess(access); savePayment(access);
          try {
-           const result = await createPayment({ data: { access, menuPath: menu.to, form, items: cart.map(i => ({ productId: i.product.id, qty: i.qty, addonIds: i.addons.map(a => a.id), note: i.note })) } });
+           const data = { access, menuPath: menu.to, form, items: cart.map(i => ({ productId: i.product.id, qty: i.qty, addonIds: i.addons.map(a => a.id), note: i.note })) };
+           const result = method === "CARD" ? await createCardPayment({ data: { ...data, card } }) : await createPayment({ data });
            setPayment(result); savePayment(access, result);
          } catch (error) { setPaymentError(error instanceof Error ? error.message : "Não foi possível gerar o Pix."); }
-         finally { setProcessing(false); }
+         finally { setProcessing(false); if (method === "CARD") setCard(emptyCard); }
       }}>
       <div className="delivery-summary mt-5">
         <span className="delivery-icon"><Bike /></span>
@@ -614,10 +623,11 @@ function CartSheet({
       </section>
       <section className="checkout-section">
         <h4><ShieldCheck /> Pagamento</h4>
-        <div className="pix-method"><img src={pixLogo.url} alt="Pix" width={32} height={32} /><div className="min-w-0"><p className="font-semibold">Pix</p><p className="mt-1 text-xs text-muted-foreground">Pagamento ainda não realizado</p></div><span className="check-dot check-dot-on"><Check /></span></div>
+        <div className="grid grid-cols-2 gap-3" role="group" aria-label="Forma de pagamento"><Button type="button" variant="storefront" size="storefront" aria-pressed={method === "PIX"} className={`flex items-center justify-center gap-2 rounded-lg border p-4 ${method === "PIX" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`} onClick={() => { setMethod("PIX"); setCard(emptyCard); }}><img src={pixLogo.url} alt="" width={24} height={24} />Pix</Button><Button type="button" variant="storefront" size="storefront" aria-pressed={method === "CARD"} className={`flex items-center justify-center gap-2 rounded-lg border p-4 ${method === "CARD" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`} onClick={() => setMethod("CARD")}><CreditCard className="h-5 w-5" />Cartão</Button></div>
+        {method === "CARD" && <CardFields card={card} onChange={setCard} submitted={submitted} />}
         <div className="checkout-security mt-4">
           <ShieldCheck className="h-5 w-5 shrink-0" />
-           <div><p className="text-xs font-semibold">{secureConnection ? "Conexão criptografada · HTTPS" : "Ambiente de teste"}</p><p className="mt-1 text-xs text-muted-foreground">Pix processado pela Firebot</p></div>
+           <div><p className="text-xs font-semibold">{secureConnection ? "Conexão criptografada · HTTPS" : "Ambiente de teste"}</p><p className="mt-1 text-xs text-muted-foreground">Pagamento processado pela Firebot</p></div>
         </div>
       </section>
 
@@ -644,7 +654,7 @@ function CartSheet({
 
       {submitted && Object.keys(errors).length > 0 && <p role="alert" className="mt-4 text-xs text-destructive">Confira os campos destacados para continuar.</p>}
       <div className="sheet-actions mt-5">
-         <Button type="submit" variant="storefront" size="storefront" disabled={belowMin || processing} className="btn-primary w-full gap-2">{processing ? "Gerando Pix…" : `Gerar Pix · ${brl(total)}`} <ArrowRight /></Button>
+         <Button type="submit" variant="storefront" size="storefront" disabled={belowMin || processing} className="btn-primary w-full gap-2">{processing ? "Processando…" : `${method === "CARD" ? "Pagar com cartão" : "Gerar Pix"} · ${brl(total)}`} <ArrowRight /></Button>
       </div>
       </form>}
 
