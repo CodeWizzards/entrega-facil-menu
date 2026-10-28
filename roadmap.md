@@ -1,3 +1,6 @@
 - [x] Remover estrela dos Destaques e permitir arraste real.
 - [x] Refinar apresentação iOS do cardápio, produto, adicionais e sacola.
 - [x] Verificar arraste e montagem do pedido nas duas páginas.
+- [ ] Restaurar navegação Início e Pedidos para o pedido atual.
+- [ ] Remover tons marrons e redesenhar selos e informações da loja.
+- [ ] Conferir navegação e aparência no celular.
