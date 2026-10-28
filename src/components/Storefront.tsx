@@ -64,12 +64,14 @@ export function Storefront({ menu }: { menu: Menu }) {
   const [cartOpen, setCartOpen] = useState(false);
   const [payment, setPayment] = useState<PixPayment | null>(null);
   const [pixAccess, setPixAccess] = useState("");
+  const [sheetMode, setSheetMode] = useState<"cart" | "orders">("cart");
+  // Pedido pago fica congelado: os itens são os do momento do pagamento, não os da sacola atual.
+  const [paidOrder, setPaidOrder] = useState<PaidOrder | null>(null);
   useEffect(() => {
     try {
       const stored = JSON.parse(sessionStorage.getItem(`pix:${menu.to}`) || "null");
       if (stored && typeof stored.access === "string" && /^[a-f0-9]{64}$/.test(stored.access)) {
         setPixAccess(stored.access);
-        if (stored.payment && typeof stored.payment.code === "string" && typeof stored.payment.amount === "number") setPayment({ ...stored.payment, status: "PENDING" });
       }
     } catch { /* Storage is optional; checkout remains available. */ }
   }, [menu.to]);
@@ -248,7 +250,7 @@ export function Storefront({ menu }: { menu: Menu }) {
       </div>
 
       {count > 0 && !cartOpen && (
-        <Button variant="storefront" size="storefront" onClick={() => setCartOpen(true)} className="cart-fab text-left">
+        <Button variant="storefront" size="storefront" onClick={() => { setSheetMode("cart"); setCartOpen(true); }} className="cart-fab text-left">
           <span className="cart-launch-icon"><ShoppingBag /><span>{count}</span></span>
           <span className="min-w-0"><span className="block font-semibold">Ver sacola</span><span className="block text-xs opacity-80">{count} {count === 1 ? "item" : "itens"} · {brl(subtotal)}</span></span>
           <ArrowRight className="cart-launch-arrow" />
@@ -260,8 +262,8 @@ export function Storefront({ menu }: { menu: Menu }) {
           setCartOpen(false); setSelected(null); setSearch("");
           window.scrollTo({ top: 0, behavior: "smooth" });
         }}><Home /><span>Início</span></Button>
-        <Button variant="storefront" size="storefront" aria-label="Pedidos" className={cartOpen ? "bottom-tab active" : "bottom-tab"} onClick={() => setCartOpen(true)}>
-          <span className="relative"><ReceiptText />{count > 0 && <span className="tab-count">{count}</span>}</span><span>Pedidos</span>
+        <Button variant="storefront" size="storefront" aria-label="Pedidos" className={cartOpen && sheetMode === "orders" ? "bottom-tab active" : "bottom-tab"} onClick={() => { setSheetMode("orders"); setCartOpen(true); }}>
+          <span className="relative"><ReceiptText />{paidOrder && <span className="tab-count">1</span>}</span><span>Pedidos</span>
         </Button>
       </nav>
 
@@ -284,6 +286,9 @@ export function Storefront({ menu }: { menu: Menu }) {
           setPayment={setPayment}
           pixAccess={pixAccess}
           setPixAccess={setPixAccess}
+          mode={sheetMode}
+          paidOrder={paidOrder}
+          setPaidOrder={setPaidOrder}
         />
       )}
     </div>
@@ -423,6 +428,9 @@ function CartSheet({
   setPayment,
   pixAccess,
   setPixAccess,
+  mode,
+  paidOrder,
+  setPaidOrder,
 }: {
   menu: Menu;
   cart: Item[];
@@ -433,7 +441,19 @@ function CartSheet({
   setPayment: React.Dispatch<React.SetStateAction<PixPayment | null>>;
   pixAccess: string;
   setPixAccess: React.Dispatch<React.SetStateAction<string>>;
+  mode: "cart" | "orders";
+  paidOrder: PaidOrder | null;
+  setPaidOrder: React.Dispatch<React.SetStateAction<PaidOrder | null>>;
 }) {
+  const pendingOrder = useRef<PaidOrder | null>(null);
+  const settle = (result: PixPayment) => {
+    if (result.status === "PAID" && pendingOrder.current) {
+      setPaidOrder({ ...pendingOrder.current, payment: result });
+      pendingOrder.current = null;
+      setCart([]);
+      setPayment(null);
+    } else setPayment(result);
+  };
   const [form, setForm] = useState<DeliveryDetails>(emptyDelivery);
   const [method, setMethod] = useState<"PIX" | "CARD">("PIX");
   const [card, setCard] = useState(emptyCard);
@@ -455,7 +475,7 @@ function CartSheet({
   const verifyPayment = async () => {
     if (processing || !pixAccess) return;
     setProcessing(true); setPaymentError("");
-    try { const result = await checkPayment({ data: { access: pixAccess } }); setPayment(result); savePayment(pixAccess, result); }
+    try { const result = await checkPayment({ data: { access: pixAccess } }); settle(result); savePayment(pixAccess, result); }
     catch (error) { setPaymentError(error instanceof Error ? error.message : "Não foi possível consultar o Pix."); }
     finally { setProcessing(false); }
   };
@@ -601,7 +621,7 @@ function CartSheet({
         ))}
       </ul>}
 
-       {payment?.status === "PAID" && <OrderTracking menu={menu} payment={payment} form={form} total={total} lines={invoiceLines} onClose={onClose} />}
+       {mode === "orders" && paidOrder && <OrderTracking menu={menu} payment={paidOrder.payment} form={paidOrder.form} total={paidOrder.total} lines={paidOrder.lines} onClose={onClose} />}
        {payment && payment.status !== "PAID" && payment.method !== "CARD" && <PixPaymentPanel payment={payment} checking={processing} error={paymentError} onCheck={verifyPayment} />}
        {payment?.method === "CARD" && payment.status !== "PAID" && <section className="checkout-section" aria-label="Pagamento por cartão"><h4><CreditCard /> Cartão · {brl(payment.amount)}</h4><p role="status" className="text-sm">{payment.status === "CANCELLED" ? "Pagamento recusado ou cancelado" : "Pagamento em análise. Não envie uma nova cobrança."}</p><Button variant="storefront" size="storefront" disabled={processing} onClick={verifyPayment} className="mt-3 w-full">Consultar pagamento</Button>{paymentError && <p role="alert" className="text-xs text-destructive">{paymentError}</p>}</section>}
        {payment && payment.status !== "PAID" && <Button variant="storefront" size="storefront" disabled={processing} className="btn-primary mt-4 w-full" onClick={() => { setPayment(null); setPaymentError(""); setSubmitted(false); }}>Novo pagamento</Button>}
@@ -613,10 +633,11 @@ function CartSheet({
          setProcessing(true); setPaymentError("");
          const access = newPixAccess();
          setPixAccess(access); savePayment(access);
+         pendingOrder.current = { lines: invoiceLines, total, form: { ...form }, payment: null as unknown as PixPayment };
          try {
            const data = { access, menuPath: menu.to, form, items: cart.map(i => ({ productId: i.product.id, qty: i.qty, addonIds: i.addons.map(a => a.id), note: i.note })) };
            const result = method === "CARD" ? await createCardPayment({ data: { ...data, card } }) : await createPayment({ data });
-           setPayment(result); savePayment(access, result);
+           settle(result); savePayment(access, result);
          } catch (error) { setPaymentError(error instanceof Error ? error.message : "Não foi possível gerar o Pix."); }
          finally { setProcessing(false); if (method === "CARD") setCard(emptyCard); }
       }}>
