@@ -227,7 +227,7 @@ export function Storefront({ menu }: { menu: Menu }) {
           setCartOpen(false); setSelected(null); setSearch("");
           window.scrollTo({ top: 0, behavior: "smooth" });
         }}><Home /><span>Início</span></Button>
-        <Button variant="storefront" size="storefront" className={cartOpen ? "bottom-tab active" : "bottom-tab"} onClick={() => setCartOpen(true)}>
+        <Button variant="storefront" size="storefront" aria-label="Pedidos" className={cartOpen ? "bottom-tab active" : "bottom-tab"} onClick={() => setCartOpen(true)}>
           <span className="relative"><ReceiptText />{count > 0 && <span className="tab-count">{count}</span>}</span><span>Pedidos</span>
         </Button>
       </nav>
