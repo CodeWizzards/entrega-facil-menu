@@ -92,9 +92,12 @@ export const checkPix = createServerFn({ method: "POST" })
     const { data: order, error } = await supabaseAdmin.from("pix_orders").select("id, menu_path, checkout, amount_cents, transaction_id, pix_code, status").eq("access_hash", accessHash).maybeSingle();
     if (error || !order) throw new Error("Pedido não encontrado neste navegador.");
     const key = process.env["FIREBOT_API_KEY"];
-    const isCard = order.transaction_id?.startsWith("fire_card_") === true;
-    if (!key || !order.transaction_id || (!order.pix_code && !isCard)) throw new Error("Esta tentativa não tem um código Pix disponível para consulta. Você pode gerar outro Pix.");
-    const status = isCard ? order.status : verifiedPixStatus(await firebot(`pix/${encodeURIComponent(order.transaction_id)}`, key), order.transaction_id, order.amount_cents / 100);
+    const isCard = order.transaction_id?.startsWith("fire_card_") === true || order.transaction_id?.startsWith("test_card_") === true;
+    if (!order.transaction_id || (!order.pix_code && !isCard)) throw new Error("Esta tentativa não tem um código Pix disponível para consulta. Você pode gerar outro Pix.");
+    if (!key && !paymentsTestMode()) throw new Error("Pagamento ainda não configurado.");
+    const status = paymentsTestMode() && order.transaction_id.startsWith("test_")
+      ? "PAID"
+      : isCard ? order.status : verifiedPixStatus(await firebot(`pix/${encodeURIComponent(order.transaction_id)}`, key!), order.transaction_id, order.amount_cents / 100);
     const { error: saveError } = await supabaseAdmin.from("pix_orders").update({ status }).eq("id", order.id);
     if (saveError) throw new Error("Não foi possível atualizar o pedido.");
     let whatsappMessage = "";
@@ -125,6 +128,11 @@ export const chargeCard = createServerFn({ method: "POST" })
     const accessHash = await hashAccess(data.access);
     const { data: order, error } = await supabaseAdmin.from("pix_orders").insert({ access_hash: accessHash, menu_path: data.menuPath, amount_cents: priced.amountCents, checkout: { form: data.form, items: priced.items, method: "CARD" } }).select("id").single();
     if (error || !order) throw new Error("Esta tentativa já foi enviada. Consulte antes de reenviar.");
+    if (paymentsTestMode()) {
+      const { error: saveError } = await supabaseAdmin.from("pix_orders").update({ transaction_id: `test_card_${order.id}`, status: "PAID" }).eq("id", order.id);
+      if (saveError) throw new Error("Falha ao salvar pagamento.");
+      return { orderId: order.id, amount: priced.amountCents / 100, code: "", status: "PAID", method: "CARD" as const };
+    }
     try {
       // Card data is transient: never include it in database, storage, logs, or responses.
       const result = cardResultSchema.parse(await firebot("card/charge", key, {
