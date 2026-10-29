@@ -28,7 +28,7 @@ describe("Localização inicial", () => {
     fireEvent.click(screen.getByRole("button", { name: "Confirmar localização" }));
     expect(screen.getByText("Buscando o delivery mais próximo de você…")).toBeInTheDocument();
     await waitFor(() => expect(screen.getByRole("button", { name: "Ver cardápio" })).toBeEnabled(), { timeout: 5000 });
-    expect(screen.getByText("1,6 km · distância de exemplo")).toBeInTheDocument();
+    expect(screen.getByText("1,6 km · distância")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Ver cardápio" }));
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
   });

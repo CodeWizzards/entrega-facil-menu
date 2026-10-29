@@ -176,7 +176,6 @@ export function OrderTracking({ menu, payment, form, total, lines, onClose }: {
             <span className="tracking-live-price"><span>R$</span>{liveFeeText}</span>
           </div>
           <div className="tracking-live-flag">
-            <span className="test-badge"><i aria-hidden="true" /> Teste · não pagar</span>
             <Button variant="storefront" size="storefront" className="btn-primary w-full gap-2" disabled={live === "paying"} onClick={payLiveFee}>
               {live === "paying" ? <><LoaderCircle className="h-4 w-4 animate-spin" /> Processando pagamento de teste…</> : <>Ativar localização ao vivo</>}
             </Button>

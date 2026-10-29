@@ -685,7 +685,7 @@ function CartSheet({
         {method === "CARD" && <CardFields card={card} onChange={setCard} submitted={submitted} />}
         <div className="checkout-security mt-4">
           <ShieldCheck className="h-5 w-5 shrink-0" />
-           <div><p className="text-xs font-semibold">{secureConnection ? "Conexão criptografada · HTTPS" : "Ambiente de teste"}</p><p className="mt-1 text-xs text-muted-foreground">Pagamento processado pela Firebot</p></div>
+           <div><p className="text-xs font-semibold">{secureConnection ? "Conexão criptografada · HTTPS" : "Ambiente de teste"}</p></div>
         </div>
       </section>
 
