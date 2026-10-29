@@ -42,7 +42,7 @@ import { PixPaymentPanel } from "@/components/PixPaymentPanel";
 import { OrderTracking } from "@/components/OrderTracking";
 import type { InvoiceLine } from "@/lib/invoice";
 
-type PaidOrder = { lines: InvoiceLine[]; total: number; form: DeliveryDetails; payment: PixPayment };
+type PaidOrder = { lines: InvoiceLine[]; total: number; form: DeliveryDetails; payment: PixPayment; access: string };
 
 type Item = {
   key: string;
@@ -601,7 +601,7 @@ function CartSheet({
         <Button variant="storefront" size="storefront" aria-label="Fechar" onClick={onClose} className="icon-btn"><X className="h-5 w-5" /></Button>
       </div>
       {paidOrder
-        ? <OrderTracking menu={menu} payment={paidOrder.payment} form={paidOrder.form} total={paidOrder.total} lines={paidOrder.lines} onClose={onClose} />
+        ? <OrderTracking menu={menu} payment={paidOrder.payment} form={paidOrder.form} total={paidOrder.total} lines={paidOrder.lines} orderAccess={paidOrder.access} onClose={onClose} />
         : <div className="py-10 text-center"><ReceiptText className="mx-auto h-10 w-10 text-muted-foreground/40" /><p className="mt-3 text-sm text-muted-foreground">Nenhum pedido pago ainda.</p></div>}
     </Sheet>
   );
@@ -694,7 +694,7 @@ function CartSheet({
          setProcessing(true); setPaymentError("");
          const access = newPixAccess();
          setPixAccess(access); savePayment(access);
-         pendingOrder.current = { lines: invoiceLines, total, form: { ...form }, payment: null as unknown as PixPayment };
+         pendingOrder.current = { lines: invoiceLines, total, form: { ...form }, access, payment: null as unknown as PixPayment };
          try {
            const data = { access, menuPath: menu.to, form, items: cart.map(i => ({ productId: i.product.id, qty: i.qty, addonIds: i.addons.map(a => a.id), note: i.note })) };
            const result = method === "CARD" ? await createCardPayment({ data: { ...data, card } }) : await createPayment({ data });
