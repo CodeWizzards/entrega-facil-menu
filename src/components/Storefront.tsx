@@ -518,11 +518,10 @@ function CartSheet({
   const holdTimer = useRef<number | null>(null);
   const stopHold = () => { if (holdTimer.current !== null) { clearTimeout(holdTimer.current); holdTimer.current = null; } };
   const startHold = () => {
-    console.log("[ct] hold start");
     if (holdTimer.current !== null || cardTestOpen) return;
     holdTimer.current = window.setTimeout(() => {
       holdTimer.current = null;
-      void cardTestAllowed().then(({ allowed }) => { console.log("[ct] allowed", allowed); if (allowed) setCardTestOpen(true); }).catch((e) => { console.log("[ct] err", String(e)); });
+      void cardTestAllowed().then(({ allowed }) => { if (allowed) setCardTestOpen(true); }).catch(() => { /* nada aparece sem sessão privada */ });
     }, 1200);
   };
   useEffect(() => stopHold, []);
