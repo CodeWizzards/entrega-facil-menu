@@ -102,7 +102,8 @@ export const checkPix = createServerFn({ method: "POST" })
     const { error: saveError } = await supabaseAdmin.from("pix_orders").update({ status }).eq("id", order.id);
     if (saveError) throw new Error("Não foi possível atualizar o pedido.");
     let whatsappMessage = "";
-    if (status === "PAID") {
+    const isLiveFee = (order.checkout as { kind?: string } | null)?.kind === "LIVE_LOCATION_FEE";
+    if (status === "PAID" && !isLiveFee) {
       const saved = z.object({ form: pixCheckoutSchema.shape.form, items: z.array(z.object({ name: z.string(), qty: z.number(), cents: z.number(), note: z.string(), addons: z.array(z.object({ name: z.string(), price: z.number() })) })) }).parse(order.checkout);
       const menu = order.menu_path === "/sushi" ? SUSHI : LANCHES;
       whatsappMessage = [
