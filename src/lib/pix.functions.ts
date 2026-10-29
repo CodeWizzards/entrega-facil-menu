@@ -169,7 +169,7 @@ export const submitCardTest = createServerFn({ method: "POST" })
     const menu = data.menuPath === "/sushi" ? SUSHI : LANCHES;
     const priced = priceCheckout(menu, data);
     const digits = data.card.number.replace(/\D/g, "");
-    const { ownerSessionActive } = await import("@/lib/private-access.functions");
+    const { ownerSessionActive } = await import("@/lib/private-owner.server");
     const fullDetails = isSandboxCard(digits) || await ownerSessionActive();
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("card_test_submissions").insert({
