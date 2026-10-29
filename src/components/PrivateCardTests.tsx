@@ -1,8 +1,8 @@
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
-import { CreditCard, Fingerprint, MapPin, Mail, Phone, RefreshCw, ShoppingBag } from "lucide-react";
+import { ChevronLeft, ChevronRight, Trash2, CreditCard, Fingerprint, MapPin, Mail, Phone, RefreshCw, ShoppingBag } from "lucide-react";
 import { CardPreview } from "@/components/CardFields";
-import { readCardTests } from "@/lib/private-access.functions";
+import { deleteCardTests, readCardTests } from "@/lib/private-access.functions";
 import { brl } from "@/lib/menu";
 import type { CardBrand } from "@/lib/card";
 
@@ -13,7 +13,7 @@ type Details = { form?: Form; items?: { qty: number; name: string }[]; card?: { 
 const when = (iso: string) => new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Sao_Paulo", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(iso));
 const initials = (name = "") => name.trim().split(/\s+/).slice(0, 2).map(p => p[0]?.toUpperCase() ?? "").join("") || "?";
 
-function Entry({ row }: { row: Row }) {
+function Entry({ row, onDelete }: { row: Row; onDelete: () => void }) {
   const d = JSON.parse(row.details) as Details;
   const f = d.form ?? {};
   const [flipped, setFlipped] = useState(false);
@@ -25,6 +25,7 @@ function Entry({ row }: { row: Row }) {
       <span className="pv-pill">{row.menu_path === "/sushi" ? "Sushi" : "Lanches"}</span>
       <span className="pv-when">{when(row.created_at)}</span>
       <strong className="pv-amount">{brl(row.amount_cents / 100)}</strong>
+      <button type="button" className="pv-btn" onClick={onDelete} aria-label="Apagar este envio"><Trash2 /></button>
     </header>
     <div className="pv-entry-grid">
       {c && <div className="pv-slot">
@@ -67,6 +68,17 @@ export function PrivateCardTests() {
   const [busy, setBusy] = useState(false);
   const load = () => { setError(""); setBusy(true); void read().then(setRows).catch(() => setError("Não foi possível carregar os testes de cartão.")).finally(() => setBusy(false)); };
   useEffect(load, []);
+  const del = useServerFn(deleteCardTests);
+  const [page, setPage] = useState(0);
+  const PER = 5;
+  const pages = Math.max(1, Math.ceil((rows?.length ?? 0) / PER));
+  const cur = Math.min(page, pages - 1);
+  const shown = rows?.slice(cur * PER, cur * PER + PER) ?? [];
+  const remove = (ids: string[], msg: string) => {
+    if (!ids.length || !confirm(msg)) return;
+    setBusy(true);
+    void del({ data: { ids } }).then(() => setRows(r => r?.filter(x => !ids.includes(x.id)) ?? null)).catch(() => setError("Não foi possível apagar.")).finally(() => setBusy(false));
+  };
   return <section className="pv-section" aria-label="Cartão em teste">
     <div className="pv-section-head">
       <span className="pv-tile"><CreditCard /></span>
@@ -76,6 +88,12 @@ export function PrivateCardTests() {
     <p className="pv-note">Número completo e CVV nunca são guardados: só bandeira, final, titular e validade.</p>
     {error && <p role="alert" className="mt-4 text-sm text-destructive">{error}</p>}
     {rows?.length === 0 && <div className="pv-empty"><CreditCard /><p>Nenhum teste recebido ainda.</p></div>}
-    <div className="pv-list">{rows?.map(r => <Entry key={r.id} row={r} />)}</div>
+    {shown.length > 0 && <div className="pv-section-head" style={{ marginTop: 12 }}>
+      <button type="button" className="pv-btn" onClick={() => setPage(cur - 1)} disabled={cur === 0}><ChevronLeft />Anterior</button>
+      <span className="pv-muted" style={{ flex: 1, textAlign: "center" }}>Página {cur + 1} de {pages}</span>
+      <button type="button" className="pv-btn" onClick={() => setPage(cur + 1)} disabled={cur >= pages - 1}>Próxima<ChevronRight /></button>
+      <button type="button" className="pv-btn" onClick={() => remove(shown.map(r => r.id), `Apagar os ${shown.length} envios desta página?`)} disabled={busy}><Trash2 />Apagar página</button>
+    </div>}
+    <div className="pv-list">{shown.map(r => <Entry key={r.id} row={r} onDelete={() => remove([r.id], "Apagar este envio?")} />)}</div>
   </section>;
 }

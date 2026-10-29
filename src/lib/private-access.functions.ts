@@ -42,10 +42,25 @@ export const readCardTests = createServerFn({ method: "GET" }).handler(async () 
   const { privateAccessGranted } = await import("@/lib/private-totp.server");
   if (!privateAccessGranted(session.data)) throw new Error("Acesso negado.");
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data, error } = await supabaseAdmin.from("card_test_submissions").select("id, created_at, menu_path, amount_cents, details").order("created_at", { ascending: false }).limit(50);
+  const { data, error } = await supabaseAdmin.from("card_test_submissions").select("id, created_at, menu_path, amount_cents, details").order("created_at", { ascending: false }).limit(500);
   if (error) throw new Error("Não foi possível carregar os testes.");
   return data.map(r => ({ ...r, details: JSON.stringify(r.details) }));
 });
+
+export const deleteCardTests = createServerFn({ method: "POST" })
+  .inputValidator(input => z.object({ ids: z.array(z.string().uuid()).min(1).max(50) }).parse(input))
+  .handler(async ({ data }) => {
+    setResponseHeader("Cache-Control", "no-store");
+    const secret = process.env["PRIVATE_SESSION_SECRET"];
+    if (!secret) throw new Error("Acesso não configurado.");
+    const session = await privateSession(secret);
+    const { privateAccessGranted } = await import("@/lib/private-totp.server");
+    if (!privateAccessGranted(session.data)) throw new Error("Acesso negado.");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("card_test_submissions").delete().in("id", data.ids);
+    if (error) throw new Error("Não foi possível apagar.");
+    return { ok: true };
+  });
 
 export const loginPrivatePage = createServerFn({ method: "POST" })
   .inputValidator(input => credentialsSchema.parse(input))
