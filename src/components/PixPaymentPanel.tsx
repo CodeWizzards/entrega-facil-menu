@@ -19,8 +19,8 @@ export function PixPaymentPanel({ payment, checking, error, onCheck, title = "Se
   const paid = payment.status === "PAID";
   const unavailable = ["CANCELLED", "REFUNDED"].includes(payment.status);
   return <section className="checkout-section" aria-label="Pagamento Pix">
-    <div className="flex items-center justify-between gap-3"><h4><ShieldCheck /> {paid ? "Pagamento confirmado" : "Seu Pix"}</h4><span className="font-bold text-primary">{brl(payment.amount)}</span></div>
-    <p role="status" className={paid ? "text-sm text-success" : "text-sm text-muted-foreground"}>{paid ? "Pix recebido. Envie o pedido à loja abaixo." : payment.status === "CANCELLED" ? "Cobrança cancelada ou expirada. Não pague este código." : payment.status === "REFUNDED" ? "Pagamento reembolsado." : "Aguardando pagamento"}</p>
+    <div className="flex items-center justify-between gap-3"><h4><ShieldCheck /> {paid ? "Pagamento confirmado" : title}</h4><span className="font-bold text-primary">{brl(payment.amount)}</span></div>
+    <p role="status" className={paid ? "text-sm text-success" : "text-sm text-muted-foreground"}>{paid ? paidText : payment.status === "CANCELLED" ? "Cobrança cancelada ou expirada. Não pague este código." : payment.status === "REFUNDED" ? "Pagamento reembolsado." : "Aguardando pagamento"}</p>
     {!paid && !unavailable && <>
       <div className="mx-auto my-5 w-fit max-w-full overflow-hidden rounded-lg"><canvas ref={canvas} aria-label="QR Code para pagamento Pix" className="block h-60 w-60 max-w-full" /></div>
       {qrError && <p className="mb-3 text-xs text-destructive">Não foi possível exibir o QR Code. Use o código abaixo.</p>}

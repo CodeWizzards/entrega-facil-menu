@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
 import { LANCHES } from "@/lib/lanches";
 import { SUSHI } from "@/lib/sushi";
-import { pixAccessSchema, pixCheckoutSchema, pixCreatedSchema, priceCheckout, verifiedPixStatus } from "@/lib/pix";
+import { pixAccessSchema, pixCheckoutSchema, pixCreatedSchema, priceCheckout, verifiedPixStatus, liveFeeSchema, LIVE_LOCATION_FEE_CENTS } from "@/lib/pix";
 import { brl } from "@/lib/menu";
 import { deliveryAddress } from "@/lib/checkout";
 import { z } from "zod";
