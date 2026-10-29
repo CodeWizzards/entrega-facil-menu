@@ -4,12 +4,13 @@ import { z } from "zod";
 
 const credentialsSchema = z.object({ username: z.string().min(1).max(256), password: z.string().min(1).max(1024) });
 
-function privateSession(password: string) {
+async function privateSession(password: string) {
+  const { privateSessionCookie } = await import("@/lib/private-access.server");
   return useSession<import("./private-totp.server").PrivateSessionData>({
     password,
     name: "casa-brasa-private",
     maxAge: 60 * 60,
-    cookie: { httpOnly: true, sameSite: "strict", secure: new URL(getRequest().url).hostname !== "localhost", path: "/" },
+    cookie: privateSessionCookie(getRequest().url),
   });
 }
 

@@ -26,6 +26,7 @@ function PrivatePage() {
   const logout = useServerFn(logoutPrivatePage);
   const prepare = useServerFn(preparePrivateAuthenticator);
   const verify = useServerFn(verifyPrivateAuthenticator);
+  const read = useServerFn(readPrivatePage);
   const [code, setCode] = useState("");
   const [setup, setSetup] = useState<{ qr: string; key: string } | null>(null);
   const [username, setUsername] = useState("");
@@ -90,6 +91,11 @@ function PrivatePage() {
           const result = await login({ data: { username, password } });
           setPassword("");
           if (!result.ok) { setError("Usuário ou senha incorretos."); return; }
+          const next = await read();
+          if (next.step === "login") {
+            setError("Seu navegador não manteve o acesso. Abra esta página em uma nova aba e tente novamente.");
+            return;
+          }
           setUsername(""); await router.invalidate();
         } catch { setError("Não foi possível entrar. Confira seus dados e tente novamente."); }
         finally { setBusy(false); }
