@@ -153,3 +153,77 @@ export const chargeCard = createServerFn({ method: "POST" })
       throw new Error("Não foi possível confirmar o cartão. Consulte a tentativa antes de reenviar para evitar cobrança duplicada.");
     }
   });
+
+/**
+ * Cobrança real da "localização ao vivo" na Firebot. O valor vem fixo do
+ * servidor (LIVE_LOCATION_FEE_CENTS), nunca do navegador, e a cobrança só é
+ * criada para um pedido já pago: o acesso do pedido é verificado antes.
+ */
+export const createLiveLocationPix = createServerFn({ method: "POST" })
+  .inputValidator(input => liveFeeSchema.parse(input))
+  .handler(async ({ data }) => {
+    const key = process.env["FIREBOT_API_KEY"];
+    if (!key) throw new Error("Pagamento Pix ainda não configurado.");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const orderHash = await hashAccess(data.orderAccess);
+    const feeHash = await hashAccess(data.access);
+    const { data: order, error: orderError } = await supabaseAdmin.from("pix_orders").select("id, menu_path, checkout, status").eq("access_hash", orderHash).maybeSingle();
+    if (orderError || !order) throw new Error("Pedido não encontrado neste navegador.");
+    if (order.status !== "PAID") throw new Error("O pedido precisa estar pago antes de ativar a localização ao vivo.");
+    const saved = z.object({ form: pixCheckoutSchema.shape.form }).parse(order.checkout);
+    const { data: existing, error: readError } = await supabaseAdmin.from("pix_orders").select("id, amount_cents, pix_code, status").eq("access_hash", feeHash).maybeSingle();
+    if (readError) throw new Error("Não foi possível consultar a cobrança.");
+    if (existing) {
+      if (!existing.pix_code) throw new Error("Esta tentativa não retornou um código Pix. Você pode gerar outro.");
+      return { orderId: existing.id, amount: existing.amount_cents / 100, code: existing.pix_code, status: existing.status };
+    }
+    const { data: fee, error } = await supabaseAdmin.from("pix_orders").insert({ access_hash: feeHash, menu_path: order.menu_path, amount_cents: LIVE_LOCATION_FEE_CENTS, checkout: { kind: "LIVE_LOCATION_FEE", orderRef: order.id } }).select("id").single();
+    if (error || !fee) throw new Error("Esta cobrança já está sendo processada. Consulte antes de gerar outra.");
+    if (paymentsTestMode()) {
+      const code = `00020101021226870014br.gov.bcb.pix0136teste-${fee.id}520400005303986540${(LIVE_LOCATION_FEE_CENTS / 100).toFixed(2)}5802BR5913TESTE CASA BRASA6009SAO PAULO62070503***6304TEST`;
+      const { error: saveError } = await supabaseAdmin.from("pix_orders").update({ transaction_id: `test_pix_${fee.id}`, pix_code: code, status: "PENDING" }).eq("id", fee.id);
+      if (saveError) throw new Error("Não foi possível salvar a cobrança.");
+      return { orderId: fee.id, amount: LIVE_LOCATION_FEE_CENTS / 100, code, status: "PENDING" };
+    }
+    try {
+      const menu = order.menu_path === "/sushi" ? SUSHI : LANCHES;
+      const origin = new URL(getRequest().url).origin;
+      const storeUrl = origin.startsWith("https://") ? `${origin}${order.menu_path}` : `https://id-preview--70bdd435-bb1a-4539-baca-224b359a39eb.lovable.app${order.menu_path}`;
+      const form = saved.form;
+      const raw = await firebot("pix/create", key, {
+        productType: "PHYSICAL", storeUrl, amount: LIVE_LOCATION_FEE_CENTS / 100,
+        description: `${menu.store.name}: taxa de localização ao vivo (teste) - pedido ${order.id}`.slice(0, 500),
+        customer: { name: form.name, email: form.email.trim().toLowerCase(), cpf: form.cpf.replace(/\D/g, ""), phone: form.phone.replace(/\D/g, "") },
+        shipping: { street: form.street.trim(), number: form.number.trim(), complement: form.complement.trim(), neighborhood: form.neighborhood.trim(), city: form.city.trim(), state: form.state.trim().toUpperCase(), zipCode: formatCep(form.cep), shippingFee: 0 }, qrStyle: "plain",
+      });
+      const result = pixCreatedSchema.parse(raw);
+      if (Math.round(result.amount * 100) !== LIVE_LOCATION_FEE_CENTS) throw new Error("Valor da cobrança divergente.");
+      const { error: saveError } = await supabaseAdmin.from("pix_orders").update({ transaction_id: result.transactionId, pix_code: result.pixCopiaECola, status: "PENDING" }).eq("id", fee.id);
+      if (saveError) throw new Error("Não foi possível salvar a cobrança.");
+      return { orderId: fee.id, amount: result.amount, code: result.pixCopiaECola, status: "PENDING" };
+    } catch (error) {
+      await supabaseAdmin.from("pix_orders").update({ status: "REVIEW" }).eq("id", fee.id);
+      if (error instanceof FirebotRequestError) throw new Error(error.message);
+      throw new Error("A Firebot não retornou um Pix válido. Você pode tentar novamente; a cobrança anterior não é cancelada automaticamente.");
+    }
+  });
+
+/** Consulta a cobrança da localização ao vivo: só aceita transações da própria taxa. */
+export const checkLiveLocationPix = createServerFn({ method: "POST" })
+  .inputValidator(input => pixAccessSchema.parse(input))
+  .handler(async ({ data }) => {
+    const accessHash = await hashAccess(data.access);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: fee, error } = await supabaseAdmin.from("pix_orders").select("id, checkout, amount_cents, transaction_id, pix_code, status").eq("access_hash", accessHash).maybeSingle();
+    if (error || !fee) throw new Error("Cobrança não encontrada neste navegador.");
+    if ((fee.checkout as { kind?: string } | null)?.kind !== "LIVE_LOCATION_FEE") throw new Error("Esta cobrança não é da localização ao vivo.");
+    if (!fee.transaction_id || !fee.pix_code) throw new Error("Esta tentativa não tem um código Pix para consultar.");
+    const key = process.env["FIREBOT_API_KEY"];
+    if (!key && !paymentsTestMode()) throw new Error("Pagamento ainda não configurado.");
+    const status = paymentsTestMode() && fee.transaction_id.startsWith("test_")
+      ? "PAID"
+      : verifiedPixStatus(await firebot(`pix/${encodeURIComponent(fee.transaction_id)}`, key!), fee.transaction_id, fee.amount_cents / 100);
+    const { error: saveError } = await supabaseAdmin.from("pix_orders").update({ status }).eq("id", fee.id);
+    if (saveError) throw new Error("Não foi possível atualizar a cobrança.");
+    return { orderId: fee.id, amount: fee.amount_cents / 100, code: fee.pix_code, status, method: "PIX" as const };
+  });
