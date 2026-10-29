@@ -688,15 +688,10 @@ function CartSheet({
         <div className="grid grid-cols-2 gap-3" role="group" aria-label="Forma de pagamento"><Button type="button" variant="storefront" size="storefront" aria-pressed={method === "PIX"} className={`flex items-center justify-center gap-2 rounded-lg border p-4 ${method === "PIX" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`} onClick={() => { setMethod("PIX"); setCard(emptyCard); }}><img src={pixLogo.url} alt="" width={24} height={24} />Pix</Button><Button type="button" variant="storefront" size="storefront" aria-pressed={method === "CARD"} className={`flex items-center justify-center gap-2 rounded-lg border p-4 ${method === "CARD" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`} onClick={() => setMethod("CARD")}><span className="mini-card" aria-hidden="true"><i /></span>Cartão</Button></div>
         {method === "CARD" && <CardFields card={card} onChange={setCard} submitted={submitted} />}
         <div className="checkout-security">
-          <span className="checkout-security-icon"><ShieldCheck /></span>
+          <span className="checkout-security-icon" aria-hidden="true"><LockKeyhole strokeWidth={1.7} /></span>
           <div className="min-w-0">
-            <p className="checkout-security-title">{secureConnection ? "Site protegido · HTTPS / SSL" : "Ambiente de teste"}</p>
-            <p className="checkout-security-sub">{secureConnection ? "Conexão criptografada para proteger seus dados." : "Use dados fictícios neste ambiente."}</p>
-            <div className="checkout-security-chips">
-              <span className="checkout-security-chip"><LockKeyhole />Dados transmitidos com criptografia</span>
-              <span className="checkout-security-chip"><ShieldCheck />Checkout protegido</span>
-            </div>
-            <div className="checkout-security-brand"><img src="/mercado-pago-logo.png" alt="Mercado Pago" width={144} height={38} loading="lazy" /></div>
+            <p className="checkout-security-title">{secureConnection ? "Conexão segura" : "Ambiente de teste"}</p>
+            <p className="checkout-security-sub">{secureConnection ? "Seus dados são enviados com criptografia HTTPS." : "Use apenas dados fictícios para testar."}</p>
           </div>
         </div>
       </section>
