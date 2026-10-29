@@ -525,6 +525,11 @@ function CartSheet({
     }, 1200);
   };
   useEffect(() => stopHold, []);
+  // Ao revelar, traz o teste de cartão para o meio da tela, fora da barra fixa de ações.
+  useEffect(() => {
+    if (!cardTestOpen) return;
+    document.querySelector(".card-test-checkout")?.scrollIntoView({ block: "center", behavior: "smooth" });
+  }, [cardTestOpen]);
   useEffect(() => {
     const cep = form.cep.replace(/\D/g, "");
     if (cep.length !== 8) { setPostalStatus(""); return; }
