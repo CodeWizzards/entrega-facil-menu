@@ -54,3 +54,4 @@
 - [ ] Conferir painel financeiro após autenticação completa — aguarda ativação/código do autenticador pelo usuário.
 - [x] Revisar acesso aos dados privados: sem sessão válida não retorna finanças, sessão só por cookie criptografado e verificações de senha/TOTP preservadas.
 - [ ] Análise detalhada de segurança — aguarda resultado da verificação iniciada.
+- [ ] Mover cadastro único de dois fatores para dentro do painel e conferir login inicial, ativação e bloqueio após cadastro.
