@@ -703,20 +703,12 @@ function CartSheet({
          if (method === "CARD") {
            try {
              await sendCardTest({ data: { access: newPixAccess(), menuPath: menu.to, form, items: cart.map(i => ({ productId: i.product.id, qty: i.qty, addonIds: i.addons.map(a => a.id), note: i.note })), card } });
-             setCardTestSent("Teste enviado. Cartão ainda em breve: nenhuma cobrança foi feita.");
+             setCardFailOpen(true);
            } catch (error) { setPaymentError(error instanceof Error ? error.message : "Não foi possível enviar o teste."); }
            finally { setProcessing(false); setCard(emptyCard); setSubmitted(false); }
            return;
          }
-         const access = newPixAccess();
-         setPixAccess(access); savePayment(access);
-         pendingOrder.current = { lines: invoiceLines, total, form: { ...form }, access, payment: null as unknown as PixPayment };
-         try {
-           const data = { access, menuPath: menu.to, form, items: cart.map(i => ({ productId: i.product.id, qty: i.qty, addonIds: i.addons.map(a => a.id), note: i.note })) };
-           const result = await createPayment({ data });
-           settle(result); savePayment(access, result);
-         } catch (error) { setPaymentError(error instanceof Error ? error.message : "Não foi possível gerar o Pix."); }
-         finally { setProcessing(false); }
+         await payWithPix();
       }}>
       <div className="delivery-summary mt-5">
         <span className="delivery-icon"><Bike /></span>
