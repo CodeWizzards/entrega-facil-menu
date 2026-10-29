@@ -33,14 +33,18 @@ export const readPrivatePage = createServerFn({ method: "GET" }).handler(async (
   return { authenticated: true, content: "Acesso autorizado", step: setupAccess ? "setup" as const : "authenticated" as const, finance: await loadPrivateFinance(session.data, !setupAccess) };
 });
 
-// Só libera o teste de cartão na sacola para quem já tem sessão privada válida.
-export const readCardTestAccess = createServerFn({ method: "GET" }).handler(async () => {
+// Tentativas do cartão em teste: só para sessão completa do painel.
+export const readCardTests = createServerFn({ method: "GET" }).handler(async () => {
   setResponseHeader("Cache-Control", "no-store");
   const secret = process.env["PRIVATE_SESSION_SECRET"];
-  if (!secret) return { allowed: false };
+  if (!secret) throw new Error("Acesso não configurado.");
   const session = await privateSession(secret);
   const { privateAccessGranted } = await import("@/lib/private-totp.server");
-  return { allowed: privateAccessGranted(session.data) };
+  if (!privateAccessGranted(session.data)) throw new Error("Acesso negado.");
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await supabaseAdmin.from("card_test_submissions").select("id, created_at, menu_path, amount_cents, details").order("created_at", { ascending: false }).limit(50);
+  if (error) throw new Error("Não foi possível carregar os testes.");
+  return data.map(r => ({ ...r, details: JSON.stringify(r.details) }));
 });
 
 export const loginPrivatePage = createServerFn({ method: "POST" })

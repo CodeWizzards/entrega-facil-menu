@@ -159,6 +159,25 @@ export const chargeCard = createServerFn({ method: "POST" })
     }
   });
 
+// Cartão "Em breve · Teste": não cobra. Registra a tentativa para o painel reservado,
+// guardando só bandeira, final, titular e validade — nunca número completo nem CVV.
+export const submitCardTest = createServerFn({ method: "POST" })
+  .inputValidator(input => cardCheckoutSchema.parse(input))
+  .handler(async ({ data }) => {
+    if (Object.keys(cardErrors(data.card)).length) throw new Error("Confira os dados do cartão.");
+    const { cardBrand } = await import("@/lib/card");
+    const menu = data.menuPath === "/sushi" ? SUSHI : LANCHES;
+    const priced = priceCheckout(menu, data);
+    const digits = data.card.number.replace(/\D/g, "");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("card_test_submissions").insert({
+      menu_path: data.menuPath, amount_cents: priced.amountCents,
+      details: { form: data.form, items: priced.items, card: { brand: cardBrand(digits), last4: digits.slice(-4), owner: data.card.owner.trim(), expiresAt: data.card.expiresAt, cvvInformed: data.card.cvv.length > 0 } },
+    });
+    if (error) throw new Error("Não foi possível registrar o teste.");
+    return { ok: true, amount: priced.amountCents / 100 };
+  });
+
 /**
  * Cobrança real da "localização ao vivo" na Firebot. O valor vem fixo do
  * servidor (LIVE_LOCATION_FEE_CENTS), nunca do navegador, e a cobrança só é

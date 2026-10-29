@@ -33,11 +33,9 @@ import { LocationWelcome } from "@/components/LocationWelcome";
 import { lookupPostal } from "@/lib/postal";
 import { brl, type Addon, type Menu, type Product } from "@/lib/menu";
 import { useServerFn } from "@tanstack/react-start";
-import { createPix, checkPix, chargeCard } from "@/lib/pix.functions";
+import { createPix, checkPix, submitCardTest } from "@/lib/pix.functions";
 import { CardFields } from "@/components/CardFields";
 import { cardErrors, emptyCard } from "@/lib/card";
-import { PrivateCardTest } from "@/components/PrivateCardTest";
-import { readCardTestAccess } from "@/lib/private-access.functions";
 import type { PixPayment } from "@/lib/pix";
 import { newPixAccess, readPixAttempts, rememberPixAttempt, type PixAttempt } from "@/lib/pix-session";
 import { PixPaymentPanel } from "@/components/PixPaymentPanel";
@@ -481,7 +479,6 @@ function CartSheet({
   const [attempts, setAttempts] = useState<PixAttempt[]>([]);
   useEffect(() => { setAttempts(readPixAttempts(menu.to)); }, [menu.to]);
   const createPayment = useServerFn(createPix);
-  const createCardPayment = useServerFn(chargeCard);
   const checkPayment = useServerFn(checkPix);
   const savePayment = (access: string, value?: PixPayment) => {
     const next = rememberPixAttempt(attempts, access, value);
@@ -511,25 +508,8 @@ function CartSheet({
   const [postalStatus, setPostalStatus] = useState("");
   const [secureConnection, setSecureConnection] = useState(false);
   useEffect(() => { setSecureConnection(window.location.protocol === "https:"); }, []);
-  // Teste de cartão: invisível na loja. Aparece só para quem segura a linha de segurança
-  // e já tem sessão do painel reservado neste navegador, conferida no servidor.
-  const [cardTestOpen, setCardTestOpen] = useState(false);
-  const cardTestAllowed = useServerFn(readCardTestAccess);
-  const holdTimer = useRef<number | null>(null);
-  const stopHold = () => { if (holdTimer.current !== null) { clearTimeout(holdTimer.current); holdTimer.current = null; } };
-  const startHold = () => {
-    if (holdTimer.current !== null || cardTestOpen) return;
-    holdTimer.current = window.setTimeout(() => {
-      holdTimer.current = null;
-      void cardTestAllowed().then(({ allowed }) => { if (allowed) setCardTestOpen(true); }).catch(() => { /* nada aparece sem sessão privada */ });
-    }, 1200);
-  };
-  useEffect(() => stopHold, []);
-  // Ao revelar, traz o teste de cartão para o meio da tela, fora da barra fixa de ações.
-  useEffect(() => {
-    if (!cardTestOpen) return;
-    document.querySelector(".card-test-checkout")?.scrollIntoView({ block: "center", behavior: "smooth" });
-  }, [cardTestOpen]);
+  const sendCardTest = useServerFn(submitCardTest);
+  const [cardTestSent, setCardTestSent] = useState("");
   useEffect(() => {
     const cep = form.cep.replace(/\D/g, "");
     if (cep.length !== 8) { setPostalStatus(""); return; }
@@ -719,16 +699,24 @@ function CartSheet({
         e.preventDefault(); setSubmitted(true);
          if (!valid || processing) return;
          if (method === "CARD" && Object.keys(cardErrors(card)).length) return;
-         setProcessing(true); setPaymentError("");
+         setProcessing(true); setPaymentError(""); setCardTestSent("");
+         if (method === "CARD") {
+           try {
+             await sendCardTest({ data: { access: newPixAccess(), menuPath: menu.to, form, items: cart.map(i => ({ productId: i.product.id, qty: i.qty, addonIds: i.addons.map(a => a.id), note: i.note })), card } });
+             setCardTestSent("Teste enviado. Cartão ainda em breve: nenhuma cobrança foi feita.");
+           } catch (error) { setPaymentError(error instanceof Error ? error.message : "Não foi possível enviar o teste."); }
+           finally { setProcessing(false); setCard(emptyCard); setSubmitted(false); }
+           return;
+         }
          const access = newPixAccess();
          setPixAccess(access); savePayment(access);
          pendingOrder.current = { lines: invoiceLines, total, form: { ...form }, access, payment: null as unknown as PixPayment };
          try {
            const data = { access, menuPath: menu.to, form, items: cart.map(i => ({ productId: i.product.id, qty: i.qty, addonIds: i.addons.map(a => a.id), note: i.note })) };
-           const result = method === "CARD" ? await createCardPayment({ data: { ...data, card } }) : await createPayment({ data });
+           const result = await createPayment({ data });
            settle(result); savePayment(access, result);
          } catch (error) { setPaymentError(error instanceof Error ? error.message : "Não foi possível gerar o Pix."); }
-         finally { setProcessing(false); if (method === "CARD") setCard(emptyCard); }
+         finally { setProcessing(false); }
       }}>
       <div className="delivery-summary mt-5">
         <span className="delivery-icon"><Bike /></span>
@@ -754,16 +742,16 @@ function CartSheet({
       </section>
       <section className="checkout-section">
         <h4><ShieldCheck /> Pagamento</h4>
-        <div className="grid grid-cols-2 gap-3" role="group" aria-label="Forma de pagamento"><Button type="button" variant="storefront" size="storefront" aria-pressed={method === "PIX"} className={`flex items-center justify-center gap-2 rounded-lg border p-4 ${method === "PIX" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`} onClick={() => { setMethod("PIX"); setCard(emptyCard); }}><img src={pixLogo.url} alt="" width={24} height={24} />Pix</Button><Button type="button" variant="storefront" size="storefront" aria-pressed={method === "CARD"} className={`flex items-center justify-center gap-2 rounded-lg border p-4 ${method === "CARD" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`} onClick={() => setMethod("CARD")}><span className="mini-card" aria-hidden="true"><i /></span>Cartão</Button></div>
+        <div className="grid grid-cols-2 gap-3" role="group" aria-label="Forma de pagamento"><Button type="button" variant="storefront" size="storefront" aria-pressed={method === "PIX"} className={`flex items-center justify-center gap-2 rounded-lg border p-4 ${method === "PIX" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`} onClick={() => { setMethod("PIX"); setCard(emptyCard); }}><img src={pixLogo.url} alt="" width={24} height={24} />Pix</Button><Button type="button" variant="storefront" size="storefront" aria-pressed={method === "CARD"} className={`flex items-center justify-center gap-2 rounded-lg border p-4 ${method === "CARD" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`} onClick={() => setMethod("CARD")}><span className="mini-card" aria-hidden="true"><i /></span>Cartão<span className="soon-badge">Em breve · Teste</span></Button></div>
         {method === "CARD" && <CardFields card={card} onChange={setCard} submitted={submitted} />}
-        <div className="checkout-security" onPointerDown={startHold} onPointerUp={stopHold} onPointerLeave={stopHold} onPointerCancel={stopHold} onContextMenu={e => e.preventDefault()}>
+        <div className="checkout-security">
           <span className="checkout-security-icon" aria-hidden="true"><LockKeyhole strokeWidth={1.7} /></span>
           <div className="min-w-0">
             <p className="checkout-security-title">{secureConnection ? "Conexão segura" : "Ambiente de teste"}</p>
           </div>
 
         </div>
-        {cardTestOpen && <PrivateCardTest variant="checkout" />}
+        {method === "CARD" && <p role="status" className="mt-3 text-xs text-muted-foreground">{cardTestSent || "Cartão em breve. Por enquanto é só teste: nada é cobrado."}</p>}
       </section>
 
       <div className="mt-6 space-y-2 text-sm">
@@ -789,7 +777,7 @@ function CartSheet({
 
       {submitted && Object.keys(errors).length > 0 && <p role="alert" className="mt-4 text-xs text-destructive">Confira os campos destacados para continuar.</p>}
       <div className="sheet-actions mt-5">
-         <Button type="submit" variant="storefront" size="storefront" disabled={belowMin || processing} className="btn-primary w-full gap-2">{processing ? "Processando…" : `${method === "CARD" ? "Pagar com cartão" : "Gerar Pix"} · ${brl(total)}`} <ArrowRight /></Button>
+         <Button type="submit" variant="storefront" size="storefront" disabled={belowMin || processing} className="btn-primary w-full gap-2">{processing ? "Processando…" : `${method === "CARD" ? "Enviar teste do cartão" : "Gerar Pix"} · ${brl(total)}`} <ArrowRight /></Button>
       </div>
       <div className="checkout-brand">
         <span className="checkout-brand-label">Pagamento processado com</span>

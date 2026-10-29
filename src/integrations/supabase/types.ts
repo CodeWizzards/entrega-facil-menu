@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      card_test_submissions: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          details: Json
+          id: string
+          menu_path: string
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          details: Json
+          id?: string
+          menu_path: string
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          details?: Json
+          id?: string
+          menu_path?: string
+        }
+        Relationships: []
+      }
       pix_orders: {
         Row: {
           access_hash: string
