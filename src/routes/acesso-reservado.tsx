@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { KeyRound, LoaderCircle, LockKeyhole, LogOut, ShieldCheck, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PrivateFinance } from "@/components/PrivateFinance";
+import { PrivateCardTest } from "@/components/PrivateCardTest";
 import { loginPrivatePage, logoutPrivatePage, readPrivatePage, preparePrivateAuthenticator, verifyPrivateAuthenticator } from "@/lib/private-access.functions";
 
 export const Route = createFileRoute("/acesso-reservado")({
@@ -58,6 +59,7 @@ function PrivatePage() {
       {data.authenticated && <div className="mt-8">
         {data.step === "setup" && <section className="mb-8 flex flex-wrap items-center justify-between gap-4 border-b border-border pb-6"><div><h2 className="flex items-center gap-2 font-semibold"><ShieldCheck className="h-5 w-5 text-primary" />Autenticação de dois fatores</h2><p className="mt-2 text-sm text-muted-foreground">Ainda não ativada. Cadastre o aplicativo uma única vez.</p></div><Button disabled={busy || showSetup} onClick={() => setShowSetup(true)}><Smartphone />Ativar dois fatores</Button></section>}
         {data.finance && <PrivateFinance finance={data.finance} busy={busy} refresh={() => { setBusy(true); setError(""); void router.invalidate().catch(() => setError("Não foi possível atualizar os pagamentos.")).finally(() => setBusy(false)); }} />}
+        {data.finance && <PrivateCardTest />}
         <Button variant="outline" className="mt-8 rounded-full" disabled={busy} onClick={async () => {
           setBusy(true); setError("");
           try { await logout(); await router.invalidate(); }
