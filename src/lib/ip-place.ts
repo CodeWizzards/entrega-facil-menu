@@ -69,6 +69,9 @@ export async function placeFromIp(signal?: AbortSignal): Promise<Place> {
     if (early) {
       const place = parsePlace(await Promise.race([early, cancelled]));
       if (place) return place;
+      // The initial request already used its deadline; do not start another
+      // request and make the visitor wait twice on a failing connection.
+      throw new Error("Região indisponível.");
     }
     if (controller.signal.aborted) throw new Error("Consulta cancelada.");
     const response = await Promise.race([

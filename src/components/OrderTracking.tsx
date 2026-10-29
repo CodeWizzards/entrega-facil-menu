@@ -1,15 +1,20 @@
 import { useEffect, useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { ArrowRight, Bike, Check, ChefHat, CircleDashed, Home, LoaderCircle, MapPin, ReceiptText, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InvoiceSheet } from "@/components/InvoiceSheet";
+import { PixPaymentPanel } from "@/components/PixPaymentPanel";
 import { brl, type Menu } from "@/lib/menu";
 import type { PixPayment } from "@/lib/pix";
+import { LIVE_LOCATION_FEE_CENTS } from "@/lib/pix";
+import { checkLiveLocationPix, createLiveLocationPix } from "@/lib/pix.functions";
+import { newPixAccess } from "@/lib/pix-session";
 import { deliveryAddress, type DeliveryDetails } from "@/lib/checkout";
 import { buildInvoice, type InvoiceDoc, type InvoiceLine } from "@/lib/invoice";
 
 type Step = { label: string; hint: string; icon: typeof Check; state: "done" | "current" | "next" };
 
-const LIVE_FEE = 7.32;
+const LIVE_FEE = LIVE_LOCATION_FEE_CENTS / 100;
 
 /** Rota desenhada no mapa (coordenadas do viewBox 340x190). */
 const ROUTE = "M 16 146 L 96 146 Q 112 146 112 130 L 112 92 Q 112 76 128 76 L 230 76 Q 246 76 246 92 L 246 130 Q 246 146 262 146 L 306 146";
@@ -20,29 +25,63 @@ const DEST = { x: 306, y: 133 };
  * As etapas futuras ficam pendentes de verdade: quem atualiza é a loja,
  * pelo WhatsApp do cliente. Nada de distância ou posição inventada.
  *
- * A "localização ao vivo" é uma demonstração de teste: a taxa é simulada
- * no navegador, sem cobrança real, e o mapa mostra uma rota fictícia.
+ * A "localização ao vivo" cobra uma taxa real por Pix. O mapa é uma rota
+ * fictícia: a posição real do entregador ainda não está conectada.
  */
-export function OrderTracking({ menu, payment, form, total, lines, onClose }: {
+export function OrderTracking({ menu, payment, form, total, lines, orderAccess, onClose }: {
   menu: Menu;
   payment: PixPayment;
   form: DeliveryDetails;
   total: number;
   lines: InvoiceLine[];
+  orderAccess: string;
   onClose: () => void;
 }) {
   const [doc, setDoc] = useState<InvoiceDoc | null>(null);
   const [showDoc, setShowDoc] = useState(false);
   const [invoiceError, setInvoiceError] = useState("");
   const [live, setLive] = useState<"idle" | "paying" | "on">("idle");
-  const liveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [fee, setFee] = useState<PixPayment | null>(null);
+  const [feeChecking, setFeeChecking] = useState(false);
+  const [feeError, setFeeError] = useState("");
+  const feeAccess = useRef("");
+  const createFee = useServerFn(createLiveLocationPix);
+  const checkFee = useServerFn(checkLiveLocationPix);
 
-  useEffect(() => () => { if (liveTimer.current) clearTimeout(liveTimer.current); }, []);
+  // O Pix da taxa é conferido sozinho a cada 5 segundos, sem sobrepor consultas.
+  const verifyFee = async () => {
+    if (feeChecking || !feeAccess.current) return;
+    setFeeChecking(true); setFeeError("");
+    try {
+      const result = await checkFee({ data: { access: feeAccess.current } });
+      setFee(result);
+      if (result.status === "PAID") setLive("on");
+    } catch (error) { setFeeError(error instanceof Error ? error.message : "Não foi possível consultar o Pix."); }
+    finally { setFeeChecking(false); }
+  };
+  const verifyFeeRef = useRef(verifyFee);
+  verifyFeeRef.current = verifyFee;
+  const pendingFee = live === "paying" && fee != null && !["PAID", "CANCELLED", "REFUNDED"].includes(fee.status);
+  useEffect(() => {
+    if (!pendingFee) return;
+    const id = setInterval(() => { void verifyFeeRef.current(); }, 5000);
+    return () => clearInterval(id);
+  }, [pendingFee]);
 
-  function payLiveFee() {
-    // Simulação de teste: nenhuma cobrança real é criada.
-    setLive("paying");
-    liveTimer.current = setTimeout(() => setLive("on"), 1800);
+  async function payLiveFee() {
+    if (live === "paying") return;
+    const access = newPixAccess();
+    feeAccess.current = access;
+    setFee(null); setFeeError(""); setLive("paying");
+    try {
+      const result = await createFee({ data: { access, orderAccess } });
+      setFee(result);
+      if (result.status === "PAID") setLive("on");
+    } catch (error) {
+      feeAccess.current = "";
+      setFee(null); setLive("idle");
+      setFeeError(error instanceof Error ? error.message : "Não foi possível gerar o Pix.");
+    }
   }
 
   function openInvoice() {
@@ -176,11 +215,13 @@ export function OrderTracking({ menu, payment, form, total, lines, onClose }: {
             <span className="tracking-live-price"><span>R$</span>{liveFeeText}</span>
           </div>
           <div className="tracking-live-flag">
-            <Button variant="storefront" size="storefront" className="btn-primary w-full gap-2" disabled={live === "paying"} onClick={payLiveFee}>
-              {live === "paying" ? <><LoaderCircle className="h-4 w-4 animate-spin" /> Processando pagamento de teste…</> : <>Ativar localização ao vivo</>}
-            </Button>
-            <p className="tracking-live-disclaimer">Cobrança simulada. Nenhum valor é debitado.</p>
+            {live === "paying" && !fee
+              ? <Button variant="storefront" size="storefront" className="btn-primary w-full gap-2" disabled><LoaderCircle className="h-4 w-4 animate-spin" /> Gerando Pix…</Button>
+              : <Button variant="storefront" size="storefront" className="btn-primary w-full" onClick={payLiveFee}>Ativar localização ao vivo</Button>}
+            {feeError && !fee && <p role="alert" className="text-xs text-destructive">{feeError}</p>}
           </div>
+          {fee && <PixPaymentPanel payment={fee} checking={feeChecking} error={feeError} onCheck={verifyFee} title="Taxa de localização ao vivo" paidText="Pix recebido. Abrindo o mapa…" />}
+          {fee && ["CANCELLED", "REFUNDED"].includes(fee.status) && <Button variant="storefront" size="storefront" className="mt-3 w-full rounded-full border border-border px-4 py-3 text-sm font-semibold" onClick={payLiveFee}>Gerar novo Pix</Button>}
         </div>
       )}
 

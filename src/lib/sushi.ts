@@ -316,7 +316,7 @@ export const SUSHI: Menu = {
   },
   products: products.map((product) => ({
     ...product,
-    image: productImages[product.id],
+    ...(productImages[product.id] ? { image: productImages[product.id]! } : {}),
   })),
   cover,
   coverAlt: "Combinado de sushi com salmão, hot rolls e temaki",

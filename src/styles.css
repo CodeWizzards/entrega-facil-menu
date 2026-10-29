@@ -410,8 +410,7 @@
 .location-emblem > svg { width: 28px; height: 28px; }
 .location-art-result .location-emblem { border-radius: 50%; width: 76px; height: 76px; }
 .location-emblem > img { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
-.location-confirmed { position: absolute; right: -3px; bottom: -2px; display: grid; place-items: center; border-radius: 50%; width: 26px; height: 26px; border: 3px solid var(--popover); background: var(--success); color: var(--background); }
-.location-confirmed svg { width: 14px; height: 14px; }
+.location-emblem > img.location-verified { position: absolute; right: -5px; bottom: -3px; width: 30px; height: 30px; object-fit: contain; border-radius: 0; filter: drop-shadow(0 3px 9px color-mix(in oklab, #1d9bf0 55%, transparent)); }
 .location-body { padding: 0 24px 26px; }
 .location-eyebrow { font-size: 10px; font-weight: 700; color: var(--muted-foreground); margin-bottom: 10px; }
 .location-title { font-family: var(--font-sans); font-size: 25px; line-height: 1.22; font-weight: 800; text-wrap: balance; }
@@ -446,7 +445,31 @@
 @keyframes location-enter { from { opacity: 0; scale: .97; translate: 0 12px; } to { opacity: 1; scale: 1; translate: 0 0; } }
 @keyframes location-step { from { opacity: .4; translate: 0 6px; } to { opacity: 1; translate: 0 0; } }
 @media (max-height: 740px) { .location-art { height: 118px; } .location-form { gap: 12px; margin-top: 18px; } .location-body { padding-bottom: 20px; } }
-.checkout-security { display: flex; align-items: center; gap: 10px; padding: 14px 0; border-bottom: 1px solid var(--border); color: var(--muted-foreground); }
+/* Segurança: acabamento neutro, integrado à sacola. */
+.checkout-security {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  margin-top: 22px;
+  padding: 0;
+  color: var(--muted-foreground);
+}
+.checkout-security-icon {
+  display: grid; place-items: center;
+  flex-shrink: 0;
+  width: 40px; height: 40px; border-radius: 13px;
+  color: var(--foreground);
+  background: var(--secondary);
+}
+.checkout-security-icon svg { width: 19px; height: 19px; }
+.checkout-security-title { margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0; color: var(--foreground); }
+.checkout-security-sub { margin: 4px 0 0; max-width: 260px; font-size: 11px; line-height: 1.5; color: var(--muted-foreground); }
+.checkout-brand { display: flex; flex-direction: column; align-items: center; gap: 9px; margin-top: 20px; }
+.checkout-brand-label { font-size: 10px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--muted-foreground); }
+.checkout-brand-plate { display: inline-flex; align-items: center; justify-content: center; background: none; padding: 0; }
+.checkout-brand-logo { width: 116px; height: auto; object-fit: contain; display: block; filter: drop-shadow(0 0 .5px oklch(1 0 0 / 45%)); }
+
 
 /* Animated card preview */
 :root {
@@ -1037,3 +1060,25 @@
 .btn-success-label { text-align: left; padding-right: 0; min-width: 0; font-size: 14px; }
 .btn-success-arrow { position: relative; z-index: 1; width: 21px; height: 21px; transition: translate .2s; }
 .btn-success:hover .btn-success-arrow { translate: 3px 0; }
+
+/* Esconde o selo "Edit with Lovable" injetado na publicação */
+#lovable-badge, #lovable-badge * { display: none !important; }
+
+
+/* Order bump e trava do pedido mínimo */
+.order-bump { margin-top: 18px; }
+.order-bump-title { margin: 0 0 10px; font-size: 13px; font-weight: 700; color: var(--foreground); }
+.order-bump-list { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.order-bump-list::-webkit-scrollbar { display: none; }
+.order-bump-item { flex: 0 0 auto; width: 210px; display: grid; grid-template-columns: 44px minmax(0,1fr) 30px; align-items: center; gap: 10px; padding: 8px; border-radius: 18px; background: var(--secondary); color: var(--foreground); text-align: left; transition: transform .18s ease; }
+.order-bump-item:active { transform: scale(.97); }
+.order-bump-item img { width: 44px; height: 44px; border-radius: 12px; object-fit: cover; }
+.order-bump-name { display: block; font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.order-bump-price { display: block; margin-top: 2px; font-size: 11px; font-weight: 700; color: var(--primary); }
+.order-bump-add { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 999px; background: var(--primary); color: var(--primary-foreground); }
+.order-bump-add svg { width: 16px; height: 16px; }
+.min-gate { margin-top: 20px; padding: 18px; border-radius: 22px; background: var(--secondary); }
+.min-gate-title { margin: 0; font-size: 15px; font-weight: 700; color: var(--foreground); }
+.min-gate-sub { margin: 4px 0 0; font-size: 12px; line-height: 1.5; color: var(--muted-foreground); }
+.min-gate-bar { margin-top: 14px; height: 6px; border-radius: 999px; background: color-mix(in oklab, var(--foreground) 10%, transparent); overflow: hidden; }
+.min-gate-bar i { display: block; height: 100%; border-radius: inherit; background: var(--primary); transition: width .4s cubic-bezier(.2,.8,.2,1); }

@@ -12,6 +12,7 @@ import {
   ShoppingBag,
   ArrowRight,
   MapPin,
+  LockKeyhole,
   ShieldCheck,
   Star,
   Trash2,
@@ -41,7 +42,7 @@ import { PixPaymentPanel } from "@/components/PixPaymentPanel";
 import { OrderTracking } from "@/components/OrderTracking";
 import type { InvoiceLine } from "@/lib/invoice";
 
-type PaidOrder = { lines: InvoiceLine[]; total: number; form: DeliveryDetails; payment: PixPayment };
+type PaidOrder = { lines: InvoiceLine[]; total: number; form: DeliveryDetails; payment: PixPayment; access: string };
 
 type Item = {
   key: string;
@@ -129,6 +130,8 @@ export function Storefront({ menu }: { menu: Menu }) {
               className="block h-60 w-full object-cover md:h-80"
               width={1600}
               height={640}
+              fetchPriority="high"
+              decoding="async"
             />
             <div className="absolute top-4 right-4 z-10 flex gap-2">
               <Button variant="storefront" size="storefront"
@@ -224,6 +227,7 @@ export function Storefront({ menu }: { menu: Menu }) {
                           src={p.image ?? menu.categoryImg[p.category]}
                           alt={p.name}
                           loading="lazy"
+                          decoding="async"
                           className="h-full w-full object-cover"
                         />
                         <span className="thumb-add">
@@ -485,6 +489,15 @@ function CartSheet({
     catch (error) { setPaymentError(error instanceof Error ? error.message : "Não foi possível consultar o Pix."); }
     finally { setProcessing(false); }
   };
+  // Consulta automática do Pix pendente a cada 5 segundos, sem sobrepor consultas.
+  const pollRef = useRef(verifyPayment);
+  pollRef.current = verifyPayment;
+  const pendingPix = Boolean(pixAccess) && payment != null && !["PAID","CANCELLED","REFUNDED"].includes(payment.status) && payment.method !== "CARD";
+  useEffect(() => {
+    if (!pendingPix) return;
+    const id = setInterval(() => { void pollRef.current(); }, 5000);
+    return () => clearInterval(id);
+  }, [pendingPix]);
   const [submitted, setSubmitted] = useState(false);
   const [postalStatus, setPostalStatus] = useState("");
   const [secureConnection, setSecureConnection] = useState(false);
@@ -511,6 +524,13 @@ function CartSheet({
   const total = subtotal + fee;
   const belowMin = subtotal < menu.store.minOrder;
   const valid = Object.keys(errors).length === 0 && !belowMin && cart.length > 0;
+  const bumps = useMemo(() => {
+    const inCart = new Set(cart.map(i => i.product.id));
+    return menu.products
+      .filter(p => /bebida|sobremesa|porç|acompanh|doce/i.test(p.category) && !inCart.has(p.id))
+      .sort((a, b) => a.price - b.price)
+      .slice(0, 4);
+  }, [cart, menu.products]);
 
   const invoiceLines = useMemo<InvoiceLine[]>(() => cart.map(i => {
     const thumb = i.product.image ?? menu.categoryImg[i.product.category];
@@ -581,7 +601,7 @@ function CartSheet({
         <Button variant="storefront" size="storefront" aria-label="Fechar" onClick={onClose} className="icon-btn"><X className="h-5 w-5" /></Button>
       </div>
       {paidOrder
-        ? <OrderTracking menu={menu} payment={paidOrder.payment} form={paidOrder.form} total={paidOrder.total} lines={paidOrder.lines} onClose={onClose} />
+        ? <OrderTracking menu={menu} payment={paidOrder.payment} form={paidOrder.form} total={paidOrder.total} lines={paidOrder.lines} orderAccess={paidOrder.access} onClose={onClose} />
         : <div className="py-10 text-center"><ReceiptText className="mx-auto h-10 w-10 text-muted-foreground/40" /><p className="mt-3 text-sm text-muted-foreground">Nenhum pedido pago ainda.</p></div>}
     </Sheet>
   );
@@ -641,16 +661,40 @@ function CartSheet({
 
        {payment && payment.status !== "PAID" && payment.method !== "CARD" && <PixPaymentPanel payment={payment} checking={processing} error={paymentError} onCheck={verifyPayment} />}
        {payment?.method === "CARD" && payment.status !== "PAID" && <section className="checkout-section" aria-label="Pagamento por cartão"><h4><CreditCard /> Cartão · {brl(payment.amount)}</h4><p role="status" className="text-sm">{payment.status === "CANCELLED" ? "Pagamento recusado ou cancelado" : "Pagamento em análise. Não envie uma nova cobrança."}</p><Button variant="storefront" size="storefront" disabled={processing} onClick={verifyPayment} className="mt-3 w-full">Consultar pagamento</Button>{paymentError && <p role="alert" className="text-xs text-destructive">{paymentError}</p>}</section>}
-       {payment && payment.status !== "PAID" && <Button variant="storefront" size="storefront" disabled={processing} className="btn-primary mt-4 w-full" onClick={() => { setPayment(null); setPaymentError(""); setSubmitted(false); }}>Novo pagamento</Button>}
        {!payment && paymentError && <p role="alert" className="mt-3 text-xs text-destructive">{paymentError}</p>}
-       {cart.length > 0 && !payment && <form noValidate onSubmit={async e => {
+       {cart.length > 0 && !payment && bumps.length > 0 && (
+        <section className="order-bump" aria-label="Peça também">
+          <p className="order-bump-title">Peça também</p>
+          <div className="order-bump-list">
+            {bumps.map(p => (
+              <button key={p.id} type="button" className="order-bump-item" onClick={() => {
+                const free = p.addons && p.addons.every(a => a.price === 0) ? p.addons.slice(0, 1) : [];
+                setCart(c => [...c, { key: crypto.randomUUID(), product: p, qty: 1, note: "", addons: free }]);
+              }}>
+                <img src={p.image ?? menu.categoryImg[p.category]} alt="" loading="lazy" />
+                <span className="min-w-0"><span className="order-bump-name">{p.name}</span><span className="order-bump-price">+ {brl(p.price)}</span></span>
+                <span className="order-bump-add" aria-label={`Adicionar ${p.name}`}><Plus /></span>
+              </button>
+            ))}
+          </div>
+        </section>
+       )}
+       {cart.length > 0 && !payment && belowMin && (
+        <section className="min-gate" role="status">
+          <p className="min-gate-title">Faltam {brl(menu.store.minOrder - subtotal)} para finalizar</p>
+          <p className="min-gate-sub">O pedido mínimo é {brl(menu.store.minOrder)}. Adicione mais itens para liberar o pagamento.</p>
+          <div className="min-gate-bar"><i style={{ width: `${Math.min(100, (subtotal / menu.store.minOrder) * 100)}%` }} /></div>
+          <Button variant="storefront" size="storefront" className="btn-primary mt-4 w-full" onClick={onClose}>Continuar comprando</Button>
+        </section>
+       )}
+       {cart.length > 0 && !payment && !belowMin && <form noValidate onSubmit={async e => {
         e.preventDefault(); setSubmitted(true);
          if (!valid || processing) return;
          if (method === "CARD" && Object.keys(cardErrors(card)).length) return;
          setProcessing(true); setPaymentError("");
          const access = newPixAccess();
          setPixAccess(access); savePayment(access);
-         pendingOrder.current = { lines: invoiceLines, total, form: { ...form }, payment: null as unknown as PixPayment };
+         pendingOrder.current = { lines: invoiceLines, total, form: { ...form }, access, payment: null as unknown as PixPayment };
          try {
            const data = { access, menuPath: menu.to, form, items: cart.map(i => ({ productId: i.product.id, qty: i.qty, addonIds: i.addons.map(a => a.id), note: i.note })) };
            const result = method === "CARD" ? await createCardPayment({ data: { ...data, card } }) : await createPayment({ data });
@@ -683,13 +727,16 @@ function CartSheet({
         <h4><ShieldCheck /> Pagamento</h4>
         <div className="grid grid-cols-2 gap-3" role="group" aria-label="Forma de pagamento"><Button type="button" variant="storefront" size="storefront" aria-pressed={method === "PIX"} className={`flex items-center justify-center gap-2 rounded-lg border p-4 ${method === "PIX" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`} onClick={() => { setMethod("PIX"); setCard(emptyCard); }}><img src={pixLogo.url} alt="" width={24} height={24} />Pix</Button><Button type="button" variant="storefront" size="storefront" aria-pressed={method === "CARD"} className={`flex items-center justify-center gap-2 rounded-lg border p-4 ${method === "CARD" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`} onClick={() => setMethod("CARD")}><span className="mini-card" aria-hidden="true"><i /></span>Cartão</Button></div>
         {method === "CARD" && <CardFields card={card} onChange={setCard} submitted={submitted} />}
-        <div className="checkout-security mt-4">
-          <ShieldCheck className="h-5 w-5 shrink-0" />
-           <div><p className="text-xs font-semibold">{secureConnection ? "Conexão criptografada · HTTPS" : "Ambiente de teste"}</p></div>
+        <div className="checkout-security">
+          <span className="checkout-security-icon" aria-hidden="true"><LockKeyhole strokeWidth={1.7} /></span>
+          <div className="min-w-0">
+            <p className="checkout-security-title">{secureConnection ? "Conexão segura" : "Ambiente de teste"}</p>
+          </div>
+
         </div>
       </section>
 
-      <div className="mt-5 space-y-2 border-t border-border pt-5 text-sm">
+      <div className="mt-6 space-y-2 text-sm">
         <div className="flex justify-between text-muted-foreground">
           <span>Subtotal</span>
           <span>{brl(subtotal)}</span>
@@ -714,6 +761,11 @@ function CartSheet({
       <div className="sheet-actions mt-5">
          <Button type="submit" variant="storefront" size="storefront" disabled={belowMin || processing} className="btn-primary w-full gap-2">{processing ? "Processando…" : `${method === "CARD" ? "Pagar com cartão" : "Gerar Pix"} · ${brl(total)}`} <ArrowRight /></Button>
       </div>
+      <div className="checkout-brand">
+        <span className="checkout-brand-label">Pagamento processado com</span>
+        <span className="checkout-brand-plate"><img className="checkout-brand-logo" src="/mercado-pago-logo.png" alt="Mercado Pago" width={144} height={38} loading="lazy" /></span>
+      </div>
+
       </form>}
 
     </Sheet>

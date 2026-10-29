@@ -10,6 +10,8 @@ import {
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
+import { locationBootstrap } from "../lib/location-bootstrap";
+
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
@@ -94,8 +96,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     scripts: [
       {
         // Começa a localização por IP já no HTML, antes do bundle carregar.
-        children:
-          'try{var k=function(n){var p=n+"=";for(var i=0;i<document.cookie.split(";").length;i++){var t=document.cookie.split(";")[i].trim();if(t.indexOf(p)===0)return decodeURIComponent(t.slice(p.length))}return""};if(k("localCidade")&&k("localEstado")){window.__ipPlaceRaw=Promise.resolve(null)}else{window.__ipPlaceRaw=fetch("https://get.geojs.io/v1/ip/geo.json",{credentials:"omit",referrerPolicy:"no-referrer"}).then(function(r){if(!r.ok)throw 0;return r.json()}).catch(function(){return null})}}catch(e){}',
+        children: locationBootstrap,
       },
     ],
   }),
