@@ -17,7 +17,7 @@ class FirebotRequestError extends Error {}
  * Firebot e toda consulta aprova o pagamento. Trocar para false (ou remover
  * esta constante) volta ao comportamento real — OBRIGATÓRIO antes de publicar.
  */
-const PAYMENTS_TEST_MODE = true;
+const PAYMENTS_TEST_MODE = false;
 function paymentsTestMode() {
   return PAYMENTS_TEST_MODE || process.env["PAYMENTS_TEST_MODE"] === "true";
 }
