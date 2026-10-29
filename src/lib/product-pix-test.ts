@@ -1,8 +1,8 @@
 /** Isolated checkout simulation; never applies to card or live-location charges. */
-export const PRODUCT_PIX_TEST_MODE = true;
+export const PRODUCT_PIX_TEST_MODE = false;
 
 export function isProductPixTest(transactionId: string, kind?: string) {
-  return PRODUCT_PIX_TEST_MODE && kind !== "LIVE_LOCATION_FEE" && transactionId.startsWith("test_product_pix_");
+  return kind !== "LIVE_LOCATION_FEE" && transactionId.startsWith("test_product_pix_");
 }
 
 export function productPixTestResult(orderId: string, amountCents: number) {
