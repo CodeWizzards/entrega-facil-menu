@@ -468,7 +468,7 @@
 .checkout-brand { display: flex; flex-direction: column; align-items: center; gap: 9px; margin-top: 20px; }
 .checkout-brand-label { font-size: 10px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--muted-foreground); }
 .checkout-brand-plate { display: inline-flex; align-items: center; justify-content: center; background: none; padding: 0; }
-.checkout-brand-logo { width: 116px; height: auto; object-fit: contain; display: block; filter: drop-shadow(0 0 1px oklch(1 0 0 / 70%)) drop-shadow(0 0 6px oklch(1 0 0 / 18%)); }
+.checkout-brand-logo { width: 116px; height: auto; object-fit: contain; display: block; filter: drop-shadow(0 0 .5px oklch(1 0 0 / 45%)); }
 
 
 /* Animated card preview */
