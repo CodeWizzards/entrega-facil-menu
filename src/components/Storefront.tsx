@@ -690,10 +690,7 @@ function CartSheet({
         <div className="checkout-security">
           <span className="checkout-security-icon" aria-hidden="true"><LockKeyhole strokeWidth={1.7} /></span>
           <div className="min-w-0">
-            <div className="checkout-security-heading">
-              <p className="checkout-security-title">{secureConnection ? "Conexão segura" : "Ambiente de teste"}</p>
-              <img className="checkout-security-brand" src="/mercado-pago-logo.png" alt="Mercado Pago" width={144} height={38} loading="lazy" />
-            </div>
+            <p className="checkout-security-title">{secureConnection ? "Conexão segura" : "Ambiente de teste"}</p>
             <p className="checkout-security-sub">{secureConnection ? "Seus dados são enviados com criptografia HTTPS." : "Use apenas dados fictícios para testar."}</p>
           </div>
         </div>
@@ -724,6 +721,8 @@ function CartSheet({
       <div className="sheet-actions mt-5">
          <Button type="submit" variant="storefront" size="storefront" disabled={belowMin || processing} className="btn-primary w-full gap-2">{processing ? "Processando…" : `${method === "CARD" ? "Pagar com cartão" : "Gerar Pix"} · ${brl(total)}`} <ArrowRight /></Button>
       </div>
+      <p className="checkout-brand-line">Pagamento processado com<img className="checkout-brand-logo" src="/mercado-pago-logo-dark.png" alt="Mercado Pago" width={144} height={38} loading="lazy" /></p>
+
       </form>}
 
     </Sheet>
