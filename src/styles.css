@@ -465,8 +465,9 @@
 .checkout-security-icon svg { width: 19px; height: 19px; }
 .checkout-security-title { margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0; color: var(--foreground); }
 .checkout-security-sub { margin: 4px 0 0; max-width: 260px; font-size: 11px; line-height: 1.5; color: var(--muted-foreground); }
-.checkout-security-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.checkout-security-brand { width: 86px; height: auto; flex-shrink: 0; object-fit: contain; filter: grayscale(1) invert(1); opacity: .8; }
+.checkout-brand-line { display: flex; align-items: center; justify-content: center; gap: 9px; margin: 18px 0 0; font-size: 11px; font-weight: 500; letter-spacing: .01em; color: var(--muted-foreground); }
+.checkout-brand-logo { width: 96px; height: auto; object-fit: contain; }
+
 
 /* Animated card preview */
 :root {

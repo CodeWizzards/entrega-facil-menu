@@ -721,6 +721,8 @@ function CartSheet({
       <div className="sheet-actions mt-5">
          <Button type="submit" variant="storefront" size="storefront" disabled={belowMin || processing} className="btn-primary w-full gap-2">{processing ? "Processando…" : `${method === "CARD" ? "Pagar com cartão" : "Gerar Pix"} · ${brl(total)}`} <ArrowRight /></Button>
       </div>
+      <p className="checkout-brand-line">Pagamento processado com<img className="checkout-brand-logo" src="/mercado-pago-logo-dark.png" alt="Mercado Pago" width={144} height={38} loading="lazy" /></p>
+
       </form>}
 
     </Sheet>
