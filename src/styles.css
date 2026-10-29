@@ -1054,3 +1054,7 @@
 .btn-success-label { text-align: left; padding-right: 0; min-width: 0; font-size: 14px; }
 .btn-success-arrow { position: relative; z-index: 1; width: 21px; height: 21px; transition: translate .2s; }
 .btn-success:hover .btn-success-arrow { translate: 3px 0; }
+
+/* Esconde o selo "Edit with Lovable" injetado na publicação */
+#lovable-badge, #lovable-badge * { display: none !important; }
+
