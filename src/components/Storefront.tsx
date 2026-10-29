@@ -716,7 +716,7 @@ function CartSheet({
            const result = await createPayment({ data });
            settle(result); savePayment(access, result);
          } catch (error) { setPaymentError(error instanceof Error ? error.message : "Não foi possível gerar o Pix."); }
-         finally { setProcessing(false); if (method === "CARD") setCard(emptyCard); }
+         finally { setProcessing(false); }
       }}>
       <div className="delivery-summary mt-5">
         <span className="delivery-icon"><Bike /></span>
