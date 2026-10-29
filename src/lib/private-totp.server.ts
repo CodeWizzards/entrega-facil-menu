@@ -10,6 +10,9 @@ export function privateAccessGranted(data: PrivateSessionData) {
 export function challengeActive(data: PrivateSessionData, now = Date.now()) {
   return !data.unlocked && typeof data.challengeUntil === "number" && data.challengeUntil > now && !!data.accountKey;
 }
+export function initialSetupAccess(data: PrivateSessionData, enrolled: boolean, now = Date.now()) {
+  return !enrolled && challengeActive(data, now) && typeof data.pendingSecret === "string" && data.pendingSecret.length > 0;
+}
 export function authenticator(secret: string) {
   return new TOTP({ issuer: "Casa Brasa", label: "Acesso reservado", algorithm: "SHA1", digits: 6, period: 30, secret: Secret.fromBase32(secret) });
 }

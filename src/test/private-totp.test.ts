@@ -1,8 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { authenticator, challengeActive, decryptAuthenticator, encryptAuthenticator, privateAccessGranted, validCounter } from "@/lib/private-totp.server";
+import { authenticator, challengeActive, decryptAuthenticator, encryptAuthenticator, initialSetupAccess, privateAccessGranted, validCounter } from "@/lib/private-totp.server";
 
 const secret = "GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ"; // RFC 6238 public test vector
 describe("Google Authenticator do acesso reservado", () => {
+  it("libera configuração inicial após senha apenas enquanto não existir autenticador", () => {
+    const session = { accountKey: "fixture", pendingSecret: secret, challengeUntil: 300000, unlocked: false };
+    expect(initialSetupAccess(session, false, 299999)).toBe(true);
+    expect(initialSetupAccess(session, true, 299999)).toBe(false);
+    expect(initialSetupAccess(session, false, 300000)).toBe(false);
+    expect(initialSetupAccess({}, false, 0)).toBe(false);
+  });
   it("exige segundo fator mesmo em uma sessão antiga com senha válida", () => {
     expect(privateAccessGranted({ unlocked: true })).toBe(false);
     expect(privateAccessGranted({ unlocked: false, mfaVersion: 1 })).toBe(false);
