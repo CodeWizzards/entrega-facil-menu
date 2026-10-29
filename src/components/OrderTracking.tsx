@@ -235,12 +235,10 @@ export function OrderTracking({ menu, payment, form, total, lines, orderAccess, 
       <div className="tracking-invoice">
         <Button variant="storefront" size="storefront" className="btn-success w-full" onClick={openInvoice}>
           <span className="btn-success-icon" aria-hidden="true"><ReceiptText strokeWidth={2.2} /></span>
-          <span className="btn-success-label"><span className="block font-semibold">{doc ? "Ver nota fiscal" : "Emitir nota fiscal"}</span><span className="block text-xs opacity-80">Pedido pago · {brl(total)}</span></span>
+          <span className="btn-success-label"><span className="block font-semibold">{doc ? "Ver comprovante" : "Ver comprovante do pedido"}</span><span className="block text-xs opacity-80">Pedido pago · {brl(total)}</span></span>
           <ArrowRight className="btn-success-arrow" aria-hidden="true" />
         </Button>
-        {invoiceError
-          ? <p className="tracking-invoice-error" role="alert">{invoiceError}</p>
-          : <p className="tracking-invoice-note">Documento do pedido pago · demonstrativo, sem validade fiscal</p>}
+        {invoiceError && <p className="tracking-invoice-error" role="alert">{invoiceError}</p>}
       </div>
 
       <Button variant="storefront" size="storefront" className="mt-3 w-full rounded-full border border-border px-4 py-3 text-sm font-semibold" onClick={onClose}>Voltar ao cardápio</Button>

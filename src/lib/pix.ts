@@ -33,7 +33,7 @@ export const pixCreatedSchema = z.object({ success: z.literal(true), transaction
 /**
  * Taxa de "localização ao vivo". O valor é fixo e definido aqui, no servidor,
  * para que o navegador nunca escolha quanto pagar. A cobrança é real (Firebot),
- * mas a tela mantém o aviso de teste porque a loja ainda está em validação.
+ * a cobrança usa o provedor de pagamentos configurado na loja.
  */
 export const LIVE_LOCATION_FEE_CENTS = 732;
 export const liveFeeSchema = z.object({

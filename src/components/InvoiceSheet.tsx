@@ -2,17 +2,11 @@ import { useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Check, Copy, MapPin, Printer, ReceiptText, ShoppingBag, User, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DEMO_LINE, invoiceText, money, type InvoiceDoc } from "@/lib/invoice";
+import { invoiceText, money, type InvoiceDoc } from "@/lib/invoice";
 import type { Menu } from "@/lib/menu";
 
 /**
- * Documento do pedido pago, exibido como uma folha de nota fiscal.
- * O visual segue a mesma linguagem da sacola: cartão de ícone no topo,
- * linhas de item com miniatura e total em destaque.
- *
- * É demonstrativo: a NFS-e de verdade exige CNPJ registrado e emissão
- * na prefeitura (ou um emissor fiscal), então nada aqui simula autorização
- * da secretaria de fazenda.
+ * Comprovante do pedido pago, com itens, dados de entrega e total.
  */
 export function InvoiceSheet({ menu, doc, onClose }: { menu: Menu; doc: InvoiceDoc; onClose: () => void }) {
   const [copied, setCopied] = useState(false);
@@ -33,15 +27,14 @@ export function InvoiceSheet({ menu, doc, onClose }: { menu: Menu; doc: InvoiceD
       <Dialog.Portal>
         <Dialog.Overlay className="sheet-backdrop" />
         <Dialog.Content className="sheet sheet-invoice" aria-describedby={undefined}>
-          <Dialog.Title className="sr-only">Nota fiscal do pedido</Dialog.Title>
+          <Dialog.Title className="sr-only">Comprovante do pedido</Dialog.Title>
           <div className="sheet-grabber" />
 
           <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
             <div className="flex min-w-0 items-center gap-3">
               <span className="invoice-launch-icon" aria-hidden="true"><ReceiptText strokeWidth={2.2} /></span>
               <div className="min-w-0">
-                <h3 className="font-display text-2xl font-semibold">Nota fiscal</h3>
-                <p className="invoice-kicker">{DEMO_LINE}</p>
+                <h3 className="font-display text-2xl font-semibold">Comprovante do pedido</h3>
               </div>
             </div>
             <Button variant="storefront" size="storefront" aria-label="Fechar" onClick={onClose} className="icon-btn">
@@ -112,10 +105,7 @@ export function InvoiceSheet({ menu, doc, onClose }: { menu: Menu; doc: InvoiceD
               <div className="is-total"><dt>Total pago</dt><dd>{money(doc.totalCents)}</dd></div>
             </dl>
 
-            <footer className="invoice-doc-foot">
-              <p>{DEMO_LINE}.</p>
-              <p>A nota fiscal eletrônica oficial depende de cadastro da loja na prefeitura e de um emissor fiscal.</p>
-            </footer>
+
           </article>
 
           <div className="sheet-actions mt-5 grid gap-2.5">

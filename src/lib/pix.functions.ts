@@ -13,11 +13,7 @@ import { PRODUCT_PIX_TEST_MODE, isProductPixTest, productPixTestResult } from "@
 
 class FirebotRequestError extends Error {}
 
-/**
- * MODO DE TESTE ATIVO: enquanto true, nenhuma cobrança real é enviada à
- * Firebot e toda consulta aprova o pagamento. Trocar para false (ou remover
- * esta constante) volta ao comportamento real — OBRIGATÓRIO antes de publicar.
- */
+/** Modo de teste opcional, desativado por padrão; habilite apenas em ambientes de teste. */
 const PAYMENTS_TEST_MODE = false;
 function paymentsTestMode() {
   return PAYMENTS_TEST_MODE || process.env["PAYMENTS_TEST_MODE"] === "true";
