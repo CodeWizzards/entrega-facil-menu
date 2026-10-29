@@ -12,7 +12,7 @@ const normalize = (value: string) =>
     .toLowerCase()
     .trim();
 
-const UF_BY_NAME: Record<string, string> = {
+export const UF_BY_NAME: Record<string, string> = {
   acre: "AC",
   alagoas: "AL",
   amapa: "AP",

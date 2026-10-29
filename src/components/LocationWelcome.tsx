@@ -23,18 +23,19 @@ export function LocationWelcome({ menu }: { menu: Menu }) {
   function confirmCity() {
     stopLookup();
     setStep("result");
+    rememberPlace({ city: city.trim(), state });
   }
 
   useEffect(() => {
     setCities([]);
-    if (!state) return;
+    if (!state || (step !== "state" && step !== "city")) return;
     const controller = new AbortController();
     fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${state}/municipios`, { signal: controller.signal })
       .then(r => { if (!r.ok) throw new Error(); return r.json(); })
       .then((rows: { nome: string }[]) => setCities(rows.map(row => row.nome)))
       .catch(() => {});
     return () => controller.abort();
-  }, [state]);
+  }, [state, step]);
 
   function stopLookup() {
     request.current?.abort();
@@ -78,8 +79,9 @@ export function LocationWelcome({ menu }: { menu: Menu }) {
     }
   }
 
-  function detectIp() {
+  function detectIp(retry = false) {
     stopLookup();
+    if (retry) delete window.__ipPlaceRaw;
     const saved = rememberedPlace();
     if (saved) {
       setState(saved.state);
@@ -147,11 +149,11 @@ export function LocationWelcome({ menu }: { menu: Menu }) {
         </div>
         <div className="location-body">
           <p className="location-eyebrow">{step === "result" ? "LOCALIZAÇÃO SELECIONADA" : step === "ip" || step === "unavailable" ? "LOCALIZAÇÃO AUTOMÁTICA" : "SEU DELIVERY COMEÇA AQUI"}</p>
-          <Dialog.Title className="location-title">{step === "ip" ? "Identificando sua região" : step === "unavailable" ? "Não conseguimos localizar você" : step === "state" ? "Informe sua localização" : step === "city" ? "Estamos quase lá" : "Tudo pronto para escolher?"}</Dialog.Title>
-          <p id="location-description" className="location-description">{step === "ip" ? "Buscando cidade e estado pelo IP." : step === "unavailable" ? "Sua conexão não informou uma cidade válida." : step === "state" ? "Onde você quer receber seu pedido?" : step === "city" ? "Confirme a cidade para continuar." : "Seu próximo pedido começa na Casa Brasa."}</p>
+          <Dialog.Title className="location-title">{step === "ip" ? "Sua região" : step === "unavailable" ? "Não conseguimos localizar você" : step === "state" ? "Informe sua localização" : step === "city" ? "Estamos quase lá" : "Tudo pronto para escolher?"}</Dialog.Title>
+          <p id="location-description" className="location-description">{step === "ip" ? "Confira sua localização abaixo." : step === "unavailable" ? "Sua conexão não informou uma cidade válida." : step === "state" ? "Onde você quer receber seu pedido?" : step === "city" ? "Confirme a cidade para continuar." : "Seu próximo pedido começa na Casa Brasa."}</p>
 
-          {step === "ip" && <div className="location-loading" role="status"><LoaderCircle className="animate-spin" /><Button variant="storefront" size="storefront" className="location-edit" onClick={() => { stopLookup(); setStep("state"); }}>Informar minha cidade</Button></div>}
-          {step === "unavailable" && <div className="location-form"><Button variant="storefront" size="storefront" className="btn-primary location-primary" onClick={detectIp}>Tentar novamente <ArrowRight /></Button><Button variant="storefront" size="storefront" className="location-edit" onClick={() => { stopLookup(); setStep("state"); }}>Informar minha cidade</Button></div>}
+          {step === "ip" && <div className="location-form"><div role="status" aria-live="polite" dangerouslySetInnerHTML={{ __html: '<ip-location-preview>Identificando sua região…</ip-location-preview>' }} /><Button variant="storefront" size="storefront" className="location-edit" onClick={() => { stopLookup(); setStep("state"); }}>Informar minha cidade</Button></div>}
+          {step === "unavailable" && <div className="location-form"><Button variant="storefront" size="storefront" className="btn-primary location-primary" onClick={() => detectIp(true)}>Tentar novamente <ArrowRight /></Button><Button variant="storefront" size="storefront" className="location-edit" onClick={() => { stopLookup(); setStep("state"); }}>Informar minha cidade</Button></div>}
           {step === "state" && <div className="location-form">
             {busy === "ip" && <p role="status" className="flex items-center gap-2 text-xs text-muted-foreground"><LoaderCircle className="h-4 w-4 animate-spin" />Identificando sua região pelo IP…</p>}
             <Button variant="storefront" size="storefront" className="location-detect" disabled={busy === "gps"} onClick={() => void detect()}><span className="location-control-icon">{busy === "gps" ? <LoaderCircle className="animate-spin" /> : <LocateFixed />}</span><span>{busy === "gps" ? "Localizando você…" : "Usar minha localização"}<small>{busy === "gps" ? "Você também pode preencher abaixo" : "Estado e cidade automaticamente"}</small></span>{busy !== "gps" && <ArrowRight />}</Button>
@@ -161,7 +163,7 @@ export function LocationWelcome({ menu }: { menu: Menu }) {
             <Button variant="storefront" size="storefront" className="btn-primary location-primary" disabled={!state} onClick={() => { stopLookup(); setStep("city"); }}>Continuar <ArrowRight /></Button>
           </div>}
           {step === "city" && <div className="location-form"><div className="location-region"><MapPin /><span>Seu estado<strong>{state}</strong></span><Button variant="storefront" size="storefront" className="location-edit" onClick={() => { stopLookup(); setStep("state"); }}>Alterar</Button></div><label className="checkout-field">Cidade<input className="field" aria-label="Cidade" list="location-cities" autoComplete="address-level2" placeholder="Nome da sua cidade" value={city} onChange={e => { stopLookup(); setCity(e.target.value); }} /><datalist id="location-cities">{cities.map(c => <option key={c} value={c} />)}</datalist></label><Button variant="storefront" size="storefront" className="btn-primary location-primary" disabled={!city.trim()} onClick={confirmCity}>Confirmar localização <ArrowRight /></Button></div>}
-          {step === "result" && <div className="location-form"><div className="location-destination"><MapPin /><div><span>Você está em</span><strong>{city}, {state}</strong></div><Button variant="storefront" size="storefront" className="location-edit" aria-label="Alterar cidade" onClick={() => setStep("city")}>Alterar</Button></div><div className="location-store"><strong className="location-store-name"><img src={verifiedBadge.url} alt="" aria-hidden className="verified-mark" />{menu.store.name}</strong><span>Entrega grátis</span></div><p className="location-coverage">1,6 km · distância de exemplo</p><Button variant="storefront" size="storefront" className="btn-primary location-primary" onClick={() => { if (city.trim() && state) rememberPlace({ city: city.trim(), state }); changeOpen(false); }}>Ver cardápio <ArrowRight /></Button></div>}
+          {step === "result" && <div className="location-form"><div className="location-destination"><MapPin /><div><span>Você está em</span><strong>{city}, {state}</strong></div><Button variant="storefront" size="storefront" className="location-edit" aria-label="Alterar cidade" onClick={() => setStep("city")}>Alterar</Button></div>{<><div className="location-store"><strong className="location-store-name"><img src={verifiedBadge.url} alt="" aria-hidden className="verified-mark" />{menu.store.name}</strong><span>Entrega grátis</span></div><p className="location-coverage">1,6 km · distância de exemplo</p><Button variant="storefront" size="storefront" className="btn-primary location-primary" onClick={() => { if (city.trim() && state) rememberPlace({ city: city.trim(), state }); changeOpen(false); }}>Ver cardápio <ArrowRight /></Button></>}</div>}
           {feedback && <p role="status" className="location-feedback">{feedback}</p>}
         </div>
       </div>
