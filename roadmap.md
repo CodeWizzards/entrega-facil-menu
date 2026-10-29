@@ -41,6 +41,7 @@
 - [x] Simular apenas o Pix inicial dos produtos com aprovação automática e aviso, sem enviar cobranças à Firebot; fluxo até Pedidos conferido com pedido de R$ 39,00 e 23 testes passando.
 - [x] Restaurar Pix real dos produtos sem aprovação fictícia.
 - [x] Criar acesso reservado sem links públicos, com usuário/senha secretos e sessão protegida; entrada, recarga e saída conferidas.
+- [ ] Adicionar configuração e verificação do Google Authenticator ao acesso reservado; conferir bloqueio, códigos e entrada.
 
 
 - [x] Botão verde da tela de pedido deixou de enviar ao WhatsApp e passou a gerar comprovante do pedido (itens, comprador, endereço e totais; salvar em PDF e copiar resumo).

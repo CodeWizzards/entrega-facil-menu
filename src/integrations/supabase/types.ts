@@ -50,6 +50,27 @@ export type Database = {
         }
         Relationships: []
       }
+      private_authenticator: {
+        Row: {
+          account_key: string
+          created_at: string
+          last_counter: number
+          secret_encrypted: string
+        }
+        Insert: {
+          account_key: string
+          created_at?: string
+          last_counter: number
+          secret_encrypted: string
+        }
+        Update: {
+          account_key?: string
+          created_at?: string
+          last_counter?: number
+          secret_encrypted?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
