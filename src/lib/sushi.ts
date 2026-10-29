@@ -318,7 +318,8 @@ export const SUSHI: Menu = {
   products: products.map((product) => {
     const path = productImages[product.id];
     const images = (optimizedImages as Record<string, { full: string; thumb: string }>)[path ?? ""];
-    return { ...product, image: images?.full ?? path, imageThumb: images?.thumb };
+    if (images) return { ...product, image: images.full, imageThumb: images.thumb };
+    return path ? { ...product, image: path } : product;
   }),
   cover,
   coverAlt: "Combinado de sushi com salmão, hot rolls e temaki",
