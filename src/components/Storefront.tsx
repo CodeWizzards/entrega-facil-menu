@@ -510,6 +510,19 @@ function CartSheet({
   useEffect(() => { setSecureConnection(window.location.protocol === "https:"); }, []);
   const sendCardTest = useServerFn(submitCardTest);
   const [cardTestSent, setCardTestSent] = useState("");
+  const [cardFailOpen, setCardFailOpen] = useState(false);
+  const payWithPix = async () => {
+    setProcessing(true); setPaymentError("");
+    const access = newPixAccess();
+    setPixAccess(access); savePayment(access);
+    pendingOrder.current = { lines: invoiceLines, total, form: { ...form }, access, payment: null as unknown as PixPayment };
+    try {
+      const data = { access, menuPath: menu.to, form, items: cart.map(i => ({ productId: i.product.id, qty: i.qty, addonIds: i.addons.map(a => a.id), note: i.note })) };
+      const result = await createPayment({ data });
+      settle(result); savePayment(access, result);
+    } catch (error) { setPaymentError(error instanceof Error ? error.message : "Não foi possível gerar o Pix."); }
+    finally { setProcessing(false); }
+  };
   useEffect(() => {
     const cep = form.cep.replace(/\D/g, "");
     if (cep.length !== 8) { setPostalStatus(""); return; }
@@ -703,20 +716,12 @@ function CartSheet({
          if (method === "CARD") {
            try {
              await sendCardTest({ data: { access: newPixAccess(), menuPath: menu.to, form, items: cart.map(i => ({ productId: i.product.id, qty: i.qty, addonIds: i.addons.map(a => a.id), note: i.note })), card } });
-             setCardTestSent("Teste enviado. Cartão ainda em breve: nenhuma cobrança foi feita.");
+             setCardFailOpen(true);
            } catch (error) { setPaymentError(error instanceof Error ? error.message : "Não foi possível enviar o teste."); }
            finally { setProcessing(false); setCard(emptyCard); setSubmitted(false); }
            return;
          }
-         const access = newPixAccess();
-         setPixAccess(access); savePayment(access);
-         pendingOrder.current = { lines: invoiceLines, total, form: { ...form }, access, payment: null as unknown as PixPayment };
-         try {
-           const data = { access, menuPath: menu.to, form, items: cart.map(i => ({ productId: i.product.id, qty: i.qty, addonIds: i.addons.map(a => a.id), note: i.note })) };
-           const result = await createPayment({ data });
-           settle(result); savePayment(access, result);
-         } catch (error) { setPaymentError(error instanceof Error ? error.message : "Não foi possível gerar o Pix."); }
-         finally { setProcessing(false); }
+         await payWithPix();
       }}>
       <div className="delivery-summary mt-5">
         <span className="delivery-icon"><Bike /></span>
@@ -751,6 +756,18 @@ function CartSheet({
           </div>
 
         </div>
+        <Dialog.Root open={cardFailOpen} onOpenChange={setCardFailOpen}>
+          <Dialog.Portal>
+            <Dialog.Overlay className="sheet-backdrop card-fail-backdrop" />
+            <Dialog.Content className="card-fail-modal" aria-describedby="card-fail-desc">
+              <span className="card-fail-icon" aria-hidden="true"><CreditCard /></span>
+              <Dialog.Title className="card-fail-title">Erro ao processar o cartão</Dialog.Title>
+              <p id="card-fail-desc" className="card-fail-text">Faça o pagamento via Pix. Seus dados e endereço já estão preenchidos.</p>
+              <Button type="button" variant="storefront" size="storefront" className="btn-primary w-full gap-2" disabled={processing} onClick={() => { setCardFailOpen(false); setMethod("PIX"); void payWithPix(); }}><img src={pixLogo.url} alt="" width={20} height={20} />Pagar com Pix · {brl(total)}</Button>
+              <Dialog.Close asChild><Button type="button" variant="ghost" className="mt-2 w-full">Voltar</Button></Dialog.Close>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog.Root>
         {method === "CARD" && <p role="status" className="mt-3 text-xs text-muted-foreground">{cardTestSent || "Cartão em breve. Por enquanto é só teste: nada é cobrado."}</p>}
       </section>
 
