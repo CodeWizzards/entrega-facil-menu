@@ -38,6 +38,7 @@
 - [x] Localização por IP via geojs.io com cookies localCidade/localEstado de 365 dias e "1,6 km · distância" após confirmar.
 - [x] Remover o carregamento fake do modal: a loja aparece na hora ao confirmar a cidade, sem spinner de 3,5 s.
 - [x] Modo de teste opcional de Pix e cartão controlado por PAYMENTS_TEST_MODE, desativado por padrão.
+- [ ] Simular apenas o Pix inicial dos produtos com aprovação automática e aviso, sem enviar cobranças à Firebot; verificar o fluxo até Pedidos.
 
 
 - [x] Botão verde da tela de pedido deixou de enviar ao WhatsApp e passou a emitir nota fiscal (folha com itens, comprador, endereço e totais; salvar em PDF e copiar resumo).

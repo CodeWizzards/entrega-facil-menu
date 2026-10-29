@@ -41,6 +41,7 @@ import { newPixAccess, readPixAttempts, rememberPixAttempt, type PixAttempt } fr
 import { PixPaymentPanel } from "@/components/PixPaymentPanel";
 import { OrderTracking } from "@/components/OrderTracking";
 import type { InvoiceLine } from "@/lib/invoice";
+import { PRODUCT_PIX_TEST_MODE } from "@/lib/product-pix-test";
 
 type PaidOrder = { lines: InvoiceLine[]; total: number; form: DeliveryDetails; payment: PixPayment; access: string };
 
@@ -707,6 +708,7 @@ function CartSheet({
         <div className="min-w-0"><p className="text-sm font-semibold">Entrega no seu endereço</p><p className="mt-1 text-xs text-muted-foreground">{menu.store.eta} · {fee === 0 ? "Entrega grátis" : brl(fee)}</p></div>
         <Check className="h-4 w-4 shrink-0 text-success" />
       </div>
+      {PRODUCT_PIX_TEST_MODE && method === "PIX" && <p role="status" className="mt-4 text-sm text-muted-foreground">Pix em teste · aprovação automática, sem cobrança real.</p>}
       <section className="checkout-section">
         <h4><ReceiptText /> Seus dados</h4>
          <div className="grid gap-3">{field("name", "Nome completo", "name")}{field("phone", "WhatsApp com DDD", "tel")}{field("email", "E-mail", "email")}{field("cpf", "CPF")}</div>
