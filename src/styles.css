@@ -1079,3 +1079,52 @@
 .card-fail-icon { margin: 0 auto 12px; display: flex; width: 52px; height: 52px; align-items: center; justify-content: center; border-radius: 16px; background: color-mix(in oklab, var(--destructive) 16%, transparent); color: var(--destructive); }
 .card-fail-title { font-size: 17px; font-weight: 700; }
 .card-fail-text { margin: 6px 0 18px; font-size: 13px; color: var(--muted-foreground); }
+
+/* ---------- Painel reservado (estilo iOS) ---------- */
+.pv-page { background: radial-gradient(120% 60% at 50% -10%, color-mix(in oklab, var(--primary) 14%, transparent), transparent 60%), var(--background); }
+.pv-tile { display: inline-flex; width: 40px; height: 40px; flex: none; align-items: center; justify-content: center; border-radius: 13px; background: color-mix(in oklab, var(--primary) 16%, var(--secondary)); color: var(--primary); box-shadow: inset 0 1px 0 oklch(1 0 0 / 10%); }
+.pv-tile svg { width: 20px; height: 20px; }
+.pv-btn { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px; border-radius: 999px; background: var(--secondary); border: 1px solid var(--border); font-size: 13px; font-weight: 600; transition: transform .15s ease, background .2s ease; }
+.pv-btn:active { transform: scale(.95); }
+.pv-btn:disabled { opacity: .6; }
+.pv-btn svg { width: 15px; height: 15px; }
+.pv-metric, .pv-panel { border-radius: 26px; background: var(--card); border: 1px solid color-mix(in oklab, var(--foreground) 7%, transparent); padding: 18px; box-shadow: inset 0 1px 0 oklch(1 0 0 / 6%); }
+.pv-panel { padding: 20px; }
+.pv-bar { border-radius: 8px 8px 3px 3px; background: linear-gradient(180deg, var(--primary), color-mix(in oklab, var(--primary) 55%, transparent)); }
+.pv-section { margin-top: 40px; }
+.pv-section-head { display: flex; align-items: center; gap: 12px; }
+.pv-section-head > div { flex: 1; min-width: 0; }
+.pv-section-head h2 { font-family: var(--font-display); font-size: 22px; font-weight: 700; }
+.pv-section-head p { font-size: 12px; color: var(--muted-foreground); }
+.pv-note { margin: 12px 0 0; font-size: 12px; color: var(--muted-foreground); }
+.pv-empty { margin-top: 20px; display: grid; justify-items: center; gap: 8px; border-radius: 26px; border: 1px dashed var(--border); padding: 40px 16px; color: var(--muted-foreground); font-size: 13px; }
+.pv-empty svg { width: 28px; height: 28px; }
+.pv-list { margin-top: 16px; display: grid; gap: 16px; }
+.pv-entry { border-radius: 30px; background: color-mix(in oklab, var(--card) 88%, transparent); border: 1px solid color-mix(in oklab, var(--foreground) 7%, transparent); padding: 16px; box-shadow: var(--shadow-soft), inset 0 1px 0 oklch(1 0 0 / 6%); }
+.pv-entry-head { display: flex; align-items: center; gap: 10px; padding: 0 4px 14px; }
+.pv-pill { border-radius: 999px; background: var(--primary); color: var(--primary-foreground); padding: 3px 10px; font-size: 11px; font-weight: 700; }
+.pv-when { flex: 1; font-size: 12px; color: var(--muted-foreground); }
+.pv-amount { font-size: 18px; font-variant-numeric: tabular-nums; }
+.pv-entry-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); align-items: stretch; }
+.pv-slot { border-radius: 22px; background: var(--secondary); padding: 14px; min-width: 0; }
+.pv-slot:first-child:has(.pv-card-btn) { background: transparent; padding: 0; }
+.pv-card-btn { display: block; width: 100%; border-radius: 20px; text-align: left; }
+.pv-caption { margin-top: 6px; text-align: center; font-size: 11px; color: var(--muted-foreground); }
+.pv-id { display: flex; flex-direction: column; gap: 12px; background: linear-gradient(160deg, color-mix(in oklab, var(--foreground) 9%, var(--secondary)), var(--secondary)); }
+.pv-id-top { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted-foreground); }
+.pv-id-top svg { width: 16px; height: 16px; color: var(--primary); }
+.pv-id-top small { margin-left: auto; font-size: 9px; font-weight: 500; letter-spacing: 0; text-transform: none; opacity: .8; }
+.pv-id-body { display: flex; gap: 12px; align-items: center; }
+.pv-avatar { display: inline-flex; width: 56px; height: 68px; flex: none; align-items: center; justify-content: center; border-radius: 14px; background: var(--primary); color: var(--primary-foreground); font-weight: 700; font-size: 20px; }
+.pv-id dl { display: grid; gap: 8px; min-width: 0; }
+.pv-id dt { font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted-foreground); }
+.pv-id dd { font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
+.pv-mono { font-variant-numeric: tabular-nums; letter-spacing: .04em; }
+.pv-id-contacts { display: grid; gap: 6px; margin-top: auto; border-top: 1px solid var(--border); padding-top: 10px; font-size: 12px; }
+.pv-id-contacts li { display: flex; gap: 8px; align-items: center; overflow-wrap: anywhere; }
+.pv-id-contacts svg { width: 14px; height: 14px; flex: none; color: var(--primary); }
+.pv-info { font-size: 13px; line-height: 1.5; }
+.pv-info h3 { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted-foreground); }
+.pv-info h3 svg { width: 16px; height: 16px; color: var(--primary); }
+.pv-info li { padding: 3px 0; }
+.pv-muted { color: var(--muted-foreground); font-size: 12px; margin-top: 4px; }
