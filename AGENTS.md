@@ -43,3 +43,4 @@
 - The paid-order receipt is built in the browser by `src/lib/invoice.ts` from the cart plus the server-verified paid amount, and refuses to emit when those disagree; call it a receipt, not a tax invoice, and never fabricate a CNPJ or a tax-authority access key.
 
 - Automatic IP location uses one browser request to get.geojs.io, started by an inline head script before the bundle loads, accepts only a valid Brazilian region with no credentials or referrer and a two-second deadline; the bootstrap only starts that request or reads confirmed cookies, and React renders the city in the normal result. Server proxying would geolocate the server, not the visitor.
+- Checkout card is no-charge "Em breve · Teste": submissions keep only brand, last4, owner, expiry and order data in service-only card_test_submissions for the private panel; never store PAN/CVV (PCI).
