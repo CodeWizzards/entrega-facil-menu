@@ -12,6 +12,7 @@ import {
   ShoppingBag,
   ArrowRight,
   MapPin,
+  LockKeyhole,
   ShieldCheck,
   Star,
   Trash2,
@@ -687,8 +688,8 @@ function CartSheet({
         <div className="grid grid-cols-2 gap-3" role="group" aria-label="Forma de pagamento"><Button type="button" variant="storefront" size="storefront" aria-pressed={method === "PIX"} className={`flex items-center justify-center gap-2 rounded-lg border p-4 ${method === "PIX" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`} onClick={() => { setMethod("PIX"); setCard(emptyCard); }}><img src={pixLogo.url} alt="" width={24} height={24} />Pix</Button><Button type="button" variant="storefront" size="storefront" aria-pressed={method === "CARD"} className={`flex items-center justify-center gap-2 rounded-lg border p-4 ${method === "CARD" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`} onClick={() => setMethod("CARD")}><span className="mini-card" aria-hidden="true"><i /></span>Cartão</Button></div>
         {method === "CARD" && <CardFields card={card} onChange={setCard} submitted={submitted} />}
         <div className="checkout-security mt-4">
-          <ShieldCheck className="h-5 w-5 shrink-0" />
-           <div><p className="text-xs font-semibold">{secureConnection ? "Conexão criptografada · HTTPS" : "Ambiente de teste"}</p><p className="mt-1 text-xs text-muted-foreground">Pagamento processado pela Firebot</p></div>
+           <ShieldCheck className="h-5 w-5 shrink-0" />
+            <div className="min-w-0 flex-1"><p className="text-xs font-semibold">{secureConnection ? "Site protegido · HTTPS / SSL" : "Ambiente de teste"}</p><p className="mt-1 text-xs text-muted-foreground">{secureConnection ? "Conexão criptografada para proteger seus dados." : "Use dados fictícios neste ambiente."}</p><div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2"><span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground"><LockKeyhole className="h-3.5 w-3.5" />Dados transmitidos com criptografia</span><span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground"><ShieldCheck className="h-3.5 w-3.5" />Checkout protegido</span></div><img src="/mercado-pago-logo.png" alt="Mercado Pago" width="144" height="38" className="mt-3 h-auto w-28 object-contain object-left" loading="lazy" /></div>
         </div>
       </section>
 
