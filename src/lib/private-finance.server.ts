@@ -1,12 +1,12 @@
-import { privateAccessGranted, type PrivateSessionData } from "@/lib/private-totp.server";
+import { initialSetupAccess, privateAccessGranted, type PrivateSessionData } from "@/lib/private-totp.server";
 
 type FinancialRow = {
   id: string; amount_cents: number; menu_path: string; created_at: string;
   status: string; transaction_id: string | null; checkout: unknown;
 };
 
-export function requirePrivateFinance(data: PrivateSessionData) {
-  if (!privateAccessGranted(data)) throw new Error("Acesso não autorizado.");
+export function requirePrivateFinance(data: PrivateSessionData, enrolled = true) {
+  if (!privateAccessGranted(data) && !initialSetupAccess(data, enrolled)) throw new Error("Acesso não autorizado.");
 }
 
 export function summarizeFinance(rows: FinancialRow[], now = new Date()) {
@@ -39,8 +39,8 @@ export function summarizeFinance(rows: FinancialRow[], now = new Date()) {
   };
 }
 
-export async function loadPrivateFinance(session: PrivateSessionData) {
-  requirePrivateFinance(session);
+export async function loadPrivateFinance(session: PrivateSessionData, enrolled = true) {
+  requirePrivateFinance(session, enrolled);
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const rows: FinancialRow[] = [];
   for (let offset = 0; ; offset += 1000) {

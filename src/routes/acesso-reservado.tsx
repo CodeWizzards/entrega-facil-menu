@@ -34,10 +34,11 @@ function PrivatePage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [showSetup, setShowSetup] = useState(false);
   useEffect(() => {
     let cancelled = false;
     setSetup(null);
-    if (data.step === "setup") {
+    if (data.step === "setup" && showSetup) {
       void (async () => {
         try {
           const details = await prepare();
@@ -48,13 +49,14 @@ function PrivatePage() {
       })();
     }
     return () => { cancelled = true; };
-  }, [data.step, prepare]);
+  }, [data.step, showSetup, prepare]);
   return <main className="min-h-dvh bg-background px-6 py-16 text-foreground">
     <div className={`mx-auto ${data.authenticated ? "max-w-5xl" : "max-w-sm"}`}>
       <span className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary text-primary"><LockKeyhole className="h-6 w-6" /></span>
       <p className="mb-2 text-sm font-semibold text-muted-foreground">Casa Brasa</p>
       <h1 className="font-display text-2xl font-semibold">{data.authenticated ? "Painel financeiro" : "Acesso reservado"}</h1>
-      {data.authenticated ? <div className="mt-8">
+      {data.authenticated && <div className="mt-8">
+        {data.step === "setup" && <section className="mb-8 flex flex-wrap items-center justify-between gap-4 border-b border-border pb-6"><div><h2 className="flex items-center gap-2 font-semibold"><ShieldCheck className="h-5 w-5 text-primary" />Autenticação de dois fatores</h2><p className="mt-2 text-sm text-muted-foreground">Ainda não ativada. Cadastre o aplicativo uma única vez.</p></div><Button disabled={busy || showSetup} onClick={() => setShowSetup(true)}><Smartphone />Ativar dois fatores</Button></section>}
         {data.finance && <PrivateFinance finance={data.finance} busy={busy} refresh={() => { setBusy(true); setError(""); void router.invalidate().catch(() => setError("Não foi possível atualizar os pagamentos.")).finally(() => setBusy(false)); }} />}
         <Button variant="outline" className="mt-8 rounded-full" disabled={busy} onClick={async () => {
           setBusy(true); setError("");
@@ -62,14 +64,15 @@ function PrivatePage() {
           catch { setError("Não foi possível sair. Tente novamente."); }
           finally { setBusy(false); }
         }}><LogOut /> Sair</Button>
-      </div> : data.step === "setup" || data.step === "verify" ? <form className="mt-8 grid gap-5" onSubmit={async event => {
+      </div>}
+      {(data.step === "setup" && showSetup) || data.step === "verify" ? <form className="mt-8 grid max-w-sm gap-5" onSubmit={async event => {
         event.preventDefault(); if (busy) return;
         setBusy(true); setError("");
         try {
           const result = await verify({ data: { code } });
           setCode("");
           if (!result.ok) { setError("Código inválido, expirado ou já utilizado. Aguarde o próximo código ou entre novamente."); return; }
-          setSetup(null); await router.invalidate();
+          setSetup(null); setShowSetup(false); await router.invalidate();
         } catch { setError("Não foi possível confirmar. Tente novamente."); }
         finally { setBusy(false); }
       }}>
@@ -82,9 +85,9 @@ function PrivatePage() {
           </> : <div className="flex h-60 items-center justify-center"><LoaderCircle className="animate-spin text-muted-foreground" aria-label="Carregando QR code" /></div>}
         </>}
         <label className="checkout-field"><span>Código do autenticador</span><input className="field text-center font-mono text-2xl" aria-label="Código do autenticador" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" required minLength={6} maxLength={6} value={code} onChange={event => setCode(event.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="000000" /></label>
-        <Button type="submit" className="h-12 w-full rounded-full" disabled={busy || code.length !== 6 || (data.step === "setup" && !setup)}>{busy ? <LoaderCircle className="animate-spin" /> : <ShieldCheck />} {busy ? "Confirmando…" : data.step === "setup" ? "Ativar e entrar" : "Confirmar e entrar"}</Button>
-        <Button variant="ghost" type="button" disabled={busy} onClick={async () => { setSetup(null); setCode(""); setError(""); await logout(); await router.invalidate(); }}>Voltar para o login</Button>
-      </form> : <form className="mt-8 grid gap-4" onSubmit={async event => {
+        <Button type="submit" className="h-12 w-full rounded-full" disabled={busy || code.length !== 6 || (data.step === "setup" && !setup)}>{busy ? <LoaderCircle className="animate-spin" /> : <ShieldCheck />} {busy ? "Confirmando…" : data.step === "setup" ? "Confirmar ativação" : "Confirmar e entrar"}</Button>
+        <Button variant="ghost" type="button" disabled={busy} onClick={async () => { setSetup(null); setCode(""); setError(""); if (data.step === "setup") { setShowSetup(false); return; } await logout(); await router.invalidate(); }}>{data.step === "setup" ? "Cancelar ativação" : "Voltar para o login"}</Button>
+      </form> : !data.authenticated && <form className="mt-8 grid gap-4" onSubmit={async event => {
         event.preventDefault(); if (busy) return;
         setBusy(true); setError("");
         try {

@@ -3,6 +3,11 @@ import { requirePrivateFinance, summarizeFinance } from "@/lib/private-finance.s
 
 const row = { id: "paid", amount_cents: 9900, menu_path: "/sushi", created_at: "2026-10-29T12:00:00Z", status: "PAID", transaction_id: "fire_tx_real", checkout: { form: { cpf: "private" } } };
 describe("Finanças reservadas", () => {
+  it("permite painel inicial com senha mas bloqueia esse acesso após ativar dois fatores", () => {
+    const session = { accountKey: "fixture", pendingSecret: "fixture-secret", challengeUntil: Date.now() + 60000 };
+    expect(() => requirePrivateFinance(session, false)).not.toThrow();
+    expect(() => requirePrivateFinance(session, true)).toThrow();
+  });
   it("nega sessão ausente, manipulada e com apenas senha", () => {
     expect(() => requirePrivateFinance({})).toThrow();
     expect(() => requirePrivateFinance({ unlocked: true })).toThrow();

@@ -20,10 +20,17 @@ export const readPrivatePage = createServerFn({ method: "GET" }).handler(async (
   const secret = process.env["PRIVATE_SESSION_SECRET"];
   if (!secret) return { authenticated: false, content: "", step: "login" as const, finance: null };
   const session = await privateSession(secret);
-  const { privateAccessGranted, challengeActive } = await import("@/lib/private-totp.server");
-  if (!privateAccessGranted(session.data)) return { authenticated: false, content: "", finance: null, step: challengeActive(session.data) ? (session.data.pendingSecret ? "setup" as const : "verify" as const) : "login" as const };
+  const { privateAccessGranted, challengeActive, initialSetupAccess } = await import("@/lib/private-totp.server");
+  let setupAccess = false;
+  if (challengeActive(session.data) && session.data.pendingSecret) {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: enrollment, error } = await supabaseAdmin.from("private_authenticator").select("account_key").eq("account_key", session.data.accountKey ?? "").maybeSingle();
+    if (error) throw new Error("Não foi possível verificar o autenticador.");
+    setupAccess = initialSetupAccess(session.data, !!enrollment);
+  }
+  if (!privateAccessGranted(session.data) && !setupAccess) return { authenticated: false, content: "", finance: null, step: challengeActive(session.data) ? "verify" as const : "login" as const };
   const { loadPrivateFinance } = await import("@/lib/private-finance.server");
-  return { authenticated: true, content: "Acesso autorizado", step: "authenticated" as const, finance: await loadPrivateFinance(session.data) };
+  return { authenticated: true, content: "Acesso autorizado", step: setupAccess ? "setup" as const : "authenticated" as const, finance: await loadPrivateFinance(session.data, !setupAccess) };
 });
 
 export const loginPrivatePage = createServerFn({ method: "POST" })
@@ -54,6 +61,9 @@ export const preparePrivateAuthenticator = createServerFn({ method: "POST" }).ha
   const session = await privateSession(secret);
   const { challengeActive, authenticator } = await import("@/lib/private-totp.server");
   if (!challengeActive(session.data) || !session.data.pendingSecret) throw new Error("Entre novamente para configurar.");
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: enrollment, error } = await supabaseAdmin.from("private_authenticator").select("account_key").eq("account_key", session.data.accountKey ?? "").maybeSingle();
+  if (error || enrollment) throw new Error("O autenticador já está ativo ou não pôde ser consultado.");
   return { uri: authenticator(session.data.pendingSecret).toString(), key: session.data.pendingSecret };
 });
 
