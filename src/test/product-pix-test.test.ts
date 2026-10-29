@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { isProductPixTest, PRODUCT_PIX_TEST_MODE, productPixTestResult } from "@/lib/product-pix-test";
 
 describe("Pix inicial de produtos em teste", () => {
-  it("aprova automaticamente a simulação pelo total dos produtos", () => {
-    expect(PRODUCT_PIX_TEST_MODE).toBe(true);
+  it("desativa novas simulações e mantém antigos pedidos identificados como teste", () => {
+    expect(PRODUCT_PIX_TEST_MODE).toBe(false);
     expect(productPixTestResult("pedido-teste", 5600)).toMatchObject({ amount: 56, status: "PAID", testMode: true });
     expect(isProductPixTest("test_product_pix_pedido-teste")).toBe(true);
   });

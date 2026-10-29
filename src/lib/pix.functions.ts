@@ -105,7 +105,7 @@ export const checkPix = createServerFn({ method: "POST" })
     if (!order.transaction_id || (!order.pix_code && !isCard)) throw new Error("Esta tentativa não tem um código Pix disponível para consulta. Você pode gerar outro Pix.");
     const testMode = isProductPixTest(order.transaction_id, (order.checkout as { kind?: string } | null)?.kind);
     if (!key && !paymentsTestMode() && !testMode) throw new Error("Pagamento ainda não configurado.");
-    const status = testMode || (paymentsTestMode() && order.transaction_id.startsWith("test_"))
+    const status = testMode ? order.status : (paymentsTestMode() && order.transaction_id.startsWith("test_"))
       ? "PAID"
       : isCard ? order.status : key ? verifiedPixStatus(await firebot(`pix/${encodeURIComponent(order.transaction_id)}`, key), order.transaction_id, order.amount_cents / 100) : "REVIEW";
     const { error: saveError } = await supabaseAdmin.from("pix_orders").update({ status }).eq("id", order.id);
