@@ -48,4 +48,4 @@
 - [x] Botão verde da tela de pedido deixou de enviar ao WhatsApp e passou a gerar comprovante do pedido (itens, comprador, endereço e totais; salvar em PDF e copiar resumo).
 - [ ] Emitir NFS-e — depende de CNPJ da loja, cadastro na prefeitura e emissor fiscal.
 - [ ] Avisar a loja quando um pedido é pago — o pagamento fica registrado, mas ninguém notifica a loja automaticamente.
-- [ ] Otimizar fotos e logos e conferir carregamento do cardápio e abertura de produtos.
+- [x] Otimizar fotos e logos e conferir carregamento do cardápio e abertura de produtos nas duas lojas; miniaturas 82% menores, sem imagens quebradas.
