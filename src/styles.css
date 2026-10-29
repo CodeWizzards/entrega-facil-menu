@@ -464,6 +464,8 @@
 .checkout-security-icon svg { width: 19px; height: 19px; }
 .checkout-security-title { margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0; color: var(--foreground); }
 .checkout-security-sub { margin: 4px 0 0; max-width: 260px; font-size: 11px; line-height: 1.5; color: var(--muted-foreground); }
+.checkout-security-brand { display: inline-flex; margin: 14px 0 0 52px; padding: 7px 10px; border-radius: 8px; background: var(--primary-foreground); }
+.checkout-security-brand img { width: 112px; height: auto; object-fit: contain; }
 
 /* Animated card preview */
 :root {

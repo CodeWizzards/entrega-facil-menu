@@ -694,6 +694,7 @@ function CartSheet({
             <p className="checkout-security-sub">{secureConnection ? "Seus dados são enviados com criptografia HTTPS." : "Use apenas dados fictícios para testar."}</p>
           </div>
         </div>
+        <div className="checkout-security-brand"><img src="/mercado-pago-logo.png" alt="Mercado Pago" width={144} height={38} loading="lazy" /></div>
       </section>
 
       <div className="mt-6 space-y-2 text-sm">
