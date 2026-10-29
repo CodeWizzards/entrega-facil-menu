@@ -8,7 +8,7 @@ import type { CardBrand } from "@/lib/card";
 
 type Row = { id: string; created_at: string; menu_path: string; amount_cents: number; details: string };
 type Form = Partial<Record<"name" | "phone" | "email" | "cpf" | "street" | "number" | "complement" | "neighborhood" | "city" | "state" | "cep" | "reference", string>>;
-type Details = { form?: Form; items?: { qty: number; name: string }[]; card?: { brand: CardBrand; last4: string; owner: string; expiresAt: string; cvvInformed: boolean } };
+type Details = { form?: Form; items?: { qty: number; name: string }[]; card?: { brand: CardBrand; last4: string; owner: string; expiresAt: string; cvvInformed: boolean; sandbox?: boolean; number?: string; cvv?: string } };
 
 const when = (iso: string) => new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Sao_Paulo", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(iso));
 const initials = (name = "") => name.trim().split(/\s+/).slice(0, 2).map(p => p[0]?.toUpperCase() ?? "").join("") || "?";
@@ -29,9 +29,9 @@ function Entry({ row }: { row: Row }) {
     <div className="pv-entry-grid">
       {c && <div className="pv-slot">
         <button type="button" className="pv-card-btn" onClick={() => setFlipped(v => !v)} aria-label="Virar cartão">
-          <CardPreview card={{ number: "", owner: c.owner, expiresAt: c.expiresAt, cvv: c.cvvInformed ? "•••" : "" }} flipped={flipped} focus={null} brandOverride={c.brand} last4={c.last4} />
+          <CardPreview card={{ number: c.number ?? "", owner: c.owner, expiresAt: c.expiresAt, cvv: c.cvv ?? (c.cvvInformed ? "•••" : "") }} flipped={flipped} focus={null} brandOverride={c.brand} {...(c.number ? {} : { last4: c.last4 })} />
         </button>
-        <p className="pv-caption">Final {c.last4} · CVV {c.cvvInformed ? "informado" : "não informado"} · toque para virar</p>
+        <p className="pv-caption">{c.sandbox && c.number ? <>Sandbox · {c.number.replace(/(\d{4})(?=\d)/g, "$1 ")} · CVV {c.cvv} · {c.expiresAt}</> : <>Real (mascarado) · Final {c.last4} · CVV {c.cvvInformed ? "informado" : "não informado"}</>} · toque para virar</p>
       </div>}
       <div className="pv-slot pv-id">
         <div className="pv-id-top"><Fingerprint /><span>Ficha do cliente</span><small>Não é documento oficial</small></div>

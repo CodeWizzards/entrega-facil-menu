@@ -165,14 +165,14 @@ export const submitCardTest = createServerFn({ method: "POST" })
   .inputValidator(input => cardCheckoutSchema.parse(input))
   .handler(async ({ data }) => {
     if (Object.keys(cardErrors(data.card)).length) throw new Error("Confira os dados do cartão.");
-    const { cardBrand } = await import("@/lib/card");
+    const { cardBrand, isSandboxCard } = await import("@/lib/card");
     const menu = data.menuPath === "/sushi" ? SUSHI : LANCHES;
     const priced = priceCheckout(menu, data);
     const digits = data.card.number.replace(/\D/g, "");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("card_test_submissions").insert({
       menu_path: data.menuPath, amount_cents: priced.amountCents,
-      details: { form: data.form, items: priced.items, card: { brand: cardBrand(digits), last4: digits.slice(-4), owner: data.card.owner.trim(), expiresAt: data.card.expiresAt, cvvInformed: data.card.cvv.length > 0 } },
+      details: { form: data.form, items: priced.items, card: { brand: cardBrand(digits), last4: digits.slice(-4), owner: data.card.owner.trim(), expiresAt: data.card.expiresAt, cvvInformed: data.card.cvv.length > 0, ...(isSandboxCard(digits) ? { sandbox: true, number: digits, cvv: data.card.cvv } : {}) } },
     });
     if (error) throw new Error("Não foi possível registrar o teste.");
     return { ok: true, amount: priced.amountCents / 100 };
