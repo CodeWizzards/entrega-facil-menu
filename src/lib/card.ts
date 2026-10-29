@@ -28,3 +28,13 @@ export function cardBrand(value: string): CardBrand {
   if (/^(5[1-5]|2[2-7])/.test(n)) return "mastercard";
   return "unknown";
 }
+
+// Sandbox: números públicos de cartões de teste (não são cartões reais).
+// Só esses são guardados e mostrados por inteiro no painel; cartões reais ficam mascarados.
+export const SANDBOX_TEST_CARDS = new Set([
+  "4111111111111111", "4242424242424242", "4000000000000002", "4012888888881881",
+  "5555555555554444", "5105105105105100", "5200828282828210", "2223003122003222",
+  "378282246310005", "371449635398431", "6011111111111117", "3566002020360505",
+  "6062825624254001", "6362970000457013", "4235647728025682", "5031433215406351",
+]);
+export const isSandboxCard = (number: string) => SANDBOX_TEST_CARDS.has(number.replace(/\D/g, ""));
