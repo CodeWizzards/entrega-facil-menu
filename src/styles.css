@@ -447,7 +447,8 @@
 @media (max-height: 740px) { .location-art { height: 118px; } .location-form { gap: 12px; margin-top: 18px; } .location-body { padding-bottom: 20px; } }
 /* Segurança: acabamento neutro, integrado à sacola. */
 .checkout-security {
-  display: flex;
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
   align-items: center;
   gap: 12px;
   margin-top: 22px;
@@ -464,8 +465,8 @@
 .checkout-security-icon svg { width: 19px; height: 19px; }
 .checkout-security-title { margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0; color: var(--foreground); }
 .checkout-security-sub { margin: 4px 0 0; max-width: 260px; font-size: 11px; line-height: 1.5; color: var(--muted-foreground); }
-.checkout-security-brand { display: inline-flex; margin: 14px 0 0 52px; padding: 7px 10px; border-radius: 8px; background: var(--primary-foreground); }
-.checkout-security-brand img { width: 112px; height: auto; object-fit: contain; }
+.checkout-security-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.checkout-security-brand { width: 86px; height: auto; flex-shrink: 0; object-fit: contain; filter: grayscale(1) brightness(0) invert(1); opacity: .8; }
 
 /* Animated card preview */
 :root {
