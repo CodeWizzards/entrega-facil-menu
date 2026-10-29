@@ -489,6 +489,15 @@ function CartSheet({
     catch (error) { setPaymentError(error instanceof Error ? error.message : "Não foi possível consultar o Pix."); }
     finally { setProcessing(false); }
   };
+  // Consulta automática do Pix pendente a cada 5 segundos, sem sobrepor consultas.
+  const pollRef = useRef(verifyPayment);
+  pollRef.current = verifyPayment;
+  const pendingPix = Boolean(pixAccess) && payment?.status === "PENDING" && payment.method !== "CARD";
+  useEffect(() => {
+    if (!pendingPix) return;
+    const id = setInterval(() => { void pollRef.current(); }, 5000);
+    return () => clearInterval(id);
+  }, [pendingPix]);
   const [submitted, setSubmitted] = useState(false);
   const [postalStatus, setPostalStatus] = useState("");
   const [secureConnection, setSecureConnection] = useState(false);
@@ -652,7 +661,6 @@ function CartSheet({
 
        {payment && payment.status !== "PAID" && payment.method !== "CARD" && <PixPaymentPanel payment={payment} checking={processing} error={paymentError} onCheck={verifyPayment} />}
        {payment?.method === "CARD" && payment.status !== "PAID" && <section className="checkout-section" aria-label="Pagamento por cartão"><h4><CreditCard /> Cartão · {brl(payment.amount)}</h4><p role="status" className="text-sm">{payment.status === "CANCELLED" ? "Pagamento recusado ou cancelado" : "Pagamento em análise. Não envie uma nova cobrança."}</p><Button variant="storefront" size="storefront" disabled={processing} onClick={verifyPayment} className="mt-3 w-full">Consultar pagamento</Button>{paymentError && <p role="alert" className="text-xs text-destructive">{paymentError}</p>}</section>}
-       {payment && payment.status !== "PAID" && <Button variant="storefront" size="storefront" disabled={processing} className="btn-primary mt-4 w-full" onClick={() => { setPayment(null); setPaymentError(""); setSubmitted(false); }}>Novo pagamento</Button>}
        {!payment && paymentError && <p role="alert" className="mt-3 text-xs text-destructive">{paymentError}</p>}
        {cart.length > 0 && !payment && bumps.length > 0 && (
         <section className="order-bump" aria-label="Peça também">
