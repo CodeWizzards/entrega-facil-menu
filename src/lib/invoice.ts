@@ -1,5 +1,4 @@
-// Documento gerado no navegador a partir do pedido já pago.
-// NÃO é uma NFS-e: falta CNPJ registrado e emissão na prefeitura.
+// Comprovante gerado no navegador a partir do pedido já pago.
 import { deliveryAddress, type DeliveryDetails } from "@/lib/checkout";
 import { brl, type Menu } from "@/lib/menu";
 
@@ -28,8 +27,6 @@ export type InvoiceDoc = {
   method: string;
 };
 
-export const DEMO_LINE = "Documento demonstrativo · sem validade fiscal";
-
 const cents = (value: number) => Math.round(value * 100);
 export const money = (value: number) => brl(value / 100);
 
@@ -53,7 +50,7 @@ export function buildInvoice({
   }
   const serial = payment.orderId.replace(/[^a-zA-Z0-9]/g, "").slice(0, 8).toUpperCase();
   return {
-    number: `NF-${serial || "00000000"}`,
+    number: `PED-${serial || "00000000"}`,
     issuedAt: new Date(),
     issuer: { name: menu.store.name, tagline: menu.store.tagline },
     buyer: {
@@ -82,7 +79,6 @@ export function invoiceText(doc: InvoiceDoc) {
   );
   return [
     `${doc.issuer.name} · ${doc.issuer.tagline}`,
-    DEMO_LINE,
     `Documento ${doc.number} · emitido em ${issued}`,
     `Pedido ${doc.orderId.slice(0, 8).toUpperCase()} · pago no ${doc.method}`,
     "",

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildInvoice, invoiceText, DEMO_LINE } from "@/lib/invoice";
+import { buildInvoice, invoiceText } from "@/lib/invoice";
 import { priceCheckout, pixCheckoutSchema } from "@/lib/pix";
 import { SUSHI } from "@/lib/sushi";
 import { emptyDelivery } from "@/lib/checkout";
@@ -21,7 +21,7 @@ const lines = priced.items.map(item => ({
 }));
 const payment = { orderId: "fire_tx_demo123", amount: priced.amountCents / 100, method: "PIX" as const };
 
-describe("Nota fiscal do pedido", () => {
+describe("Comprovante do pedido", () => {
   it("confere unidade, subtotal, entrega e total com o valor pago", () => {
     const doc = buildInvoice({ menu: SUSHI, payment, form, lines });
     const first = doc.lines[0];
@@ -43,12 +43,11 @@ describe("Nota fiscal do pedido", () => {
     expect(doc.buyer.name).toBe("Ana Souza");
     expect(doc.address).toContain("Praça da Sé, 10");
     expect(doc.method).toBe("Pix");
-    expect(doc.number).toBe("NF-FIRETXDE");
+    expect(doc.number).toBe("PED-FIRETXDE");
   });
 
-  it("marca o documento como demonstrativo e não inventa chave fiscal", () => {
+  it("inclui os itens e totais do pedido sem criar chave fiscal", () => {
     const text = invoiceText(buildInvoice({ menu: SUSHI, payment, form, lines }));
-    expect(text).toContain(DEMO_LINE);
     expect(text).toContain("2x Combo Brasa 16 peças");
     expect(text).toContain("Shoyu extra");
     expect(text).toContain("Observação: sem cebola");

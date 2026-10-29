@@ -40,6 +40,6 @@
 - [x] Modo de teste opcional de Pix e cartão controlado por PAYMENTS_TEST_MODE, desativado por padrão.
 
 
-- [x] Botão verde da tela de pedido deixou de enviar ao WhatsApp e passou a emitir nota fiscal (folha com itens, comprador, endereço e totais; salvar em PDF e copiar resumo).
-- [ ] Emitir NFS-e de verdade — exige CNPJ da loja, cadastro na prefeitura e um emissor fiscal; hoje o documento é demonstrativo, gerado no navegador.
+- [x] Botão verde da tela de pedido deixou de enviar ao WhatsApp e passou a gerar comprovante do pedido (itens, comprador, endereço e totais; salvar em PDF e copiar resumo).
+- [ ] Emitir NFS-e — depende de CNPJ da loja, cadastro na prefeitura e emissor fiscal.
 - [ ] Avisar a loja quando um pedido é pago — o pagamento fica registrado, mas ninguém notifica a loja automaticamente.
