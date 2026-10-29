@@ -25,7 +25,7 @@ import { FeaturedRail } from "@/components/FeaturedRail";
 import { CategoryRail } from "@/components/CategoryRail";
 import { SuperReviews } from "@/components/SuperReviews";
 import pixLogo from "@/assets/pix-logo.png.asset.json";
-import verifiedBadge from "@/assets/verified-badge.png.asset.json";
+import verifiedBadge from "@/assets/optimized/verified-badge.webp.asset.json";
 import { deliveryErrors, deliveryAddress, emptyDelivery, PAYMENT_METHOD, type DeliveryDetails } from "@/lib/checkout";
 import { formatCep, formatCpf, formatEmail, formatPhone } from "@/lib/format";
 import { ProductBadge } from "@/components/ProductBadge";
@@ -153,6 +153,9 @@ export function Storefront({ menu }: { menu: Menu }) {
               <img
                 src={menu.logoImg}
                 alt={`Logo ${menu.store.name}`}
+                width={112}
+                height={112}
+                decoding="async"
                 className="h-full w-full object-cover"
               />
             </div>
@@ -225,8 +228,10 @@ export function Storefront({ menu }: { menu: Menu }) {
                       </div>
                       <span className="product-thumb">
                         <img
-                          src={p.image ?? menu.categoryImg[p.category]}
+                          src={p.imageThumb ?? p.image ?? menu.categoryImg[p.category]}
                           alt={p.name}
+                          width={240}
+                          height={240}
                           loading="lazy"
                           decoding="async"
                           className="h-full w-full object-cover"
@@ -345,6 +350,7 @@ function ProductSheet({
         <img
           src={product.image ?? menu.categoryImg[product.category]}
           alt={product.name}
+          decoding="async"
           className="h-full w-full object-cover"
         />
         <span className="absolute inset-0 bg-gradient-to-t from-popover to-transparent" />
@@ -632,7 +638,7 @@ function CartSheet({
             className="cart-item grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-4 text-sm"
           >
             <div className="flex min-w-0 items-center gap-3">
-              <img src={i.product.image ?? menu.categoryImg[i.product.category]} alt="" className="h-14 w-14 shrink-0 rounded-xl object-cover" />
+              <img src={i.product.imageThumb ?? i.product.image ?? menu.categoryImg[i.product.category]} alt="" decoding="async" width={56} height={56} className="h-14 w-14 shrink-0 rounded-xl object-cover" />
               <div className="min-w-0">
               <p className="font-semibold">
                 {i.qty}x {i.product.name}
@@ -672,7 +678,7 @@ function CartSheet({
                 const free = p.addons && p.addons.every(a => a.price === 0) ? p.addons.slice(0, 1) : [];
                 setCart(c => [...c, { key: crypto.randomUUID(), product: p, qty: 1, note: "", addons: free }]);
               }}>
-                <img src={p.image ?? menu.categoryImg[p.category]} alt="" loading="lazy" />
+                <img src={p.imageThumb ?? p.image ?? menu.categoryImg[p.category]} alt="" loading="lazy" decoding="async" width={240} height={240} />
                 <span className="min-w-0"><span className="order-bump-name">{p.name}</span><span className="order-bump-price">+ {brl(p.price)}</span></span>
                 <span className="order-bump-add" aria-label={`Adicionar ${p.name}`}><Plus /></span>
               </button>

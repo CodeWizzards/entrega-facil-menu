@@ -4,6 +4,10 @@ import { LANCHES } from "@/lib/lanches";
 
 export const Route = createFileRoute("/")({
   head: () => ({
+    links: [
+      { rel: "preload", as: "image", href: LANCHES.cover, fetchPriority: "high" },
+      { rel: "preload", as: "image", href: LANCHES.logoImg },
+    ],
     meta: [
       { title: "Casa Brasa Lanches — Peça online pelo WhatsApp" },
       {

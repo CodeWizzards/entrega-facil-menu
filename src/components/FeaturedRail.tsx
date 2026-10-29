@@ -35,7 +35,7 @@ export function FeaturedRail({ menu, products, onSelect }: {
       <div className="flex gap-3">
         {products.map(product => <Button key={product.id} variant="storefront" size="storefront" onClick={() => onSelect(product)} className="featured-card">
           <span className="relative block aspect-[5/4] w-full overflow-hidden">
-            <img draggable={false} src={product.image ?? menu.categoryImg[product.category]} alt={product.name} loading="lazy" className="h-full w-full object-cover" />
+            <img draggable={false} src={product.imageThumb ?? product.image ?? menu.categoryImg[product.category]} alt={product.name} loading="lazy" decoding="async" width={240} height={240} className="h-full w-full object-cover" />
             <span className="thumb-add"><Plus /></span>
           </span>
           <span className="block px-3.5 pt-3 pb-4">

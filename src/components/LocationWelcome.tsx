@@ -6,7 +6,7 @@ import { lookupPostal } from "@/lib/postal";
 import { UFS, placeFromCoords } from "@/lib/place";
 import { placeFromIp, rememberPlace, rememberedPlace } from "@/lib/ip-place";
 import { formatCep } from "@/lib/format";
-import verifiedBadge from "@/assets/verified-badge.png.asset.json";
+import verifiedBadge from "@/assets/optimized/verified-badge.webp.asset.json";
 import type { Menu } from "@/lib/menu";
 
 export function LocationWelcome({ menu }: { menu: Menu }) {

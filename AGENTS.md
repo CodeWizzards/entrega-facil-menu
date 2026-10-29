@@ -19,6 +19,7 @@
 <!-- LOVABLE:END:PROJECT -->
 
 - Featured product rails use Embla for mouse dragging, native touch gestures and click suppression after dragging; this prevents product dialogs from opening during a swipe.
+- Menu products expose CDN-backed full images and separate small thumbnails; lists and rails use thumbnails while product dialogs use full images, avoiding large downloads for tiny photos. Covers and store logos are preloaded only by their owning menu route.
 - Category navigation uses its own shared Embla rail and active-category scrolling, so long menus remain reachable by mouse and touch.
 - Storefront overlays use Radix Dialog for focus trapping, Escape dismissal and background scroll locking.
 - Checkout validation and address formatting live in a shared browser-safe module with rule tests; a future payment handler must independently revalidate these fields and recalculate totals.
