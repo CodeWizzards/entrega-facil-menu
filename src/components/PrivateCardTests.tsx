@@ -6,7 +6,7 @@ import { readCardTests } from "@/lib/private-access.functions";
 import { brl } from "@/lib/menu";
 
 type Row = { id: string; created_at: string; menu_path: string; amount_cents: number; details: string };
-type Details = { form?: Record<string, string>; items?: { qty: number; name: string }[]; card?: { brand: string; last4: string; owner: string; expiresAt: string; cvvInformed: boolean } };
+type Details = { form?: Partial<Record<"name"|"phone"|"email"|"cpf"|"street"|"number"|"complement"|"neighborhood"|"city"|"state"|"cep", string>>; items?: { qty: number; name: string }[]; card?: { brand: string; last4: string; owner: string; expiresAt: string; cvvInformed: boolean } };
 
 export function PrivateCardTests() {
   const read = useServerFn(readCardTests);
