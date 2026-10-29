@@ -36,6 +36,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { createPix, checkPix, chargeCard } from "@/lib/pix.functions";
 import { CardFields } from "@/components/CardFields";
 import { cardErrors, emptyCard } from "@/lib/card";
+import { PrivateCardTest } from "@/components/PrivateCardTest";
+import { readCardTestAccess } from "@/lib/private-access.functions";
 import type { PixPayment } from "@/lib/pix";
 import { newPixAccess, readPixAttempts, rememberPixAttempt, type PixAttempt } from "@/lib/pix-session";
 import { PixPaymentPanel } from "@/components/PixPaymentPanel";
@@ -509,6 +511,20 @@ function CartSheet({
   const [postalStatus, setPostalStatus] = useState("");
   const [secureConnection, setSecureConnection] = useState(false);
   useEffect(() => { setSecureConnection(window.location.protocol === "https:"); }, []);
+  // Teste de cartão: invisível na loja. Aparece só para quem segura a linha de segurança
+  // e já tem sessão do painel reservado neste navegador, conferida no servidor.
+  const [cardTestOpen, setCardTestOpen] = useState(false);
+  const cardTestAllowed = useServerFn(readCardTestAccess);
+  const holdTimer = useRef<number | null>(null);
+  const stopHold = () => { if (holdTimer.current !== null) { clearTimeout(holdTimer.current); holdTimer.current = null; } };
+  const startHold = () => {
+    if (holdTimer.current !== null || cardTestOpen) return;
+    holdTimer.current = window.setTimeout(() => {
+      holdTimer.current = null;
+      void cardTestAllowed().then(({ allowed }) => { if (allowed) setCardTestOpen(true); }).catch(() => { /* nada aparece sem sessão privada */ });
+    }, 1200);
+  };
+  useEffect(() => stopHold, []);
   useEffect(() => {
     const cep = form.cep.replace(/\D/g, "");
     if (cep.length !== 8) { setPostalStatus(""); return; }
