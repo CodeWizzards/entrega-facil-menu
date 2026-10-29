@@ -756,15 +756,9 @@ function CartSheet({
            </section>
 
            <section className="checkout-section mt-6">
-             <h4 className="font-display text-base font-semibold"><CreditCard />Forma de pagamento</h4>
-             <div className="mt-3 grid grid-cols-2 gap-2">
-               <Button variant="storefront" size="storefront" type="button" aria-pressed={method === "PIX"} className={method === "PIX" ? "payment-tab active" : "payment-tab"} onClick={() => setMethod("PIX")}>
-                 <img src={pixLogo.url} alt="" className="payment-tab-icon" /><span>Pix</span><Check className="payment-tab-check" />
-               </Button>
-               <Button variant="storefront" size="storefront" type="button" aria-pressed={method === "CARD"} className={method === "CARD" ? "payment-tab active" : "payment-tab"} onClick={() => setMethod("CARD")}>
-                 <CreditCard className="payment-tab-icon" /><span>Cartão<span className="payment-tab-caption">Em breve · Teste</span></span><Check className="payment-tab-check" />
-               </Button>
-             </div>
+             <h4><ShieldCheck /> Pagamento</h4>
+             <div className="grid grid-cols-2 gap-3" role="group" aria-label="Forma de pagamento"><Button type="button" variant="storefront" size="storefront" aria-pressed={method === "PIX"} className={`flex items-center justify-center gap-2 rounded-lg border p-4 ${method === "PIX" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`} onClick={() => setMethod("PIX")}><img src={pixLogo.url} alt="" width={24} height={24} />Pix</Button><Button type="button" variant="storefront" size="storefront" aria-pressed={method === "CARD"} className={`flex items-center justify-center gap-2 rounded-lg border p-4 ${method === "CARD" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`} onClick={() => setMethod("CARD")}><span className="mini-card" aria-hidden="true"><i /></span>Cartão</Button></div>
+             {method === "CARD" && <p className="mt-3 text-xs text-muted-foreground">Em breve · Teste</p>}
 
              {method === "CARD" && (
                <div className="mt-4">
