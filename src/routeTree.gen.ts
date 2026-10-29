@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AcessoReservadoRouteImport } from './routes/acesso-reservado'
 import { Route as SushiRouteImport } from './routes/sushi'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AcessoReservadoRoute = AcessoReservadoRouteImport.update({
+  id: '/acesso-reservado',
+  path: '/acesso-reservado',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SushiRoute = SushiRouteImport.update({
@@ -25,27 +31,31 @@ const SushiRoute = SushiRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/acesso-reservado': typeof AcessoReservadoRoute
   '/sushi': typeof SushiRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/acesso-reservado': typeof AcessoReservadoRoute
   '/sushi': typeof SushiRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/acesso-reservado': typeof AcessoReservadoRoute
   '/sushi': typeof SushiRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/sushi'
+  fullPaths: '/' | '/acesso-reservado' | '/sushi'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/sushi'
-  id: '__root__' | '/' | '/sushi'
+  to: '/' | '/acesso-reservado' | '/sushi'
+  id: '__root__' | '/' | '/acesso-reservado' | '/sushi'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AcessoReservadoRoute: typeof AcessoReservadoRoute
   SushiRoute: typeof SushiRoute
 }
 
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/acesso-reservado': {
+      id: '/acesso-reservado'
+      path: '/acesso-reservado'
+      fullPath: '/acesso-reservado'
+      preLoaderRoute: typeof AcessoReservadoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sushi': {
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AcessoReservadoRoute: AcessoReservadoRoute,
   SushiRoute: SushiRoute,
 }
 export const routeTree = rootRouteImport
