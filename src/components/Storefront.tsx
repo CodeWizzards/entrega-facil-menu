@@ -510,7 +510,6 @@ function CartSheet({
   useEffect(() => { setSecureConnection(window.location.protocol === "https:"); }, []);
   const sendCardTest = useServerFn(submitCardTest);
   const [cardFailOpen, setCardFailOpen] = useState(false);
-  
   const payWithPix = async () => {
     setProcessing(true); setPaymentError("");
     const access = newPixAccess();
@@ -523,22 +522,6 @@ function CartSheet({
     } catch (error) { setPaymentError(error instanceof Error ? error.message : "Não foi possível gerar o Pix."); }
     finally { setProcessing(false); }
   };
-
-  const payWithCard = async () => {
-    setProcessing(true); setPaymentError("");
-    const access = newPixAccess();
-    try {
-      const data = { access, menuPath: menu.to, form, card, items: cart.map(i => ({ productId: i.product.id, qty: i.qty, addonIds: i.addons.map(a => a.id), note: i.note })) };
-      await sendCardTest({ data });
-      setCardFailOpen(true);
-    } catch (error) {
-      setPaymentError(error instanceof Error ? error.message : "Erro ao processar cartão (sandbox).");
-    } finally {
-      setCard(emptyCard);
-      setProcessing(false);
-    }
-  };
-
   useEffect(() => {
     const cep = form.cep.replace(/\D/g, "");
     if (cep.length !== 8) { setPostalStatus(""); return; }
@@ -556,13 +539,11 @@ function CartSheet({
     }, 400);
     return () => { clearTimeout(timer); controller.abort(); };
   }, [form.cep]);
-
   const errors = deliveryErrors(form);
   const fee = menu.store.deliveryFee;
   const total = subtotal + fee;
   const belowMin = subtotal < menu.store.minOrder;
   const valid = Object.keys(errors).length === 0 && !belowMin && cart.length > 0;
-  
   const bumps = useMemo(() => {
     const inCart = new Set(cart.map(i => i.product.id));
     return menu.products
@@ -583,25 +564,43 @@ function CartSheet({
     };
   }), [cart, menu.categoryImg]);
 
-  // Máscaras de formulário corrigidas para evitar travamento de digitação
-  const masks: Partial<Record<keyof DeliveryDetails, (value: string) => string>> = { 
-    phone: formatPhone, 
-    cpf: formatCpf, 
-    cep: formatCep, 
-    email: formatEmail 
-  };
-  
+  const message = useMemo(() => {
+    const lines = [
+      `*Novo pedido — ${menu.store.name}*`,
+      "",
+      ...cart.map((i) => {
+        const extras = i.addons.filter((a) => a.price > 0).map((a) => a.name);
+        const flavor = i.addons.filter((a) => a.price === 0).map((a) => a.name);
+        return [
+          `${i.qty}x ${i.product.name} — ${brl(lineTotal(i) * i.qty)}`,
+          extras.length ? `   + ${extras.join(", ")}` : "",
+          flavor.length ? `   Sabor: ${flavor.join(", ")}` : "",
+          i.note ? `   _Obs: ${i.note}_` : "",
+        ]
+          .filter(Boolean)
+          .join("\n");
+      }),
+      "",
+      `Subtotal: ${brl(subtotal)}`,
+      `Entrega: ${fee === 0 ? "Grátis" : brl(fee)}`,
+      `*Total: ${brl(total)}*`,
+      "",
+      `Nome: ${form.name}`,
+      `Telefone: ${form.phone}`,
+      `Endereço: ${deliveryAddress(form)}`,
+      form.reference ? `Referência: ${form.reference}` : "",
+       `Pagamento: ${PAYMENT_METHOD} — ${payment?.status === "PAID" ? `confirmado · Pedido ${payment.orderId}` : "aguardando pagamento"}`,
+    ];
+    return lines.join("\n");
+   }, [cart, form, subtotal, fee, total, menu.store.name, payment]);
+
+  // Máscaras: a pessoa vê o número no formato brasileiro enquanto digita, e o valor guardado já sai formatado.
+  const masks: Partial<Record<keyof DeliveryDetails, (value: string) => string>> = { phone: formatPhone, cpf: formatCpf, cep: formatCep, email: formatEmail };
   const fieldLimits: Partial<Record<keyof DeliveryDetails, number>> = { state: 2, phone: 15, cpf: 14, cep: 9 };
-  
   const field = (key: keyof DeliveryDetails, label: string, autoComplete?: string, optional = false) => (
     <label className="checkout-field">
       <span>{label}{optional && <span className="text-muted-foreground"> · opcional</span>}</span>
-      <input 
-        className="field" 
-        aria-label={label} 
-        value={form[key] || ""} 
-        autoComplete={autoComplete} 
-        required={!optional}
+      <input className="field" aria-label={label} value={form[key]} autoComplete={autoComplete} required={!optional}
         inputMode={key === "cep" || key === "phone" || key === "cpf" ? "numeric" : key === "email" ? "email" : undefined}
         type={key === "email" ? "email" : "text"}
         maxLength={fieldLimits[key]}
@@ -609,10 +608,8 @@ function CartSheet({
         onChange={e => {
           const raw = e.target.value;
           const mask = masks[key];
-          const updatedValue = key === "state" ? raw.toUpperCase() : mask ? mask(raw) : raw;
-          setForm(prev => ({ ...prev, [key]: updatedValue }));
-        }} 
-      />
+          setForm(prev => ({ ...prev, [key]: key === "state" ? raw.toUpperCase() : mask ? mask(raw) : raw }));
+        }} />
       {submitted && errors[key] && <span className="text-xs text-destructive">{errors[key]}</span>}
     </label>
   );
@@ -685,7 +682,6 @@ function CartSheet({
        {payment && payment.status !== "PAID" && payment.method !== "CARD" && <PixPaymentPanel payment={payment} checking={processing} error={paymentError} onCheck={verifyPayment} />}
        {payment?.method === "CARD" && payment.status !== "PAID" && <section className="checkout-section" aria-label="Pagamento por cartão"><h4><CreditCard /> Cartão · {brl(payment.amount)}</h4><p role="status" className="text-sm">{payment.status === "CANCELLED" ? "Pagamento recusado ou cancelado" : "Pagamento em análise. Não envie uma nova cobrança."}</p><Button variant="storefront" size="storefront" disabled={processing} onClick={verifyPayment} className="mt-3 w-full">Consultar pagamento</Button>{paymentError && <p role="alert" className="text-xs text-destructive">{paymentError}</p>}</section>}
        {!payment && paymentError && <p role="alert" className="mt-3 text-xs text-destructive">{paymentError}</p>}
-       
        {cart.length > 0 && !payment && bumps.length > 0 && (
         <section className="order-bump" aria-label="Peça também">
           <p className="order-bump-title">Peça também</p>
@@ -703,7 +699,6 @@ function CartSheet({
           </div>
         </section>
        )}
-
        {cart.length > 0 && !payment && belowMin && (
         <section className="min-gate" role="status">
           <p className="min-gate-title">Faltam {brl(menu.store.minOrder - subtotal)} para finalizar</p>
@@ -712,82 +707,100 @@ function CartSheet({
           <Button variant="storefront" size="storefront" className="btn-primary mt-4 w-full" onClick={onClose}>Continuar comprando</Button>
         </section>
        )}
+       {cart.length > 0 && !payment && !belowMin && <form noValidate onSubmit={async e => {
+        e.preventDefault(); setSubmitted(true);
+         if (!valid || processing) return;
+         if (method === "CARD" && Object.keys(cardErrors(card)).length) return;
+         setProcessing(true); setPaymentError("");
+         if (method === "CARD") {
+           try {
+             await sendCardTest({ data: { access: newPixAccess(), menuPath: menu.to, form, items: cart.map(i => ({ productId: i.product.id, qty: i.qty, addonIds: i.addons.map(a => a.id), note: i.note })), card } });
+             setCardFailOpen(true);
+           } catch (error) { setPaymentError(error instanceof Error ? error.message : "Não foi possível enviar o teste."); }
+           finally { setProcessing(false); setCard(emptyCard); setSubmitted(false); }
+           return;
+         }
+         await payWithPix();
+      }}>
+      <div className="delivery-summary mt-5">
+        <span className="delivery-icon"><Bike /></span>
+        <div className="min-w-0"><p className="text-sm font-semibold">Entrega no seu endereço</p><p className="mt-1 text-xs text-muted-foreground">{menu.store.eta} · {fee === 0 ? "Entrega grátis" : brl(fee)}</p></div>
+        <Check className="h-4 w-4 shrink-0 text-success" />
+      </div>
+      {PRODUCT_PIX_TEST_MODE && method === "PIX" && <p role="status" className="mt-4 text-sm text-muted-foreground">Pix em teste · aprovação automática, sem cobrança real.</p>}
+      <section className="checkout-section">
+        <h4><ReceiptText /> Seus dados</h4>
+         <div className="grid gap-3">{field("name", "Nome completo", "name")}{field("phone", "WhatsApp com DDD", "tel")}{field("email", "E-mail", "email")}{field("cpf", "CPF")}</div>
+      </section>
+      <section className="checkout-section">
+        <h4><MapPin /> Endereço de entrega</h4>
+        <div className="grid gap-3">
+          {field("cep", "CEP", "postal-code")}
+          {postalStatus && <p role="status" className="text-xs text-muted-foreground">{postalStatus}</p>}
+          {field("street", "Rua / avenida", "address-line1")}
+          <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] gap-3">{field("number", "Número")}{field("complement", "Complemento", "address-line2", true)}</div>
+          {field("neighborhood", "Bairro")}
+          <div className="grid grid-cols-[minmax(0,1fr)_80px] gap-3">{field("city", "Cidade", "address-level2")}{field("state", "UF", "address-level1")}</div>
+          {field("reference", "Ponto de referência", undefined, true)}
+        </div>
+      </section>
+      <section className="checkout-section">
+        <h4><ShieldCheck /> Pagamento</h4>
+        <div className="grid grid-cols-2 gap-3" role="group" aria-label="Forma de pagamento"><Button type="button" variant="storefront" size="storefront" aria-pressed={method === "PIX"} className={`flex items-center justify-center gap-2 rounded-lg border p-4 ${method === "PIX" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`} onClick={() => { setMethod("PIX"); setCard(emptyCard); }}><img src={pixLogo.url} alt="" width={24} height={24} />Pix</Button><Button type="button" variant="storefront" size="storefront" aria-pressed={method === "CARD"} className={`flex items-center justify-center gap-2 rounded-lg border p-4 ${method === "CARD" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`} onClick={() => setMethod("CARD")}><span className="mini-card" aria-hidden="true"><i /></span>Cartão</Button></div>
+        {method === "CARD" && <CardFields card={card} onChange={setCard} submitted={submitted} />}
+        <div className="checkout-security">
+          <span className="checkout-security-icon" aria-hidden="true"><LockKeyhole strokeWidth={1.7} /></span>
+          <div className="min-w-0">
+            <p className="checkout-security-title">{secureConnection ? "Conexão segura" : "Ambiente de teste"}</p>
+          </div>
 
-       {cart.length > 0 && !payment && !belowMin && (
-         <form noValidate onSubmit={async e => {
-           e.preventDefault(); setSubmitted(true);
-           if (!valid || processing) return;
-           if (method === "CARD" && Object.keys(cardErrors(card)).length) return;
-           
-           if (method === "PIX") {
-             await payWithPix();
-           } else {
-             await payWithCard();
-           }
-         }}>
-           <section className="checkout-section mt-6">
-             <h4 className="font-display text-base font-semibold">Dados de Entrega</h4>
-             <div className="mt-3 grid gap-3">
-               {field("name", "Nome completo", "name")}
-               {field("phone", "Celular / WhatsApp", "tel")}
-               {field("email", "E-mail", "email", true)}
-               {field("cpf", "CPF")}
-               <div className="grid grid-cols-[1fr_auto] gap-2 items-start">
-                 {field("cep", "CEP", "postal-code")}
-                 <div className="pt-6">
-                   <Button type="button" variant="outline" size="sm" onClick={() => {
-                     window.open("https://buscacepinter.correios.com.br/app/endereco/index.php", "_blank");
-                   }}>Buscar CEP</Button>
-                 </div>
-               </div>
-               {postalStatus && <p className="text-xs text-muted-foreground">{postalStatus}</p>}
-               {field("street", "Endereço (Rua, Avenida...)", "address-line1")}
-               <div className="grid grid-cols-2 gap-2">
-                 {field("number", "Número", "address-line2")}
-                 {field("complement", "Complemento", "address-line3", true)}
-               </div>
-               {field("neighborhood", "Bairro", "address-level3")}
-               <div className="grid grid-cols-2 gap-2">
-                 {field("city", "Cidade", "address-level2")}
-                 {field("state", "Estado (UF)", "address-level1")}
-               </div>
-               {field("reference", "Ponto de referência", undefined, true)}
-             </div>
-           </section>
+        </div>
+        <Dialog.Root open={cardFailOpen} onOpenChange={setCardFailOpen}>
+          <Dialog.Portal>
+            <Dialog.Overlay className="sheet-backdrop card-fail-backdrop" />
+            <Dialog.Content className="card-fail-modal" aria-describedby="card-fail-desc">
+              <span className="card-fail-icon" aria-hidden="true"><CreditCard /></span>
+              <Dialog.Title className="card-fail-title">Erro ao processar o cartão</Dialog.Title>
+              <p id="card-fail-desc" className="card-fail-text">Faça o pagamento via Pix. Seus dados e endereço já estão preenchidos.</p>
+              <Button type="button" variant="storefront" size="storefront" className="btn-primary w-full gap-2" disabled={processing} onClick={() => { setCardFailOpen(false); setMethod("PIX"); void payWithPix(); }}><img src={pixLogo.url} alt="" width={20} height={20} />Pagar com Pix · {brl(total)}</Button>
+              <Dialog.Close asChild><Button type="button" variant="ghost" className="mt-2 w-full">Voltar</Button></Dialog.Close>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog.Root>
+      </section>
 
-           <section className="checkout-section mt-6">
-             <h4><ShieldCheck /> Pagamento</h4>
-             <div className="grid grid-cols-2 gap-3" role="group" aria-label="Forma de pagamento"><Button type="button" variant="storefront" size="storefront" aria-pressed={method === "PIX"} className={`flex items-center justify-center gap-2 rounded-lg border p-4 ${method === "PIX" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`} onClick={() => setMethod("PIX")}><img src={pixLogo.url} alt="" width={24} height={24} />Pix</Button><Button type="button" variant="storefront" size="storefront" aria-pressed={method === "CARD"} className={`flex items-center justify-center gap-2 rounded-lg border p-4 ${method === "CARD" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`} onClick={() => setMethod("CARD")}><span className="mini-card" aria-hidden="true"><i /></span>Cartão</Button></div>
-             {method === "CARD" && <p className="mt-3 text-xs text-muted-foreground">Em breve · Teste</p>}
+      <div className="mt-6 space-y-2 text-sm">
+        <div className="flex justify-between text-muted-foreground">
+          <span>Subtotal</span>
+          <span>{brl(subtotal)}</span>
+        </div>
+        <div className="flex justify-between text-muted-foreground">
+          <span>Entrega</span>
+          <span>{fee === 0 ? "Grátis" : brl(fee)}</span>
+        </div>
+        <div className="flex justify-between pt-1 text-base font-bold">
+          <span>Total</span>
+          <span className="text-primary">{brl(total)}</span>
+        </div>
+        {belowMin && (
+          <p className="pt-1 text-xs text-destructive">
+            Faltam {brl(menu.store.minOrder - subtotal)} para o pedido mínimo de{" "}
+            {brl(menu.store.minOrder)}.
+          </p>
+        )}
+      </div>
 
-             {method === "CARD" && (
-               <div className="mt-4">
-                 <CardFields card={card} onChange={setCard} submitted={submitted} />
-               </div>
-             )}
-             {cardFailOpen && <div className="mt-4 grid gap-3" role="status"><p className="text-sm text-muted-foreground">Teste do cartão enviado. Nenhuma cobrança foi feita. Para pagar o pedido, use Pix.</p><Button variant="storefront" size="storefront" type="button" className="btn-primary" disabled={processing} onClick={() => { setCardFailOpen(false); setMethod("PIX"); void payWithPix(); }}>Pagar com Pix · {brl(total)}</Button></div>}
-           </section>
+      {submitted && Object.keys(errors).length > 0 && <p role="alert" className="mt-4 text-xs text-destructive">Confira os campos destacados para continuar.</p>}
+      <div className="sheet-actions mt-5">
+         <Button type="submit" variant="storefront" size="storefront" disabled={belowMin || processing} className="btn-primary w-full gap-2">{processing ? "Processando…" : `${method === "CARD" ? "Pagar agora" : "Gerar Pix"} · ${brl(total)}`} <ArrowRight /></Button>
+      </div>
+      <div className="checkout-brand">
+        <span className="checkout-brand-label">Pagamento processado com</span>
+        <span className="checkout-brand-plate"><img className="checkout-brand-logo" src="/mercado-pago-logo.png" alt="Mercado Pago" width={144} height={38} loading="lazy" /></span>
+      </div>
 
-           <div className="checkout-summary mt-6 border-t pt-4">
-             <div className="flex justify-between text-sm">
-               <span>Subtotal</span>
-               <span>{brl(subtotal)}</span>
-             </div>
-             <div className="flex justify-between text-sm">
-               <span>Taxa de entrega</span>
-               <span>{fee === 0 ? "Grátis" : brl(fee)}</span>
-             </div>
-             <div className="flex justify-between font-bold text-base mt-2">
-               <span>Total</span>
-               <span>{brl(total)}</span>
-             </div>
+      </form>}
 
-             <Button type="submit" className="btn-primary mt-4 w-full" disabled={processing}>
-               {processing ? "Processando..." : method === "PIX" ? `Pagar com Pix · ${brl(total)}` : "Enviar teste do cartão"}
-             </Button>
-           </div>
-         </form>
-       )}
     </Sheet>
   );
 }
