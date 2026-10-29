@@ -8,6 +8,13 @@
       "when": 1793164934483,
       "tag": "0000_create_private_pix_orders",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793304544160,
+      "tag": "0001_private_authenticator",
+      "breakpoints": true
     }
   ]
 }

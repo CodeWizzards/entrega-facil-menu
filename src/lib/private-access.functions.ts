@@ -5,7 +5,7 @@ import { z } from "zod";
 const credentialsSchema = z.object({ username: z.string().min(1).max(256), password: z.string().min(1).max(1024) });
 
 function privateSession(password: string) {
-  return useSession<{ unlocked?: boolean }>({
+  return useSession<import("./private-totp.server").PrivateSessionData>({
     password,
     name: "casa-brasa-private",
     maxAge: 60 * 60,
@@ -16,10 +16,11 @@ function privateSession(password: string) {
 export const readPrivatePage = createServerFn({ method: "GET" }).handler(async () => {
   setResponseHeader("Cache-Control", "no-store");
   const secret = process.env["PRIVATE_SESSION_SECRET"];
-  if (!secret) return { authenticated: false, content: "" };
+  if (!secret) return { authenticated: false, content: "", step: "login" as const };
   const session = await privateSession(secret);
-  if (session.data.unlocked !== true) return { authenticated: false, content: "" };
-  return { authenticated: true, content: "Acesso autorizado" };
+  const { privateAccessGranted, challengeActive } = await import("@/lib/private-totp.server");
+  if (!privateAccessGranted(session.data)) return { authenticated: false, content: "", step: challengeActive(session.data) ? (session.data.pendingSecret ? "setup" as const : "verify" as const) : "login" as const };
+  return { authenticated: true, content: "Acesso autorizado", step: "authenticated" as const };
 });
 
 export const loginPrivatePage = createServerFn({ method: "POST" })
@@ -31,10 +32,54 @@ export const loginPrivatePage = createServerFn({ method: "POST" })
     const secret = process.env["PRIVATE_SESSION_SECRET"];
     if (!username || !password || !secret) throw new Error("Acesso privado ainda não configurado.");
     const { credentialsMatch } = await import("@/lib/private-access.server");
-    if (!credentialsMatch(data, { username, password })) return { ok: false };
     const session = await privateSession(secret);
     await session.clear();
-    await session.update({ unlocked: true });
+    if (!credentialsMatch(data, { username, password })) return { ok: false };
+    const { privateAccountKey, newAuthenticatorSecret, CHALLENGE_MS } = await import("@/lib/private-totp.server");
+    const accountKey = privateAccountKey(username);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: enrollment, error } = await supabaseAdmin.from("private_authenticator").select("account_key").eq("account_key", accountKey).maybeSingle();
+    if (error) throw new Error("Não foi possível verificar o autenticador.");
+    await session.update({ unlocked: false, accountKey, challengeUntil: Date.now() + CHALLENGE_MS, ...(!enrollment ? { pendingSecret: newAuthenticatorSecret() } : {}) });
+    return { ok: true };
+  });
+
+export const preparePrivateAuthenticator = createServerFn({ method: "POST" }).handler(async () => {
+  setResponseHeader("Cache-Control", "no-store");
+  const secret = process.env["PRIVATE_SESSION_SECRET"];
+  if (!secret) throw new Error("Acesso não configurado.");
+  const session = await privateSession(secret);
+  const { challengeActive, authenticator } = await import("@/lib/private-totp.server");
+  if (!challengeActive(session.data) || !session.data.pendingSecret) throw new Error("Entre novamente para configurar.");
+  return { uri: authenticator(session.data.pendingSecret).toString(), key: session.data.pendingSecret };
+});
+
+export const verifyPrivateAuthenticator = createServerFn({ method: "POST" })
+  .inputValidator(input => z.object({ code: z.string().regex(/^\d{6}$/) }).parse(input))
+  .handler(async ({ data }) => {
+    setResponseHeader("Cache-Control", "no-store");
+    const secret = process.env["PRIVATE_SESSION_SECRET"];
+    if (!secret) throw new Error("Acesso não configurado.");
+    const session = await privateSession(secret);
+    const { challengeActive, validCounter, encryptAuthenticator, decryptAuthenticator } = await import("@/lib/private-totp.server");
+    const accountKey = session.data.accountKey;
+    if (!challengeActive(session.data) || !accountKey) return { ok: false };
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: enrollment, error } = await supabaseAdmin.from("private_authenticator").select("secret_encrypted, last_counter").eq("account_key", accountKey).maybeSingle();
+    if (error) throw new Error("Não foi possível verificar o código.");
+    const totpSecret = enrollment ? decryptAuthenticator(enrollment.secret_encrypted, secret) : session.data.pendingSecret;
+    if (!totpSecret) return { ok: false };
+    const counter = validCounter(totpSecret, data.code, enrollment?.last_counter ?? -1);
+    if (counter === null) return { ok: false };
+    if (enrollment) {
+      const { data: updated, error: updateError } = await supabaseAdmin.from("private_authenticator").update({ last_counter: counter }).eq("account_key", accountKey).eq("last_counter", enrollment.last_counter).select("account_key");
+      if (updateError || !updated?.length) return { ok: false };
+    } else {
+      const { error: insertError } = await supabaseAdmin.from("private_authenticator").insert({ account_key: accountKey, secret_encrypted: encryptAuthenticator(totpSecret, secret), last_counter: counter });
+      if (insertError) return { ok: false };
+    }
+    await session.clear();
+    await session.update({ unlocked: true, mfaVersion: 1 });
     return { ok: true };
   });
 
