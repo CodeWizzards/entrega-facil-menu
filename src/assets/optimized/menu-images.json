@@ -1,0 +1,226 @@
+{
+  "/menu/sushi/bebidas/agua-sushi.webp": {
+    "full": "/__l5e/assets-v1/4e3a0e52-0af5-43ff-b771-ff2095b9247e/menu-sushi-bebidas-agua-sushi-full.webp",
+    "thumb": "/__l5e/assets-v1/e92688bd-333b-4000-9cde-709cef3ca7dd/menu-sushi-bebidas-agua-sushi-thumb.webp"
+  },
+  "/menu/sushi/bebidas/cha-verde.webp": {
+    "full": "/__l5e/assets-v1/f002e587-12e5-48c3-bbef-fe485a5be7fa/menu-sushi-bebidas-cha-verde-full.webp",
+    "thumb": "/__l5e/assets-v1/32984d12-2cf8-44b8-a2b4-1e71e094ac42/menu-sushi-bebidas-cha-verde-thumb.webp"
+  },
+  "/menu/sushi/bebidas/refri-sushi.webp": {
+    "full": "/__l5e/assets-v1/6aff1568-d156-4d29-a09c-a927f78ea98b/menu-sushi-bebidas-refri-sushi-full.webp",
+    "thumb": "/__l5e/assets-v1/75cabc0a-3682-45ab-8ec6-8bb05d334a1a/menu-sushi-bebidas-refri-sushi-thumb.webp"
+  },
+  "/menu/sushi/bebidas/suco-sushi.webp": {
+    "full": "/__l5e/assets-v1/274c7c79-24db-4d27-876a-a901991719e8/menu-sushi-bebidas-suco-sushi-full.webp",
+    "thumb": "/__l5e/assets-v1/f7db06c6-3d0c-4946-80e3-d8bcd69bbbf1/menu-sushi-bebidas-suco-sushi-thumb.webp"
+  },
+  "/menu/sushi/combos/combo-brasa-16.webp": {
+    "full": "/__l5e/assets-v1/7515709e-ddf8-46d2-a14c-9c921c36293c/menu-sushi-combos-combo-brasa-16-full.webp",
+    "thumb": "/__l5e/assets-v1/007d5691-0c48-43ca-a7c7-c2c81043d33c/menu-sushi-combos-combo-brasa-16-thumb.webp"
+  },
+  "/menu/sushi/combos/combo-casa-24.webp": {
+    "full": "/__l5e/assets-v1/ab45cc0b-10cd-4b18-8a7b-8e57d33d9b7a/menu-sushi-combos-combo-casa-24-full.webp",
+    "thumb": "/__l5e/assets-v1/ccbf2dcf-9675-4e17-80b3-3704d8bb2190/menu-sushi-combos-combo-casa-24-thumb.webp"
+  },
+  "/menu/sushi/combos/combo-delivery-12.webp": {
+    "full": "/__l5e/assets-v1/a01f6839-d58f-43ec-a861-150ec956f6e6/menu-sushi-combos-combo-delivery-12-full.webp",
+    "thumb": "/__l5e/assets-v1/7bccd57a-0910-44da-8332-355bcc78ce2a/menu-sushi-combos-combo-delivery-12-thumb.webp"
+  },
+  "/menu/sushi/combos/combo-festa-40.webp": {
+    "full": "/__l5e/assets-v1/67a3465f-8cbd-46c9-b77e-c18595d456a4/menu-sushi-combos-combo-festa-40-full.webp",
+    "thumb": "/__l5e/assets-v1/20d45f5c-de0d-4134-ad1a-38aee000f187/menu-sushi-combos-combo-festa-40-thumb.webp"
+  },
+  "/menu/sushi/combos/combo-salmao-20.webp": {
+    "full": "/__l5e/assets-v1/2494fd80-91a0-48e2-8818-61bac6880ccb/menu-sushi-combos-combo-salmao-20-full.webp",
+    "thumb": "/__l5e/assets-v1/d8abb16a-4841-419a-b6b4-3d6dc4c01a5d/menu-sushi-combos-combo-salmao-20-thumb.webp"
+  },
+  "/menu/sushi/enrolados/california.webp": {
+    "full": "/__l5e/assets-v1/544969c3-c959-4d1c-8658-ee58c8c024e5/menu-sushi-enrolados-california-full.webp",
+    "thumb": "/__l5e/assets-v1/469dd707-d0d7-4a14-ba4a-82bb901895a1/menu-sushi-enrolados-california-thumb.webp"
+  },
+  "/menu/sushi/enrolados/filadelfia.webp": {
+    "full": "/__l5e/assets-v1/ad86e110-cd6e-411f-8fc6-93a961b2c016/menu-sushi-enrolados-filadelfia-full.webp",
+    "thumb": "/__l5e/assets-v1/adf2d5cb-d0da-4cd0-ba92-c11eca1fec56/menu-sushi-enrolados-filadelfia-thumb.webp"
+  },
+  "/menu/sushi/enrolados/hossomaki-pepa.webp": {
+    "full": "/__l5e/assets-v1/65b7642d-d75a-4fe6-8c4b-33551a68f489/menu-sushi-enrolados-hossomaki-pepa-full.webp",
+    "thumb": "/__l5e/assets-v1/bf0fd503-5f08-4093-8929-90118cb72671/menu-sushi-enrolados-hossomaki-pepa-thumb.webp"
+  },
+  "/menu/sushi/enrolados/sake-hot-crocante.webp": {
+    "full": "/__l5e/assets-v1/c1bd7ca3-fd15-4f5f-960d-2834921db142/menu-sushi-enrolados-sake-hot-crocante-full.webp",
+    "thumb": "/__l5e/assets-v1/2861d536-2886-495f-a51f-0e42bcb53d32/menu-sushi-enrolados-sake-hot-crocante-thumb.webp"
+  },
+  "/menu/sushi/enrolados/salmao-cremoso.webp": {
+    "full": "/__l5e/assets-v1/53503eba-510a-45be-908b-1a5dad48a5f3/menu-sushi-enrolados-salmao-cremoso-full.webp",
+    "thumb": "/__l5e/assets-v1/82bf05d9-214e-43ca-a618-e209ca77ae3f/menu-sushi-enrolados-salmao-cremoso-thumb.webp"
+  },
+  "/menu/sushi/enrolados/uramaki-dragon.webp": {
+    "full": "/__l5e/assets-v1/ab888cfb-2807-4313-9ddd-ad5e3872b276/menu-sushi-enrolados-uramaki-dragon-full.webp",
+    "thumb": "/__l5e/assets-v1/d4c7fb80-b5f9-41fe-bee4-8f6b5801cc6e/menu-sushi-enrolados-uramaki-dragon-thumb.webp"
+  },
+  "/menu/sushi/hot-rolls/hot-cronchy.webp": {
+    "full": "/__l5e/assets-v1/97ee81fd-b859-4313-8719-4353cae39510/menu-sushi-hot-rolls-hot-cronchy-full.webp",
+    "thumb": "/__l5e/assets-v1/59aabe04-e7f2-4a10-a788-1db08368a132/menu-sushi-hot-rolls-hot-cronchy-thumb.webp"
+  },
+  "/menu/sushi/hot-rolls/hot-filadelfia.webp": {
+    "full": "/__l5e/assets-v1/5397b72e-5e30-4555-98d8-4a10972c0a47/menu-sushi-hot-rolls-hot-filadelfia-full.webp",
+    "thumb": "/__l5e/assets-v1/5eac548f-4dba-4364-8e67-2ebff4dcba82/menu-sushi-hot-rolls-hot-filadelfia-thumb.webp"
+  },
+  "/menu/sushi/hot-rolls/hot-spicy.webp": {
+    "full": "/__l5e/assets-v1/4c86a737-1c03-4856-b9fb-1ebf2640583a/menu-sushi-hot-rolls-hot-spicy-full.webp",
+    "thumb": "/__l5e/assets-v1/50050187-2969-4a1a-be15-9ad7da2f6dc5/menu-sushi-hot-rolls-hot-spicy-thumb.webp"
+  },
+  "/menu/sushi/hot-rolls/hot-veg.webp": {
+    "full": "/__l5e/assets-v1/ac24df69-9ae8-4d19-a2cb-1892ed732611/menu-sushi-hot-rolls-hot-veg-full.webp",
+    "thumb": "/__l5e/assets-v1/cf559d92-f1de-49c3-b25d-2c2e493a7495/menu-sushi-hot-rolls-hot-veg-thumb.webp"
+  },
+  "/menu/sushi/sashimi-niguiri/niguiri-atum.webp": {
+    "full": "/__l5e/assets-v1/238d493e-c0ca-4567-a844-8b6c9ba91fcb/menu-sushi-sashimi-niguiri-niguiri-atum-full.webp",
+    "thumb": "/__l5e/assets-v1/044afde4-34c0-4cc3-b0e0-e862134b7df7/menu-sushi-sashimi-niguiri-niguiri-atum-thumb.webp"
+  },
+  "/menu/sushi/sashimi-niguiri/niguiri-salmao.webp": {
+    "full": "/__l5e/assets-v1/4189b3c6-e7d0-4be8-a329-ac84ddfbd26f/menu-sushi-sashimi-niguiri-niguiri-salmao-full.webp",
+    "thumb": "/__l5e/assets-v1/6cf65b10-2556-4cb2-aa06-08754c7113de/menu-sushi-sashimi-niguiri-niguiri-salmao-thumb.webp"
+  },
+  "/menu/sushi/sashimi-niguiri/sashimi-misto.webp": {
+    "full": "/__l5e/assets-v1/f83ee1aa-466b-474f-bbc6-c1984a25cf04/menu-sushi-sashimi-niguiri-sashimi-misto-full.webp",
+    "thumb": "/__l5e/assets-v1/7f87718c-cd9b-4bdd-8436-dd0d2eb5f053/menu-sushi-sashimi-niguiri-sashimi-misto-thumb.webp"
+  },
+  "/menu/sushi/sashimi-niguiri/sashimi-salmao.webp": {
+    "full": "/__l5e/assets-v1/ab088c33-e78f-48b3-97e7-39b090490314/menu-sushi-sashimi-niguiri-sashimi-salmao-full.webp",
+    "thumb": "/__l5e/assets-v1/4b4baaeb-459c-46e6-b4d3-b80c5708fbb1/menu-sushi-sashimi-niguiri-sashimi-salmao-thumb.webp"
+  },
+  "/menu/sushi/temaki/temaki-salmao.webp": {
+    "full": "/__l5e/assets-v1/d15758af-55ae-446e-8b79-05723a778ef3/menu-sushi-temaki-temaki-salmao-full.webp",
+    "thumb": "/__l5e/assets-v1/74efe7f7-be9d-4086-a795-45b88177a085/menu-sushi-temaki-temaki-salmao-thumb.webp"
+  },
+  "/menu/sushi/temaki/temaki-skin.webp": {
+    "full": "/__l5e/assets-v1/01241fd1-acbe-490b-be83-fbbea6853ec9/menu-sushi-temaki-temaki-skin-full.webp",
+    "thumb": "/__l5e/assets-v1/3de7f38c-a554-4b8d-9bb1-66ab935a1e3a/menu-sushi-temaki-temaki-skin-thumb.webp"
+  },
+  "/menu/sushi/temaki/temaki-spicy.webp": {
+    "full": "/__l5e/assets-v1/476670cc-2c6d-4967-8b63-e9e50c7596c1/menu-sushi-temaki-temaki-spicy-full.webp",
+    "thumb": "/__l5e/assets-v1/82fc7a69-a72a-47e3-9fdd-dccdf4b9e199/menu-sushi-temaki-temaki-spicy-thumb.webp"
+  },
+  "/menu/sushi/temaki/temaki-vegano.webp": {
+    "full": "/__l5e/assets-v1/d9ddd343-6675-4149-8961-dc5ca5694e87/menu-sushi-temaki-temaki-vegano-full.webp",
+    "thumb": "/__l5e/assets-v1/32a92fd7-7fec-42b7-9e93-851292015806/menu-sushi-temaki-temaki-vegano-thumb.webp"
+  },
+  "/menu/lanches/bebidas/agua-mineral.webp": {
+    "full": "/__l5e/assets-v1/01c1e491-5957-4afc-8076-4655e67378d8/menu-lanches-bebidas-agua-mineral-full.webp",
+    "thumb": "/__l5e/assets-v1/005e8826-c862-41cd-9781-5e906ce9424b/menu-lanches-bebidas-agua-mineral-thumb.webp"
+  },
+  "/menu/lanches/bebidas/cha-gelado.webp": {
+    "full": "/__l5e/assets-v1/37eb9fab-fc84-4f5e-a5b9-7ef74ec2923d/menu-lanches-bebidas-cha-gelado-full.webp",
+    "thumb": "/__l5e/assets-v1/f9b37591-73f5-4de8-87f1-029813498889/menu-lanches-bebidas-cha-gelado-thumb.webp"
+  },
+  "/menu/lanches/bebidas/limonada-suica.webp": {
+    "full": "/__l5e/assets-v1/8ff20e34-0a12-4bdc-9851-dd6ff9be52e9/menu-lanches-bebidas-limonada-suica-full.webp",
+    "thumb": "/__l5e/assets-v1/d99fe5a5-245e-4bf9-8fdf-820dd737fd3f/menu-lanches-bebidas-limonada-suica-thumb.webp"
+  },
+  "/menu/lanches/bebidas/refrigerante-lata.webp": {
+    "full": "/__l5e/assets-v1/17b75f5f-eed6-49c6-b0e4-41aaab311c22/menu-lanches-bebidas-refrigerante-lata-full.webp",
+    "thumb": "/__l5e/assets-v1/a841d312-6583-45c7-aebd-7fa25f7ca46a/menu-lanches-bebidas-refrigerante-lata-thumb.webp"
+  },
+  "/menu/lanches/bebidas/suco-natural.webp": {
+    "full": "/__l5e/assets-v1/15b5025d-395e-47ca-ad83-dfc6f81d5644/menu-lanches-bebidas-suco-natural-full.webp",
+    "thumb": "/__l5e/assets-v1/3bea18a3-56fb-4516-b675-0b17961e27c6/menu-lanches-bebidas-suco-natural-thumb.webp"
+  },
+  "/menu/lanches/combos/combo-brasa-classico.webp": {
+    "full": "/__l5e/assets-v1/32e79d28-8562-4e9e-9ba8-ff674efe016e/menu-lanches-combos-combo-brasa-classico-full.webp",
+    "thumb": "/__l5e/assets-v1/d469af72-586d-457f-9796-9f458cd64dc6/menu-lanches-combos-combo-brasa-classico-thumb.webp"
+  },
+  "/menu/lanches/combos/combo-casal.webp": {
+    "full": "/__l5e/assets-v1/793b748d-0049-47fd-9784-2ab7b196ac28/menu-lanches-combos-combo-casal-full.webp",
+    "thumb": "/__l5e/assets-v1/3912a4a5-bdee-40e2-94cf-38551320a43b/menu-lanches-combos-combo-casal-thumb.webp"
+  },
+  "/menu/lanches/combos/combo-duplo-fogo.webp": {
+    "full": "/__l5e/assets-v1/56d97a8d-6ca0-4f57-b11d-38564bff3b95/menu-lanches-combos-combo-duplo-fogo-full.webp",
+    "thumb": "/__l5e/assets-v1/88f9e2fe-7fc3-443c-b61e-01a444590dc7/menu-lanches-combos-combo-duplo-fogo-thumb.webp"
+  },
+  "/menu/lanches/combos/combo-familia-brasa.webp": {
+    "full": "/__l5e/assets-v1/11650bba-e755-4827-b6e0-51bb5b3b8725/menu-lanches-combos-combo-familia-brasa-full.webp",
+    "thumb": "/__l5e/assets-v1/83c9dd33-8167-4ae1-9245-4f10d243bf61/menu-lanches-combos-combo-familia-brasa-thumb.webp"
+  },
+  "/menu/lanches/hamburgueres/bbq-brasa.webp": {
+    "full": "/__l5e/assets-v1/ae38a941-73b2-454a-93ef-137235129182/menu-lanches-hamburgueres-bbq-brasa-full.webp",
+    "thumb": "/__l5e/assets-v1/31767d7d-08b7-48eb-b04d-1c0bb8065182/menu-lanches-hamburgueres-bbq-brasa-thumb.webp"
+  },
+  "/menu/lanches/hamburgueres/brasa-bacon-supreme.webp": {
+    "full": "/__l5e/assets-v1/36b510f2-a7b5-411b-9955-ccf0c5427fd6/menu-lanches-hamburgueres-brasa-bacon-supreme-full.webp",
+    "thumb": "/__l5e/assets-v1/794a5bec-24b5-493c-baff-0cc8e54a4ad4/menu-lanches-hamburgueres-brasa-bacon-supreme-thumb.webp"
+  },
+  "/menu/lanches/hamburgueres/brasa-classico.webp": {
+    "full": "/__l5e/assets-v1/5d4381ee-0773-4fee-a82f-fe35da73d119/menu-lanches-hamburgueres-brasa-classico-full.webp",
+    "thumb": "/__l5e/assets-v1/a2764d63-5c20-4e9d-b5fb-9536acb54284/menu-lanches-hamburgueres-brasa-classico-thumb.webp"
+  },
+  "/menu/lanches/hamburgueres/cheddar-bacon-da-casa.webp": {
+    "full": "/__l5e/assets-v1/fb9dbe36-875c-4970-aec1-82df95fb9969/menu-lanches-hamburgueres-cheddar-bacon-da-casa-full.webp",
+    "thumb": "/__l5e/assets-v1/4ef6ef03-285b-43b9-854c-8478f39c028c/menu-lanches-hamburgueres-cheddar-bacon-da-casa-thumb.webp"
+  },
+  "/menu/lanches/hamburgueres/cheese-brasa-da-brasa.webp": {
+    "full": "/__l5e/assets-v1/1ea56185-645d-4f67-8ac9-2eb6bb37a362/menu-lanches-hamburgueres-cheese-brasa-da-brasa-full.webp",
+    "thumb": "/__l5e/assets-v1/fdeb261a-cdda-4d4a-86d9-6a6849b9a12d/menu-lanches-hamburgueres-cheese-brasa-da-brasa-thumb.webp"
+  },
+  "/menu/lanches/hamburgueres/duplo-fogo.webp": {
+    "full": "/__l5e/assets-v1/f51127fb-d690-4898-b6ba-11b925c941df/menu-lanches-hamburgueres-duplo-fogo-full.webp",
+    "thumb": "/__l5e/assets-v1/e64dc9e8-5213-44e5-8fca-76f94102509c/menu-lanches-hamburgueres-duplo-fogo-thumb.webp"
+  },
+  "/menu/lanches/hamburgueres/frango-crocante.webp": {
+    "full": "/__l5e/assets-v1/7ae06af0-afca-4642-b0cc-34f34a22cf35/menu-lanches-hamburgueres-frango-crocante-full.webp",
+    "thumb": "/__l5e/assets-v1/bfc368f3-fdcd-409e-ba6b-75182cc54bfa/menu-lanches-hamburgueres-frango-crocante-thumb.webp"
+  },
+  "/menu/lanches/hamburgueres/smash-duplo.webp": {
+    "full": "/__l5e/assets-v1/215a5215-be02-4382-9b6e-06dd97d171d7/menu-lanches-hamburgueres-smash-duplo-full.webp",
+    "thumb": "/__l5e/assets-v1/04b598d1-91a4-4242-805b-c55258e095d5/menu-lanches-hamburgueres-smash-duplo-thumb.webp"
+  },
+  "/menu/lanches/hamburgueres/smash-simples.webp": {
+    "full": "/__l5e/assets-v1/c8dea6ee-674b-4548-a84f-62d4ed4a4c8e/menu-lanches-hamburgueres-smash-simples-full.webp",
+    "thumb": "/__l5e/assets-v1/d531dcf7-b39d-439a-b011-e2f8e05251b5/menu-lanches-hamburgueres-smash-simples-thumb.webp"
+  },
+  "/menu/lanches/hamburgueres/veggie-brasa.webp": {
+    "full": "/__l5e/assets-v1/eba5b020-d2e4-42cd-88c4-d502ab69c6f5/menu-lanches-hamburgueres-veggie-brasa-full.webp",
+    "thumb": "/__l5e/assets-v1/9b745fa4-0387-44ce-8ce9-71ba6cee88bb/menu-lanches-hamburgueres-veggie-brasa-thumb.webp"
+  },
+  "/menu/lanches/porcoes/asinhas-bbq.webp": {
+    "full": "/__l5e/assets-v1/e9e56de8-46c8-4cc4-b733-8eef3feace13/menu-lanches-porcoes-asinhas-bbq-full.webp",
+    "thumb": "/__l5e/assets-v1/4f00094e-91ab-4319-960d-79b7d1db5df5/menu-lanches-porcoes-asinhas-bbq-thumb.webp"
+  },
+  "/menu/lanches/porcoes/bolinho-de-costela.webp": {
+    "full": "/__l5e/assets-v1/336c7965-3716-41e8-928c-53ea52019525/menu-lanches-porcoes-bolinho-de-costela-full.webp",
+    "thumb": "/__l5e/assets-v1/5a2c4e4c-e6d3-401e-892d-c61f0b78d19c/menu-lanches-porcoes-bolinho-de-costela-thumb.webp"
+  },
+  "/menu/lanches/porcoes/dadinho-de-tapioca.webp": {
+    "full": "/__l5e/assets-v1/b264d8e2-a7d9-467c-b5ea-a3b633eb6a14/menu-lanches-porcoes-dadinho-de-tapioca-full.webp",
+    "thumb": "/__l5e/assets-v1/34750326-8b26-4878-be76-8490540450a6/menu-lanches-porcoes-dadinho-de-tapioca-thumb.webp"
+  },
+  "/menu/lanches/porcoes/fritas-cheddar-bacon.webp": {
+    "full": "/__l5e/assets-v1/b16be187-8bb6-488d-86cb-1dc8e2f59029/menu-lanches-porcoes-fritas-cheddar-bacon-full.webp",
+    "thumb": "/__l5e/assets-v1/b3549d40-a9d1-480f-a954-578e7ed06eeb/menu-lanches-porcoes-fritas-cheddar-bacon-thumb.webp"
+  },
+  "/menu/lanches/porcoes/fritas-rusticas.webp": {
+    "full": "/__l5e/assets-v1/11576500-f65f-4d88-b5ee-9243320fceb7/menu-lanches-porcoes-fritas-rusticas-full.webp",
+    "thumb": "/__l5e/assets-v1/d4303749-957d-4f88-9ffa-9ea966463204/menu-lanches-porcoes-fritas-rusticas-thumb.webp"
+  },
+  "/menu/lanches/porcoes/onion-rings.webp": {
+    "full": "/__l5e/assets-v1/2eacf8ab-2b5f-4d41-bba8-8b36c67902d2/menu-lanches-porcoes-onion-rings-full.webp",
+    "thumb": "/__l5e/assets-v1/27b540dd-88d6-4f64-be70-a7036ad3e8ea/menu-lanches-porcoes-onion-rings-thumb.webp"
+  },
+  "/menu/lanches/sobremesas/brownie-com-sorvete.webp": {
+    "full": "/__l5e/assets-v1/4a04aa39-e600-4789-af51-79973aba4d1f/menu-lanches-sobremesas-brownie-com-sorvete-full.webp",
+    "thumb": "/__l5e/assets-v1/e3b9fac4-1e0e-4960-9370-7a02dbad56a4/menu-lanches-sobremesas-brownie-com-sorvete-thumb.webp"
+  },
+  "/menu/lanches/sobremesas/casquinha-dupla.webp": {
+    "full": "/__l5e/assets-v1/8597e773-e1ba-4aa5-859d-37d5d5517a6c/menu-lanches-sobremesas-casquinha-dupla-full.webp",
+    "thumb": "/__l5e/assets-v1/b2b5a25e-d5f1-400f-ba5b-898cdf07abee/menu-lanches-sobremesas-casquinha-dupla-thumb.webp"
+  },
+  "/menu/lanches/sobremesas/milk-shake.webp": {
+    "full": "/__l5e/assets-v1/7bf4096c-8a40-4ddc-9468-1cc938a72776/menu-lanches-sobremesas-milk-shake-full.webp",
+    "thumb": "/__l5e/assets-v1/f6cba606-397b-4bb4-87f6-67672a60e40c/menu-lanches-sobremesas-milk-shake-thumb.webp"
+  },
+  "/menu/lanches/sobremesas/petit-gateau.webp": {
+    "full": "/__l5e/assets-v1/2b86a164-a16e-4ea1-bbfc-fa025116bf78/menu-lanches-sobremesas-petit-gateau-full.webp",
+    "thumb": "/__l5e/assets-v1/30924097-5f2e-4cf0-8aa9-7e9fd4ee4263/menu-lanches-sobremesas-petit-gateau-thumb.webp"
+  }
+}
