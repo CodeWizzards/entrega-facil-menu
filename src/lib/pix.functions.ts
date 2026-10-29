@@ -9,6 +9,7 @@ import { z } from "zod";
 import { firebotFailureMessage } from "@/lib/firebot-error";
 import { cardCheckoutSchema, cardErrors, cardResultSchema } from "@/lib/card";
 import { formatCep } from "@/lib/format";
+import { PRODUCT_PIX_TEST_MODE, isProductPixTest, productPixTestResult } from "@/lib/product-pix-test";
 
 class FirebotRequestError extends Error {}
 
@@ -44,20 +45,26 @@ export const createPix = createServerFn({ method: "POST" })
   .inputValidator(input => pixCheckoutSchema.parse(input))
   .handler(async ({ data }) => {
     const key = process.env["FIREBOT_API_KEY"];
-    if (!key) throw new Error("Pagamento Pix ainda não configurado.");
+    if (!key && !PRODUCT_PIX_TEST_MODE) throw new Error("Pagamento Pix ainda não configurado.");
     const menu = data.menuPath === "/sushi" ? SUSHI : LANCHES;
     const priced = priceCheckout(menu, data);
     const accessHash = await hashAccess(data.access);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: existing, error: readError } = await supabaseAdmin.from("pix_orders").select("id, amount_cents, pix_code, status").eq("access_hash", accessHash).maybeSingle();
+    const { data: existing, error: readError } = await supabaseAdmin.from("pix_orders").select("id, amount_cents, pix_code, status, transaction_id").eq("access_hash", accessHash).maybeSingle();
     if (readError) throw new Error("Não foi possível consultar seu pedido.");
     if (existing) {
       if (!existing.pix_code) throw new Error("Esta tentativa não retornou um código Pix. Você pode iniciar uma nova tentativa manualmente.");
-      return { orderId: existing.id, amount: existing.amount_cents / 100, code: existing.pix_code, status: existing.status };
+      return { orderId: existing.id, amount: existing.amount_cents / 100, code: existing.pix_code, status: existing.status, testMode: isProductPixTest(existing.transaction_id || "") };
     }
     // An unguessable capability authorizes only this guest order, never lists or arbitrary IDs.
     const { data: order, error } = await supabaseAdmin.from("pix_orders").insert({ access_hash: accessHash, menu_path: data.menuPath, amount_cents: priced.amountCents, checkout: { form: data.form, items: priced.items } }).select("id").single();
     if (error || !order) throw new Error("Este pedido já está sendo processado. Consulte novamente.");
+    if (PRODUCT_PIX_TEST_MODE) {
+      const result = productPixTestResult(order.id, priced.amountCents);
+      const { error: saveError } = await supabaseAdmin.from("pix_orders").update({ transaction_id: `test_product_pix_${order.id}`, pix_code: result.code, status: result.status }).eq("id", order.id);
+      if (saveError) throw new Error("Não foi possível salvar o pedido de teste.");
+      return result;
+    }
     if (paymentsTestMode()) {
       const code = `00020101021226870014br.gov.bcb.pix0136teste-${order.id}520400005303986540${(priced.amountCents / 100).toFixed(2)}5802BR5913TESTE CASA BRASA6009SAO PAULO62070503***6304TEST`;
       const { error: saveError } = await supabaseAdmin.from("pix_orders").update({ transaction_id: `test_pix_${order.id}`, pix_code: code, status: "PENDING" }).eq("id", order.id);
@@ -68,6 +75,7 @@ export const createPix = createServerFn({ method: "POST" })
       const origin = new URL(getRequest().url).origin;
       const storeUrl = origin.startsWith("https://") ? `${origin}${data.menuPath}` : `https://id-preview--70bdd435-bb1a-4539-baca-224b359a39eb.lovable.app${data.menuPath}`;
       const form = data.form;
+      if (!key) throw new Error("Pagamento Pix ainda não configurado.");
       const raw = await firebot("pix/create", key, {
         productType: "PHYSICAL", storeUrl, amount: priced.amountCents / 100,
         description: `${menu.store.name}: ${priced.items.map(i => `${i.qty}x ${i.name}`).join(", ")}`.slice(0, 500),
@@ -95,10 +103,11 @@ export const checkPix = createServerFn({ method: "POST" })
     const key = process.env["FIREBOT_API_KEY"];
     const isCard = order.transaction_id?.startsWith("fire_card_") === true || order.transaction_id?.startsWith("test_card_") === true;
     if (!order.transaction_id || (!order.pix_code && !isCard)) throw new Error("Esta tentativa não tem um código Pix disponível para consulta. Você pode gerar outro Pix.");
-    if (!key && !paymentsTestMode()) throw new Error("Pagamento ainda não configurado.");
-    const status = paymentsTestMode() && order.transaction_id.startsWith("test_")
+    const testMode = isProductPixTest(order.transaction_id, (order.checkout as { kind?: string } | null)?.kind);
+    if (!key && !paymentsTestMode() && !testMode) throw new Error("Pagamento ainda não configurado.");
+    const status = testMode || (paymentsTestMode() && order.transaction_id.startsWith("test_"))
       ? "PAID"
-      : isCard ? order.status : verifiedPixStatus(await firebot(`pix/${encodeURIComponent(order.transaction_id)}`, key!), order.transaction_id, order.amount_cents / 100);
+      : isCard ? order.status : key ? verifiedPixStatus(await firebot(`pix/${encodeURIComponent(order.transaction_id)}`, key), order.transaction_id, order.amount_cents / 100) : "REVIEW";
     const { error: saveError } = await supabaseAdmin.from("pix_orders").update({ status }).eq("id", order.id);
     if (saveError) throw new Error("Não foi possível atualizar o pedido.");
     let whatsappMessage = "";
@@ -112,7 +121,7 @@ export const checkPix = createServerFn({ method: "POST" })
         "", `*Total: ${brl(order.amount_cents / 100)}*`, "Entrega: Grátis", `Nome: ${saved.form.name}`, `Telefone: ${saved.form.phone}`, `Endereço: ${deliveryAddress(saved.form)}`, saved.form.reference ? `Referência: ${saved.form.reference}` : "", `Pagamento: ${isCard ? "Cartão" : "Pix"} confirmado`,
       ].filter(Boolean).join("\n");
     }
-    return { orderId: order.id, amount: order.amount_cents / 100, code: order.pix_code || "", status, whatsappMessage, method: isCard ? "CARD" as const : "PIX" as const };
+    return { orderId: order.id, amount: order.amount_cents / 100, code: order.pix_code || "", status, whatsappMessage, method: isCard ? "CARD" as const : "PIX" as const, testMode };
   });
 
 export const chargeCard = createServerFn({ method: "POST" })

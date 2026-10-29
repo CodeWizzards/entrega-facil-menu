@@ -110,12 +110,13 @@ export function OrderTracking({ menu, payment, form, total, lines, orderAccess, 
       <div className="tracking-hero">
         <span className="tracking-logo"><img src={menu.logoImg} alt="" /></span>
         <div className="min-w-0">
-          <p className="tracking-status">Pedido confirmado</p>
+          <p className="tracking-status">{payment.testMode ? "Pedido de teste confirmado" : "Pedido confirmado"}</p>
           <p className="tracking-store">{menu.store.name}</p>
           <p className="tracking-meta">Pedido {payment.orderId.slice(0, 8).toUpperCase()} · Previsão {menu.store.eta}</p>
         </div>
       </div>
 
+      {payment.testMode && <p role="status" className="mt-3 text-sm text-muted-foreground">Teste · Pix aprovado automaticamente. Nenhum valor foi cobrado.</p>}
       <ol className="tracking-steps">
         {steps.map(step => (
           <li key={step.label} className={`tracking-step is-${step.state}`}>
