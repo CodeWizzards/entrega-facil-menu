@@ -584,13 +584,25 @@ function CartSheet({
     };
   }), [cart, menu.categoryImg]);
 
-  // Máscaras de formulário
-  const masks: Partial<Record<keyof DeliveryDetails, (value: string) => string>> = { phone: formatPhone, cpf: formatCpf, cep: formatCep, email: formatEmail };
+  // Máscaras de formulário corrigidas para evitar travamento de digitação
+  const masks: Partial<Record<keyof DeliveryDetails, (value: string) => string>> = { 
+    phone: formatPhone, 
+    cpf: formatCpf, 
+    cep: formatCep, 
+    email: formatEmail 
+  };
+  
   const fieldLimits: Partial<Record<keyof DeliveryDetails, number>> = { state: 2, phone: 15, cpf: 14, cep: 9 };
+  
   const field = (key: keyof DeliveryDetails, label: string, autoComplete?: string, optional = false) => (
     <label className="checkout-field">
       <span>{label}{optional && <span className="text-muted-foreground"> · opcional</span>}</span>
-      <input className="field" aria-label={label} value={form[key]} autoComplete={autoComplete} required={!optional}
+      <input 
+        className="field" 
+        aria-label={label} 
+        value={form[key] || ""} 
+        autoComplete={autoComplete} 
+        required={!optional}
         inputMode={key === "cep" || key === "phone" || key === "cpf" ? "numeric" : key === "email" ? "email" : undefined}
         type={key === "email" ? "email" : "text"}
         maxLength={fieldLimits[key]}
@@ -598,8 +610,10 @@ function CartSheet({
         onChange={e => {
           const raw = e.target.value;
           const mask = masks[key];
-          setForm(prev => ({ ...prev, [key]: key === "state" ? raw.toUpperCase() : mask ? mask(raw) : raw }));
-        }} />
+          const updatedValue = key === "state" ? raw.toUpperCase() : mask ? mask(raw) : raw;
+          setForm(prev => ({ ...prev, [key]: updatedValue }));
+        }} 
+      />
       {submitted && errors[key] && <span className="text-xs text-destructive">{errors[key]}</span>}
     </label>
   );
@@ -744,10 +758,10 @@ function CartSheet({
            <section className="checkout-section mt-6">
              <h4 className="font-display text-base font-semibold">Forma de Pagamento (Sandbox)</h4>
              <div className="mt-3 grid grid-cols-2 gap-2">
-               <Button type="button" variant={method === "PIX" ? "default" : "outline"} onClick={() => setMethod("PIX")}>
+               <Button variant="storefront" size="storefront" type="button" className={method === "PIX" ? "payment-tab active" : "payment-tab"} onClick={() => setMethod("PIX")}>
                  Pix (Simulador)
                </Button>
-               <Button type="button" variant={method === "CARD" ? "default" : "outline"} onClick={() => setMethod("CARD")}>
+               <Button variant="storefront" size="storefront" type="button" className={method === "CARD" ? "payment-tab active" : "payment-tab"} onClick={() => setMethod("CARD")}>
                  Cartão de Crédito
                </Button>
              </div>
