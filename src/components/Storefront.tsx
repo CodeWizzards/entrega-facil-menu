@@ -13,7 +13,6 @@ import {
   ArrowRight,
   MapPin,
   ShieldCheck,
-  Star,
   Trash2,
   X,
 } from "lucide-react";
@@ -22,7 +21,6 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
 import { FeaturedRail } from "@/components/FeaturedRail";
 import { CategoryRail } from "@/components/CategoryRail";
-import { SuperReviews } from "@/components/SuperReviews";
 import pixLogo from "@/assets/pix-logo.png.asset.json";
 import verifiedBadge from "@/assets/verified-badge.png.asset.json";
 import { deliveryErrors, deliveryAddress, emptyDelivery, PAYMENT_METHOD, type DeliveryDetails } from "@/lib/checkout";
@@ -92,11 +90,6 @@ export function Storefront({ menu }: { menu: Menu }) {
   const count = cart.reduce((s, i) => s + i.qty, 0);
   const featured = useMemo(() => menu.products.filter((p) => p.tag), [menu.products]);
   const freeDelivery = menu.store.deliveryFee === 0;
-  const ratingLabel = menu.store.rating.toLocaleString("pt-BR", {
-    minimumFractionDigits: 1,
-    maximumFractionDigits: 1,
-  });
-  const reviewsLabel = menu.store.reviews.toLocaleString("pt-BR");
 
   const add = (product: Product, qty: number, note: string, addons: Addon[]) => {
     setCart((c) => [...c, { key: crypto.randomUUID(), product, qty, note, addons }]);
@@ -160,16 +153,6 @@ export function Storefront({ menu }: { menu: Menu }) {
             <p className="mt-1 text-center text-sm text-muted-foreground">
               {menu.store.tagline}
             </p>
-
-            <div className="store-rating mt-3">
-              <Star className="rating-star" aria-hidden />
-              <span className="font-bold">{ratingLabel}</span>
-              <span className="text-muted-foreground">/5</span>
-              <span className="rating-sep" aria-hidden />
-              <span className="text-muted-foreground">
-                {reviewsLabel} {menu.store.reviews === 1 ? "avaliação" : "avaliações"}
-              </span>
-            </div>
 
             <div className="store-availability mt-3">
               <span className="availability-dot" /> Aberto agora
@@ -243,7 +226,6 @@ export function Storefront({ menu }: { menu: Menu }) {
             </p>
           )}
 
-          {!q && <SuperReviews menu={menu} />}
 
           <footer className="py-10 text-center text-xs text-muted-foreground">
             {menu.store.name} · Pedido direto no WhatsApp · Valores sujeitos a alteração

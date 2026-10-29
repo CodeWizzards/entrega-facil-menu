@@ -357,9 +357,6 @@
 .store-metrics dt { display: flex; justify-content: center; align-items: center; gap: 5px; color: var(--muted-foreground); font-size: 11px; }
 .store-metrics dt svg { width: 14px; height: 14px; }
 .store-metrics dd { margin-top: 7px; font-size: 12px; font-weight: 600; white-space: nowrap; }
-.store-rating { display: flex; justify-content: center; align-items: center; gap: 6px; font-size: 13px; }
-.rating-star { width: 15px; height: 15px; color: var(--gold); fill: currentColor; }
-.rating-sep { width: 3px; height: 3px; border-radius: 50%; background: var(--border); }
 .availability-sep { width: 3px; height: 3px; border-radius: 50%; background: var(--border); }
 .free-ship { display: inline-flex; align-items: center; gap: 5px; color: var(--gold); font-weight: 700; }
 .free-ship svg { width: 14px; height: 14px; }
@@ -536,93 +533,6 @@
 .card-back { visibility: hidden; }
 .card-3d.is-flipped .card-front { visibility: hidden; }
 .card-3d.is-flipped .card-back { visibility: visible; }
-
-/* ---- Selo Super e avaliações ---- */
-.super-card {
-  border-radius: 22px;
-  padding: 18px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-soft);
-}
-.super-badge {
-  display: grid; place-items: center;
-  width: 34px; height: 34px; border-radius: 12px;
-  color: var(--primary-foreground);
-  background: var(--primary);
-  box-shadow: 0 6px 16px color-mix(in oklab, var(--primary) 45%, transparent);
-}
-.super-stars { display: inline-flex; gap: 1px; color: var(--gold); }
-.super-perk-icon {
-  display: grid; place-items: center;
-  width: 32px; height: 32px; border-radius: 999px;
-  color: var(--foreground);
-  background: color-mix(in oklab, var(--foreground) 7%, transparent);
-  border: 1px solid var(--border);
-}
-.review-card {
-  border-radius: 18px; padding: 16px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-soft);
-}
-.review-avatar {
-  display: grid; place-items: center;
-  width: 38px; height: 38px; border-radius: 999px;
-  font-size: 13px; font-weight: 800; letter-spacing: 0.02em;
-  color: var(--primary-foreground);
-  background: var(--primary);
-  border: 1px solid color-mix(in oklab, var(--primary) 70%, var(--border));
-}
-.reviews-btn {
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  width: 100%; padding: 13px 16px;
-  border-radius: 14px;
-  font-size: 14px; font-weight: 600;
-  color: var(--foreground);
-  background: var(--card);
-  border: 1px solid var(--border);
-  transition: background 0.2s ease, transform 0.15s ease;
-}
-.reviews-btn:hover { background: color-mix(in oklab, var(--foreground) 5%, var(--card)); }
-.reviews-btn:active { transform: scale(0.98); }
-
-/* ---- Modal de avaliações e selo de pedido verificado ---- */
-.review-verified {
-  display: inline-flex; align-items: center; gap: 3px;
-  padding: 2px 8px; border-radius: 999px;
-  font-size: 10px; font-weight: 700; line-height: 1.4;
-  color: var(--primary-foreground);
-  background: var(--primary);
-}
-.reviews-modal {
-  position: fixed; z-index: 60; top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  width: calc(100% - 32px); max-width: 420px; max-height: 88dvh;
-  display: flex; flex-direction: column;
-  border: 1px solid var(--border); border-radius: 26px;
-  background: var(--popover);
-  box-shadow: var(--shadow-sheet);
-  animation: location-enter 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
-  outline: none;
-}
-.reviews-modal-head {
-  display: flex; align-items: center; gap: 10px;
-  padding: 18px 16px 12px;
-}
-.reviews-modal-body {
-  overflow-y: auto; padding: 0 16px 16px;
-  scrollbar-width: thin;
-  scrollbar-color: var(--primary) transparent;
-}
-.reviews-modal-body::-webkit-scrollbar { width: 4px; }
-.reviews-modal-body::-webkit-scrollbar-track { background: transparent; }
-.reviews-modal-body::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, var(--primary), color-mix(in oklab, var(--primary) 55%, var(--gold)));
-  border-radius: 999px;
-  box-shadow: 0 0 6px color-mix(in oklab, var(--primary) 35%, transparent);
-}
-.reviews-modal-body::-webkit-scrollbar-thumb:hover { background: var(--primary); }
 
 /* Acompanhamento do pedido — estilo iOS */
 .tracking { display: flex; flex-direction: column; margin-top: 16px; }
@@ -853,14 +763,6 @@
 .tracking-live-eta { flex-shrink: 0; font-size: 12.5px; font-weight: 700; color: color-mix(in oklab, var(--muted-foreground) 55%, var(--foreground)); font-variant-numeric: tabular-nums; }
 .tracking-live-row-label { font-size: 12.5px; color: var(--muted-foreground); }
 .tracking-live-row-value { font-size: 12.5px; font-weight: 700; color: color-mix(in oklab, var(--muted-foreground) 45%, var(--foreground)); }
-.reviews-close {
-  display: grid; place-items: center;
-  width: 32px; height: 32px; border-radius: 999px;
-  color: var(--foreground);
-  background: color-mix(in oklab, var(--foreground) 7%, transparent);
-  border: 1px solid var(--border);
-}
-
 /* ---------- Nota fiscal ---------- */
 /* Botão verde de emissão: pílula iOS com ícone dentro de um mini cartão */
 .btn-success {
