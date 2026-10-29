@@ -50,3 +50,5 @@
 - [ ] Avisar a loja quando um pedido é pago — o pagamento fica registrado, mas ninguém notifica a loja automaticamente.
 - [x] Otimizar fotos e logos e conferir carregamento do cardápio e abertura de produtos nas duas lojas; miniaturas 82% menores, sem imagens quebradas.
 - [x] Ajustar cookie para a prévia incorporada e mostrar erro se a sessão for bloqueada; entrada direta até o autenticador, recarga e código inválido conferidos, sem ativar um autenticador pelo usuário.
+- [ ] Criar painel financeiro reservado com pagamentos reais e conferência de autorização no servidor.
+- [ ] Revisar segurança do acesso e impedir exposição de dados privados em chamadas sem sessão válida.
