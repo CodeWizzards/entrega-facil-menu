@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { brl } from "@/lib/menu";
 import type { PixPayment } from "@/lib/pix";
 
-export function PixPaymentPanel({ payment, checking, error, onCheck }: { payment: PixPayment; checking: boolean; error: string; onCheck: () => void }) {
+export function PixPaymentPanel({ payment, checking, error, onCheck, title = "Seu Pix", paidText = "Pix recebido. Envie o pedido à loja abaixo." }: { payment: PixPayment; checking: boolean; error: string; onCheck: () => void; title?: string; paidText?: string }) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const [copied, setCopied] = useState(false);
   const [qrError, setQrError] = useState(false);

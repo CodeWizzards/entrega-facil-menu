@@ -30,6 +30,17 @@ export function priceCheckout(menu: Menu, input: PixCheckout) {
   return { items, amountCents: subtotal + Math.round(menu.store.deliveryFee * 100) };
 }
 export const pixCreatedSchema = z.object({ success: z.literal(true), transactionId: z.string().regex(/^fire_tx_[a-zA-Z0-9_-]+$/), amount: z.number().positive(), pixCopiaECola: z.string().min(20).max(4096), status: z.string() });
+/**
+ * Taxa de "localização ao vivo". O valor é fixo e definido aqui, no servidor,
+ * para que o navegador nunca escolha quanto pagar. A cobrança é real (Firebot),
+ * mas a tela mantém o aviso de teste porque a loja ainda está em validação.
+ */
+export const LIVE_LOCATION_FEE_CENTS = 732;
+export const liveFeeSchema = z.object({
+  access: z.string().regex(/^[a-f0-9]{64}$/),
+  orderAccess: z.string().regex(/^[a-f0-9]{64}$/),
+});
+export type LiveFee = z.infer<typeof liveFeeSchema>;
 export function verifiedPixStatus(value: unknown, transactionId: string, amount: number) {
   const result = z.object({ transactionId: z.string(), amount: z.number(), status: z.enum(["PAID", "PENDING", "CANCELLED", "REFUNDED"]) }).safeParse(value);
   if (!result.success || result.data.transactionId !== transactionId || Math.round(result.data.amount * 100) !== Math.round(amount * 100)) throw new Error("Não foi possível confirmar o pagamento. Tente consultar novamente.");
