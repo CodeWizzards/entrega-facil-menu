@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { KeyRound, LoaderCircle, LockKeyhole, LogOut, ShieldCheck, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PrivateFinance } from "@/components/PrivateFinance";
 import { loginPrivatePage, logoutPrivatePage, readPrivatePage, preparePrivateAuthenticator, verifyPrivateAuthenticator } from "@/lib/private-access.functions";
 
 export const Route = createFileRoute("/acesso-reservado")({
@@ -49,14 +50,13 @@ function PrivatePage() {
     return () => { cancelled = true; };
   }, [data.step, prepare]);
   return <main className="min-h-dvh bg-background px-6 py-16 text-foreground">
-    <div className="mx-auto max-w-sm">
+    <div className={`mx-auto ${data.authenticated ? "max-w-5xl" : "max-w-sm"}`}>
       <span className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary text-primary"><LockKeyhole className="h-6 w-6" /></span>
       <p className="mb-2 text-sm font-semibold text-muted-foreground">Casa Brasa</p>
-      <h1 className="font-display text-2xl font-semibold">Acesso reservado</h1>
+      <h1 className="font-display text-2xl font-semibold">{data.authenticated ? "Painel financeiro" : "Acesso reservado"}</h1>
       {data.authenticated ? <div className="mt-8">
-        <p role="status" className="text-success">{data.content}</p>
-        <p className="mt-3 flex items-center gap-2 text-sm text-muted-foreground"><ShieldCheck className="h-4 w-4 text-success" /> Autenticador confirmado</p>
-        <Button variant="outline" className="mt-6 w-full rounded-full" disabled={busy} onClick={async () => {
+        {data.finance && <PrivateFinance finance={data.finance} busy={busy} refresh={() => { setBusy(true); setError(""); void router.invalidate().catch(() => setError("Não foi possível atualizar os pagamentos.")).finally(() => setBusy(false)); }} />}
+        <Button variant="outline" className="mt-8 rounded-full" disabled={busy} onClick={async () => {
           setBusy(true); setError("");
           try { await logout(); await router.invalidate(); }
           catch { setError("Não foi possível sair. Tente novamente."); }
