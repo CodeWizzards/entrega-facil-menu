@@ -1073,3 +1073,9 @@
 .min-gate-sub { margin: 4px 0 0; font-size: 12px; line-height: 1.5; color: var(--muted-foreground); }
 .min-gate-bar { margin-top: 14px; height: 6px; border-radius: 999px; background: color-mix(in oklab, var(--foreground) 10%, transparent); overflow: hidden; }
 .min-gate-bar i { display: block; height: 100%; border-radius: inherit; background: var(--primary); transition: width .4s cubic-bezier(.2,.8,.2,1); }
+
+.card-fail-backdrop { position: fixed; inset: 0; z-index: 80; }
+.card-fail-modal { position: fixed; z-index: 81; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(340px, calc(100vw - 32px)); border-radius: 28px; background: var(--card); border: 1px solid var(--border); padding: 24px 20px 16px; text-align: center; box-shadow: 0 24px 60px -20px var(--scrim); }
+.card-fail-icon { margin: 0 auto 12px; display: flex; width: 52px; height: 52px; align-items: center; justify-content: center; border-radius: 16px; background: color-mix(in oklab, var(--destructive) 16%, transparent); color: var(--destructive); }
+.card-fail-title { font-size: 17px; font-weight: 700; }
+.card-fail-text { margin: 6px 0 18px; font-size: 13px; color: var(--muted-foreground); }
