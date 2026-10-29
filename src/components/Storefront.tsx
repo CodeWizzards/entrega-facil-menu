@@ -515,6 +515,13 @@ function CartSheet({
   const total = subtotal + fee;
   const belowMin = subtotal < menu.store.minOrder;
   const valid = Object.keys(errors).length === 0 && !belowMin && cart.length > 0;
+  const bumps = useMemo(() => {
+    const inCart = new Set(cart.map(i => i.product.id));
+    return menu.products
+      .filter(p => /bebida|sobremesa|porç|acompanh|doce/i.test(p.category) && !inCart.has(p.id))
+      .sort((a, b) => a.price - b.price)
+      .slice(0, 4);
+  }, [cart, menu.products]);
 
   const invoiceLines = useMemo<InvoiceLine[]>(() => cart.map(i => {
     const thumb = i.product.image ?? menu.categoryImg[i.product.category];
@@ -647,7 +654,32 @@ function CartSheet({
        {payment?.method === "CARD" && payment.status !== "PAID" && <section className="checkout-section" aria-label="Pagamento por cartão"><h4><CreditCard /> Cartão · {brl(payment.amount)}</h4><p role="status" className="text-sm">{payment.status === "CANCELLED" ? "Pagamento recusado ou cancelado" : "Pagamento em análise. Não envie uma nova cobrança."}</p><Button variant="storefront" size="storefront" disabled={processing} onClick={verifyPayment} className="mt-3 w-full">Consultar pagamento</Button>{paymentError && <p role="alert" className="text-xs text-destructive">{paymentError}</p>}</section>}
        {payment && payment.status !== "PAID" && <Button variant="storefront" size="storefront" disabled={processing} className="btn-primary mt-4 w-full" onClick={() => { setPayment(null); setPaymentError(""); setSubmitted(false); }}>Novo pagamento</Button>}
        {!payment && paymentError && <p role="alert" className="mt-3 text-xs text-destructive">{paymentError}</p>}
-       {cart.length > 0 && !payment && <form noValidate onSubmit={async e => {
+       {cart.length > 0 && !payment && bumps.length > 0 && (
+        <section className="order-bump" aria-label="Peça também">
+          <p className="order-bump-title">Peça também</p>
+          <div className="order-bump-list">
+            {bumps.map(p => (
+              <button key={p.id} type="button" className="order-bump-item" onClick={() => {
+                const free = p.addons && p.addons.every(a => a.price === 0) ? p.addons.slice(0, 1) : [];
+                setCart(c => [...c, { key: crypto.randomUUID(), product: p, qty: 1, note: "", addons: free }]);
+              }}>
+                <img src={p.image ?? menu.categoryImg[p.category]} alt="" loading="lazy" />
+                <span className="min-w-0"><span className="order-bump-name">{p.name}</span><span className="order-bump-price">+ {brl(p.price)}</span></span>
+                <span className="order-bump-add" aria-label={`Adicionar ${p.name}`}><Plus /></span>
+              </button>
+            ))}
+          </div>
+        </section>
+       )}
+       {cart.length > 0 && !payment && belowMin && (
+        <section className="min-gate" role="status">
+          <p className="min-gate-title">Faltam {brl(menu.store.minOrder - subtotal)} para finalizar</p>
+          <p className="min-gate-sub">O pedido mínimo é {brl(menu.store.minOrder)}. Adicione mais itens para liberar o pagamento.</p>
+          <div className="min-gate-bar"><i style={{ width: `${Math.min(100, (subtotal / menu.store.minOrder) * 100)}%` }} /></div>
+          <Button variant="storefront" size="storefront" className="btn-primary mt-4 w-full" onClick={onClose}>Continuar comprando</Button>
+        </section>
+       )}
+       {cart.length > 0 && !payment && !belowMin && <form noValidate onSubmit={async e => {
         e.preventDefault(); setSubmitted(true);
          if (!valid || processing) return;
          if (method === "CARD" && Object.keys(cardErrors(card)).length) return;

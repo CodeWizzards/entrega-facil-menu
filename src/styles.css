@@ -1082,3 +1082,21 @@
 /* Esconde o selo "Edit with Lovable" injetado na publicação */
 #lovable-badge, #lovable-badge * { display: none !important; }
 
+
+/* Order bump e trava do pedido mínimo */
+.order-bump { margin-top: 18px; }
+.order-bump-title { margin: 0 0 10px; font-size: 13px; font-weight: 700; color: var(--foreground); }
+.order-bump-list { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.order-bump-list::-webkit-scrollbar { display: none; }
+.order-bump-item { flex: 0 0 auto; width: 210px; display: grid; grid-template-columns: 44px minmax(0,1fr) 30px; align-items: center; gap: 10px; padding: 8px; border-radius: 18px; background: var(--secondary); color: var(--foreground); text-align: left; transition: transform .18s ease; }
+.order-bump-item:active { transform: scale(.97); }
+.order-bump-item img { width: 44px; height: 44px; border-radius: 12px; object-fit: cover; }
+.order-bump-name { display: block; font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.order-bump-price { display: block; margin-top: 2px; font-size: 11px; font-weight: 700; color: var(--primary); }
+.order-bump-add { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 999px; background: var(--primary); color: var(--primary-foreground); }
+.order-bump-add svg { width: 16px; height: 16px; }
+.min-gate { margin-top: 20px; padding: 18px; border-radius: 22px; background: var(--secondary); }
+.min-gate-title { margin: 0; font-size: 15px; font-weight: 700; color: var(--foreground); }
+.min-gate-sub { margin: 4px 0 0; font-size: 12px; line-height: 1.5; color: var(--muted-foreground); }
+.min-gate-bar { margin-top: 14px; height: 6px; border-radius: 999px; background: color-mix(in oklab, var(--foreground) 10%, transparent); overflow: hidden; }
+.min-gate-bar i { display: block; height: 100%; border-radius: inherit; background: var(--primary); transition: width .4s cubic-bezier(.2,.8,.2,1); }
