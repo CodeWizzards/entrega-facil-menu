@@ -492,7 +492,7 @@ function CartSheet({
   // Consulta automática do Pix pendente a cada 5 segundos, sem sobrepor consultas.
   const pollRef = useRef(verifyPayment);
   pollRef.current = verifyPayment;
-  const pendingPix = Boolean(pixAccess) && payment?.status === "PENDING" && payment.method !== "CARD";
+  const pendingPix = Boolean(pixAccess) && payment != null && !["PAID","CANCELLED","REFUNDED"].includes(payment.status) && payment.method !== "CARD";
   useEffect(() => {
     if (!pendingPix) return;
     const id = setInterval(() => { void pollRef.current(); }, 5000);
