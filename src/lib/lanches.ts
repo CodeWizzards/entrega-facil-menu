@@ -1,10 +1,11 @@
-import logoAsset from "@/assets/logo-lanches.png.asset.json";
-import cover from "@/assets/cover-lanches.jpg";
-import imgBebidas from "@/assets/menu/lanches-bebidas.jpg";
-import imgBurgers from "@/assets/menu/lanches-burgers.jpg";
-import imgCombos from "@/assets/menu/lanches-combos.jpg";
-import imgPorcoes from "@/assets/menu/lanches-porcoes.jpg";
-import imgSobremesas from "@/assets/menu/lanches-sobremesas.jpg";
+import logoAsset from "@/assets/optimized/logo-lanches.webp.asset.json";
+import optimizedImages from "@/assets/optimized/menu-images.json";
+import cover from "@/assets/cover-lanches.webp";
+import imgBebidas from "@/assets/menu/lanches-bebidas.webp";
+import imgBurgers from "@/assets/menu/lanches-burgers.webp";
+import imgCombos from "@/assets/menu/lanches-combos.webp";
+import imgPorcoes from "@/assets/menu/lanches-porcoes.webp";
+import imgSobremesas from "@/assets/menu/lanches-sobremesas.webp";
 import { WHATSAPP, type Addon, type Menu, type Product } from "@/lib/menu";
 
 // Adicionais que servem para quase todos os sanduíches.
@@ -323,10 +324,11 @@ export const LANCHES: Menu = {
     Bebidas: imgBebidas,
     Sobremesas: imgSobremesas,
   },
-  products: products.map((product) => ({
-    ...product,
-    ...(productImages[product.id] ? { image: productImages[product.id]! } : {}),
-  })),
+  products: products.map((product) => {
+    const path = productImages[product.id];
+    const images = (optimizedImages as Record<string, { full: string; thumb: string }>)[path ?? ""];
+    return { ...product, image: images?.full ?? path, imageThumb: images?.thumb };
+  }),
   cover,
   coverAlt: "Hambúrgueres artesanais com fritas crocantes",
 };

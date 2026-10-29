@@ -4,6 +4,10 @@ import { SUSHI } from "@/lib/sushi";
 
 export const Route = createFileRoute("/sushi")({
   head: () => ({
+    links: [
+      { rel: "preload", as: "image", href: SUSHI.cover, fetchPriority: "high" },
+      { rel: "preload", as: "image", href: SUSHI.logoImg },
+    ],
     meta: [
       { title: "Casa Brasa Sushi — Combinados e hot rolls no delivery" },
       {

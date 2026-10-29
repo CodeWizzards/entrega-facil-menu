@@ -1,11 +1,12 @@
-import cover from "@/assets/cover-sushi.jpg";
-import logoImg from "@/assets/logo-sushi.png";
-import imgBebidas from "@/assets/menu/sushi-bebidas.jpg";
-import imgCombos from "@/assets/menu/sushi-combos.jpg";
-import imgEnrolados from "@/assets/menu/sushi-enrolados.jpg";
-import imgHot from "@/assets/menu/sushi-hot.jpg";
-import imgSashimi from "@/assets/menu/sushi-sashimi.jpg";
-import imgTemaki from "@/assets/menu/sushi-temaki.jpg";
+import optimizedImages from "@/assets/optimized/menu-images.json";
+import cover from "@/assets/cover-sushi.webp";
+import logoImg from "@/assets/logo-sushi.webp";
+import imgBebidas from "@/assets/menu/sushi-bebidas.webp";
+import imgCombos from "@/assets/menu/sushi-combos.webp";
+import imgEnrolados from "@/assets/menu/sushi-enrolados.webp";
+import imgHot from "@/assets/menu/sushi-hot.webp";
+import imgSashimi from "@/assets/menu/sushi-sashimi.webp";
+import imgTemaki from "@/assets/menu/sushi-temaki.webp";
 import { WHATSAPP, type Addon, type Menu, type Product } from "@/lib/menu";
 
 const ACOMPANHAMENTOS: Addon[] = [
@@ -314,10 +315,11 @@ export const SUSHI: Menu = {
     "Sashimi & Niguiri": imgSashimi,
     Bebidas: imgBebidas,
   },
-  products: products.map((product) => ({
-    ...product,
-    ...(productImages[product.id] ? { image: productImages[product.id]! } : {}),
-  })),
+  products: products.map((product) => {
+    const path = productImages[product.id];
+    const images = (optimizedImages as Record<string, { full: string; thumb: string }>)[path ?? ""];
+    return { ...product, image: images?.full ?? path, imageThumb: images?.thumb };
+  }),
   cover,
   coverAlt: "Combinado de sushi com salmão, hot rolls e temaki",
 };
