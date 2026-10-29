@@ -466,7 +466,7 @@
 .checkout-security-title { margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0; color: var(--foreground); }
 .checkout-security-sub { margin: 4px 0 0; max-width: 260px; font-size: 11px; line-height: 1.5; color: var(--muted-foreground); }
 .checkout-security-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.checkout-security-brand { width: 86px; height: auto; flex-shrink: 0; object-fit: contain; filter: grayscale(1) brightness(0) invert(1); opacity: .8; }
+.checkout-security-brand { width: 86px; height: auto; flex-shrink: 0; object-fit: contain; filter: grayscale(1) invert(1); opacity: .8; }
 
 /* Animated card preview */
 :root {
