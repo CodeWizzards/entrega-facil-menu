@@ -10,12 +10,14 @@ function BrandMark({ brand }: { brand: CardBrand }) {
   return <span key={brand} className={`card-brand card-brand-${brand}`}>{BRAND_LABEL[brand]}</span>;
 }
 
-function CardPreview({ card, flipped, focus }: { card: CardDetails; flipped: boolean; focus: keyof CardDetails | null }) {
-  const brand = cardBrand(card.number);
+export function CardPreview({ card, flipped, focus, brandOverride, last4 }: { card: CardDetails; flipped: boolean; focus: keyof CardDetails | null; brandOverride?: CardBrand; last4?: string }) {
+  const brand = brandOverride ?? cardBrand(card.number);
   const digits = card.number.replace(/\D/g, "");
   const groups = brand === "amex" ? [4, 6, 5] : [4, 4, 4, 4];
   let i = 0;
-  const shown = groups.map(size => Array.from({ length: size }, () => digits[i++] ?? "•").join(""));
+  const shown = last4
+    ? groups.map((size, g) => g === groups.length - 1 ? "•".repeat(size - last4.length) + last4 : "•".repeat(size))
+    : groups.map(size => Array.from({ length: size }, () => digits[i++] ?? "•").join(""));
   return (
     <div className="card-stage" aria-hidden="true">
       <div className={`card-3d ${flipped ? "is-flipped" : ""}`} data-brand={brand}>
