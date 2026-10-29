@@ -25,9 +25,8 @@ const DEST = { x: 306, y: 133 };
  * As etapas futuras ficam pendentes de verdade: quem atualiza é a loja,
  * pelo WhatsApp do cliente. Nada de distância ou posição inventada.
  *
- * A "localização ao vivo" cobra uma taxa real na Firebot (Pix), mas a tela
- * mantém o aviso de teste porque a loja ainda está em validação. O mapa é uma
- * rota fictícia: a posição real do entregador ainda não está conectada.
+ * A "localização ao vivo" cobra uma taxa real por Pix. O mapa é uma rota
+ * fictícia: a posição real do entregador ainda não está conectada.
  */
 export function OrderTracking({ menu, payment, form, total, lines, orderAccess, onClose }: {
   menu: Menu;
@@ -216,11 +215,9 @@ export function OrderTracking({ menu, payment, form, total, lines, orderAccess, 
             <span className="tracking-live-price"><span>R$</span>{liveFeeText}</span>
           </div>
           <div className="tracking-live-flag">
-            <span className="test-badge"><i aria-hidden="true" /> Teste · não pagar</span>
             {live === "paying" && !fee
               ? <Button variant="storefront" size="storefront" className="btn-primary w-full gap-2" disabled><LoaderCircle className="h-4 w-4 animate-spin" /> Gerando Pix…</Button>
               : <Button variant="storefront" size="storefront" className="btn-primary w-full" onClick={payLiveFee}>Ativar localização ao vivo</Button>}
-            <p className="tracking-live-disclaimer">Pix real criado pela Firebot. Não pague se você não quiser testar.</p>
             {feeError && !fee && <p role="alert" className="text-xs text-destructive">{feeError}</p>}
           </div>
           {fee && <PixPaymentPanel payment={fee} checking={feeChecking} error={feeError} onCheck={verifyFee} title="Taxa de localização ao vivo" paidText="Pix recebido. Abrindo o mapa…" />}

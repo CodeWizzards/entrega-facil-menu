@@ -26,7 +26,8 @@
 - The location welcome renders its Radix overlay and content inline for server-rendered first-paint visibility; location requests must never block manual entry or overwrite it after cancellation.
 - Automatic IP location uses a single browser request to get.geojs.io (started by an inline head script before the bundle loads), accepts only a valid Brazilian region, with no credentials or referrer and a bounded total timeout; server proxying would geolocate the server rather than the visitor.
 - The last confirmed city is kept in the localCidade/localEstado cookies for 365 days and shown instantly on return visits; this skips the IP lookup wait without sending location anywhere.
-- After the visitor confirms the city, the location modal shows a fixed "1,6 km · distância de exemplo" label immediately, without an artificial searching delay; it is a demonstration value, never a real distance calculation.
+- After the visitor confirms the city, the location modal immediately shows a fixed "1,6 km · distância" label; it is a demonstration value, never a real distance calculation.
+
 - Pix checkout uses shared server functions, server-repriced menu data and service-only order records scoped by hashed random guest capabilities; this keeps buyer data private without requiring buyer accounts.
 - Each manually requested Pix attempt uses a fresh persistent capability, previous attempts remain consultable in session history, and requests are never automatically retried; only matching server-verified transaction IDs and amounts can become PAID, preventing accidental replay and forged confirmations while allowing deliberate retries.
 - Render Pix QR codes locally and retain only the checkout capability and payment display in session storage, not buyer contact or address; this limits unnecessary disclosure.

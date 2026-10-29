@@ -82,7 +82,7 @@ export const createPix = createServerFn({ method: "POST" })
     } catch (error) {
       await supabaseAdmin.from("pix_orders").update({ status: "REVIEW" }).eq("id", order.id);
       if (error instanceof FirebotRequestError) throw new Error(error.message);
-      throw new Error("A Firebot não retornou um Pix válido. Você pode tentar novamente; a cobrança anterior não é cancelada automaticamente.");
+      throw new Error("Não foi possível gerar um Pix válido. Você pode tentar novamente; a cobrança anterior não é cancelada automaticamente.");
     }
   });
 export const checkPix = createServerFn({ method: "POST" })
@@ -109,7 +109,7 @@ export const checkPix = createServerFn({ method: "POST" })
       whatsappMessage = [
         `*Novo pedido — ${menu.store.name}*`, `Pedido: ${order.id}`, "",
         ...saved.items.map(i => `${i.qty}x ${i.name} — ${brl(i.cents / 100)}${i.addons.length ? `\nAdicionais: ${i.addons.map(a => a.name).join(", ")}` : ""}${i.note ? `\nObs: ${i.note}` : ""}`),
-        "", `*Total: ${brl(order.amount_cents / 100)}*`, "Entrega: Grátis", `Nome: ${saved.form.name}`, `Telefone: ${saved.form.phone}`, `Endereço: ${deliveryAddress(saved.form)}`, saved.form.reference ? `Referência: ${saved.form.reference}` : "", `Pagamento: ${isCard ? "Cartão" : "Pix"} confirmado pela Firebot`,
+        "", `*Total: ${brl(order.amount_cents / 100)}*`, "Entrega: Grátis", `Nome: ${saved.form.name}`, `Telefone: ${saved.form.phone}`, `Endereço: ${deliveryAddress(saved.form)}`, saved.form.reference ? `Referência: ${saved.form.reference}` : "", `Pagamento: ${isCard ? "Cartão" : "Pix"} confirmado`,
       ].filter(Boolean).join("\n");
     }
     return { orderId: order.id, amount: order.amount_cents / 100, code: order.pix_code || "", status, whatsappMessage, method: isCard ? "CARD" as const : "PIX" as const };

@@ -731,8 +731,8 @@ function CartSheet({
           <span className="checkout-security-icon" aria-hidden="true"><LockKeyhole strokeWidth={1.7} /></span>
           <div className="min-w-0">
             <p className="checkout-security-title">{secureConnection ? "Conexão segura" : "Ambiente de teste"}</p>
-            <p className="checkout-security-sub">{secureConnection ? "Seus dados são enviados com criptografia HTTPS." : "Use apenas dados fictícios para testar."}</p>
           </div>
+
         </div>
       </section>
 
