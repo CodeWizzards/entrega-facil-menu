@@ -10,6 +10,7 @@ async function privateSession(password: string) {
     password,
     name: "casa-brasa-private",
     maxAge: 60 * 60,
+    sessionHeader: false,
     cookie: privateSessionCookie(getRequest().url),
   });
 }
@@ -17,11 +18,12 @@ async function privateSession(password: string) {
 export const readPrivatePage = createServerFn({ method: "GET" }).handler(async () => {
   setResponseHeader("Cache-Control", "no-store");
   const secret = process.env["PRIVATE_SESSION_SECRET"];
-  if (!secret) return { authenticated: false, content: "", step: "login" as const };
+  if (!secret) return { authenticated: false, content: "", step: "login" as const, finance: null };
   const session = await privateSession(secret);
   const { privateAccessGranted, challengeActive } = await import("@/lib/private-totp.server");
-  if (!privateAccessGranted(session.data)) return { authenticated: false, content: "", step: challengeActive(session.data) ? (session.data.pendingSecret ? "setup" as const : "verify" as const) : "login" as const };
-  return { authenticated: true, content: "Acesso autorizado", step: "authenticated" as const };
+  if (!privateAccessGranted(session.data)) return { authenticated: false, content: "", finance: null, step: challengeActive(session.data) ? (session.data.pendingSecret ? "setup" as const : "verify" as const) : "login" as const };
+  const { loadPrivateFinance } = await import("@/lib/private-finance.server");
+  return { authenticated: true, content: "Acesso autorizado", step: "authenticated" as const, finance: await loadPrivateFinance(session.data) };
 });
 
 export const loginPrivatePage = createServerFn({ method: "POST" })
