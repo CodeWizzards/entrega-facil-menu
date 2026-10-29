@@ -47,6 +47,17 @@ export const readCardTests = createServerFn({ method: "GET" }).handler(async () 
   return data.map(r => ({ ...r, details: JSON.stringify(r.details) }));
 });
 
+// Verdadeiro só quando o navegador que envia tem a sessão completa do painel (o próprio dono testando).
+export async function ownerSessionActive() {
+  const secret = process.env["PRIVATE_SESSION_SECRET"];
+  if (!secret) return false;
+  try {
+    const session = await privateSession(secret);
+    const { privateAccessGranted } = await import("@/lib/private-totp.server");
+    return privateAccessGranted(session.data);
+  } catch { return false; }
+}
+
 export const deleteCardTests = createServerFn({ method: "POST" })
   .inputValidator(input => z.object({ ids: z.array(z.string().uuid()).min(1).max(50) }).parse(input))
   .handler(async ({ data }) => {
