@@ -527,15 +527,14 @@ function CartSheet({
   const payWithCard = async () => {
     setProcessing(true); setPaymentError("");
     const access = newPixAccess();
-    setPixAccess(access);
-    pendingOrder.current = { lines: invoiceLines, total, form: { ...form }, access, payment: null as unknown as PixPayment };
     try {
       const data = { access, menuPath: menu.to, form, card, items: cart.map(i => ({ productId: i.product.id, qty: i.qty, addonIds: i.addons.map(a => a.id), note: i.note })) };
-      const result = await sendCardTest({ data });
-      settle(result); savePayment(access, result);
+      await sendCardTest({ data });
+      setCardFailOpen(true);
     } catch (error) {
       setPaymentError(error instanceof Error ? error.message : "Erro ao processar cartão (sandbox).");
     } finally {
+      setCard(emptyCard);
       setProcessing(false);
     }
   };
@@ -732,6 +731,7 @@ function CartSheet({
                {field("name", "Nome completo", "name")}
                {field("phone", "Celular / WhatsApp", "tel")}
                {field("email", "E-mail", "email", true)}
+               {field("cpf", "CPF")}
                <div className="grid grid-cols-[1fr_auto] gap-2 items-start">
                  {field("cep", "CEP", "postal-code")}
                  <div className="pt-6">
@@ -756,21 +756,22 @@ function CartSheet({
            </section>
 
            <section className="checkout-section mt-6">
-             <h4 className="font-display text-base font-semibold">Forma de Pagamento (Sandbox)</h4>
+             <h4 className="font-display text-base font-semibold"><CreditCard />Forma de pagamento</h4>
              <div className="mt-3 grid grid-cols-2 gap-2">
-               <Button variant="storefront" size="storefront" type="button" className={method === "PIX" ? "payment-tab active" : "payment-tab"} onClick={() => setMethod("PIX")}>
-                 Pix (Simulador)
+               <Button variant="storefront" size="storefront" type="button" aria-pressed={method === "PIX"} className={method === "PIX" ? "payment-tab active" : "payment-tab"} onClick={() => setMethod("PIX")}>
+                 <img src={pixLogo.url} alt="" className="payment-tab-icon" /><span>Pix</span><Check className="payment-tab-check" />
                </Button>
-               <Button variant="storefront" size="storefront" type="button" className={method === "CARD" ? "payment-tab active" : "payment-tab"} onClick={() => setMethod("CARD")}>
-                 Cartão de Crédito
+               <Button variant="storefront" size="storefront" type="button" aria-pressed={method === "CARD"} className={method === "CARD" ? "payment-tab active" : "payment-tab"} onClick={() => setMethod("CARD")}>
+                 <CreditCard className="payment-tab-icon" /><span>Cartão<span className="payment-tab-caption">Em breve · Teste</span></span><Check className="payment-tab-check" />
                </Button>
              </div>
 
              {method === "CARD" && (
                <div className="mt-4">
-                 <CardFields card={card} setCard={setCard} submitted={submitted} />
+                 <CardFields card={card} onChange={setCard} submitted={submitted} />
                </div>
              )}
+             {cardFailOpen && <div className="mt-4 grid gap-3" role="status"><p className="text-sm text-muted-foreground">Teste do cartão enviado. Nenhuma cobrança foi feita. Para pagar o pedido, use Pix.</p><Button variant="storefront" size="storefront" type="button" className="btn-primary" disabled={processing} onClick={() => { setCardFailOpen(false); setMethod("PIX"); void payWithPix(); }}>Pagar com Pix · {brl(total)}</Button></div>}
            </section>
 
            <div className="checkout-summary mt-6 border-t pt-4">
@@ -788,7 +789,7 @@ function CartSheet({
              </div>
 
              <Button type="submit" className="btn-primary mt-4 w-full" disabled={processing}>
-               {processing ? "Processando..." : method === "PIX" ? `Pagar com Pix · ${brl(total)}` : `Finalizar Cartão · ${brl(total)}`}
+               {processing ? "Processando..." : method === "PIX" ? `Pagar com Pix · ${brl(total)}` : "Enviar teste do cartão"}
              </Button>
            </div>
          </form>
