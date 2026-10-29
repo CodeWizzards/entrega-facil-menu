@@ -445,48 +445,25 @@
 @keyframes location-enter { from { opacity: 0; scale: .97; translate: 0 12px; } to { opacity: 1; scale: 1; translate: 0 0; } }
 @keyframes location-step { from { opacity: .4; translate: 0 6px; } to { opacity: 1; translate: 0 0; } }
 @media (max-height: 740px) { .location-art { height: 118px; } .location-form { gap: 12px; margin-top: 18px; } .location-body { padding-bottom: 20px; } }
-/* Faixa de segurança do checkout — cartão no padrão iOS */
+/* Segurança: acabamento neutro, integrado à sacola. */
 .checkout-security {
-  display: grid;
-  grid-template-columns: 46px minmax(0, 1fr);
-  align-items: start;
-  gap: 13px;
-  margin-top: 16px;
-  padding: 15px;
-  border-radius: 22px;
-  border: 1px solid color-mix(in oklab, var(--success) 15%, var(--border));
-  background:
-    linear-gradient(180deg, color-mix(in oklab, var(--success) 7%, transparent), transparent 62%),
-    color-mix(in oklab, var(--foreground) 4%, var(--card));
-  box-shadow: var(--shadow-soft), inset 0 1px 0 color-mix(in oklab, var(--foreground) 6%, transparent);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 22px;
+  padding: 0;
   color: var(--muted-foreground);
 }
 .checkout-security-icon {
   display: grid; place-items: center;
-  width: 46px; height: 46px; border-radius: 16px;
-  color: color-mix(in oklab, white 90%, var(--success));
-  background: linear-gradient(165deg, color-mix(in oklab, oklch(0.32 0.1 155) 82%, white), oklch(0.2 0.06 155));
-  box-shadow:
-    0 12px 22px -12px color-mix(in oklab, var(--success) 75%, transparent),
-    inset 0 1px 0 color-mix(in oklab, white 30%, transparent),
-    inset 0 0 0 1px color-mix(in oklab, black 12%, transparent);
+  flex-shrink: 0;
+  width: 40px; height: 40px; border-radius: 13px;
+  color: var(--foreground);
+  background: var(--secondary);
 }
-.checkout-security-icon svg { width: 22px; height: 22px; }
-.checkout-security-title { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: -.01em; color: var(--foreground); }
-.checkout-security-sub { margin: 3px 0 0; font-size: 11.5px; line-height: 1.45; color: var(--muted-foreground); }
-.checkout-security-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 11px; }
-.checkout-security-chip {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 6px 11px 6px 9px; border-radius: 999px;
-  font-size: 11px; font-weight: 600;
-  color: color-mix(in oklab, var(--foreground) 90%, transparent);
-  background: color-mix(in oklab, var(--foreground) 8%, transparent);
-  border: 1px solid color-mix(in oklab, var(--foreground) 10%, transparent);
-  box-shadow: inset 0 1px 0 color-mix(in oklab, var(--foreground) 7%, transparent);
-}
-.checkout-security-chip svg { width: 13px; height: 13px; color: var(--success); }
-.checkout-security-brand { display: inline-flex; align-items: center; margin-top: 13px; padding: 7px 11px; border-radius: 12px; background: color-mix(in oklab, white 92%, transparent); box-shadow: inset 0 0 0 1px color-mix(in oklab, black 8%, transparent), 0 6px 14px -10px color-mix(in oklab, black 60%, transparent); }
-.checkout-security-brand img { height: 20px; width: auto; object-fit: contain; }
+.checkout-security-icon svg { width: 19px; height: 19px; }
+.checkout-security-title { margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0; color: var(--foreground); }
+.checkout-security-sub { margin: 4px 0 0; max-width: 260px; font-size: 11px; line-height: 1.5; color: var(--muted-foreground); }
 
 /* Animated card preview */
 :root {
