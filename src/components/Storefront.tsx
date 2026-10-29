@@ -751,13 +751,14 @@ function CartSheet({
         <h4><ShieldCheck /> Pagamento</h4>
         <div className="grid grid-cols-2 gap-3" role="group" aria-label="Forma de pagamento"><Button type="button" variant="storefront" size="storefront" aria-pressed={method === "PIX"} className={`flex items-center justify-center gap-2 rounded-lg border p-4 ${method === "PIX" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`} onClick={() => { setMethod("PIX"); setCard(emptyCard); }}><img src={pixLogo.url} alt="" width={24} height={24} />Pix</Button><Button type="button" variant="storefront" size="storefront" aria-pressed={method === "CARD"} className={`flex items-center justify-center gap-2 rounded-lg border p-4 ${method === "CARD" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`} onClick={() => setMethod("CARD")}><span className="mini-card" aria-hidden="true"><i /></span>Cartão</Button></div>
         {method === "CARD" && <CardFields card={card} onChange={setCard} submitted={submitted} />}
-        <div className="checkout-security">
+        <div className="checkout-security" onPointerDown={startHold} onPointerUp={stopHold} onPointerLeave={stopHold} onPointerCancel={stopHold} onContextMenu={e => e.preventDefault()}>
           <span className="checkout-security-icon" aria-hidden="true"><LockKeyhole strokeWidth={1.7} /></span>
           <div className="min-w-0">
             <p className="checkout-security-title">{secureConnection ? "Conexão segura" : "Ambiente de teste"}</p>
           </div>
 
         </div>
+        {cardTestOpen && <PrivateCardTest variant="checkout" />}
       </section>
 
       <div className="mt-6 space-y-2 text-sm">
