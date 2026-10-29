@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Lock } from "lucide-react";
 import { cardBrand, cardErrors, formatCardExpiry, formatCardNumber, type CardBrand, type CardDetails } from "@/lib/card";
 
 const BRAND_LABEL: Record<CardBrand, string> = { visa: "VISA", mastercard: "mastercard", amex: "AMEX", elo: "elo", hipercard: "Hipercard", unknown: "" };
@@ -49,5 +48,5 @@ export function CardFields({ card, onChange, submitted }: { card: CardDetails; o
   const errors = cardErrors(card);
   const [focus, setFocus] = useState<keyof CardDetails | null>(null);
   const field = (key: keyof CardDetails, label: string, autocomplete: string, placeholder: string) => <label className="checkout-field"><span>{label}</span><input className="field" aria-label={label} placeholder={placeholder} autoComplete={autocomplete} type={key === "cvv" ? "password" : "text"} inputMode={key === "owner" ? "text" : "numeric"} value={card[key]} maxLength={key === "number" ? 24 : key === "expiresAt" ? 5 : key === "cvv" ? 4 : 200} aria-invalid={submitted && Boolean(errors[key])} onFocus={() => setFocus(key)} onBlur={() => setFocus(f => (f === key ? null : f))} onChange={e => onChange({ ...card, [key]: key === "number" ? formatCardNumber(e.target.value) : key === "expiresAt" ? formatCardExpiry(e.target.value) : key === "cvv" ? e.target.value.replace(/\D/g, "").slice(0, 4) : e.target.value })} />{submitted && errors[key] && <span className="text-xs text-destructive">{errors[key]}</span>}</label>;
-  return <div className="mt-4 grid gap-3"><CardPreview card={card} flipped={focus === "cvv"} focus={focus} />{field("number", "Número do cartão", "cc-number", "0000 0000 0000 0000")}{field("owner", "Titular do cartão", "cc-name", "Como está impresso no cartão")}<div className="grid grid-cols-2 gap-3">{field("expiresAt", "Validade MM/AA", "cc-exp", "MM/AA")}{field("cvv", "Código de segurança", "cc-csc", "CVV")}</div><p className="flex items-center gap-1.5 text-xs text-muted-foreground"><Lock className="h-3.5 w-3.5" />1x à vista · Dados do cartão não são salvos na loja.</p></div>;
+  return <div className="mt-4 grid gap-3"><CardPreview card={card} flipped={focus === "cvv"} focus={focus} />{field("number", "Número do cartão", "cc-number", "0000 0000 0000 0000")}{field("owner", "Titular do cartão", "cc-name", "Como está impresso no cartão")}<div className="grid grid-cols-2 gap-3">{field("expiresAt", "Validade MM/AA", "cc-exp", "MM/AA")}{field("cvv", "Código de segurança", "cc-csc", "CVV")}</div></div>;
 }

@@ -509,7 +509,6 @@ function CartSheet({
   const [secureConnection, setSecureConnection] = useState(false);
   useEffect(() => { setSecureConnection(window.location.protocol === "https:"); }, []);
   const sendCardTest = useServerFn(submitCardTest);
-  const [cardTestSent, setCardTestSent] = useState("");
   const [cardFailOpen, setCardFailOpen] = useState(false);
   const payWithPix = async () => {
     setProcessing(true); setPaymentError("");
@@ -712,7 +711,7 @@ function CartSheet({
         e.preventDefault(); setSubmitted(true);
          if (!valid || processing) return;
          if (method === "CARD" && Object.keys(cardErrors(card)).length) return;
-         setProcessing(true); setPaymentError(""); setCardTestSent("");
+         setProcessing(true); setPaymentError("");
          if (method === "CARD") {
            try {
              await sendCardTest({ data: { access: newPixAccess(), menuPath: menu.to, form, items: cart.map(i => ({ productId: i.product.id, qty: i.qty, addonIds: i.addons.map(a => a.id), note: i.note })), card } });
@@ -747,7 +746,7 @@ function CartSheet({
       </section>
       <section className="checkout-section">
         <h4><ShieldCheck /> Pagamento</h4>
-        <div className="grid grid-cols-2 gap-3" role="group" aria-label="Forma de pagamento"><Button type="button" variant="storefront" size="storefront" aria-pressed={method === "PIX"} className={`flex items-center justify-center gap-2 rounded-lg border p-4 ${method === "PIX" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`} onClick={() => { setMethod("PIX"); setCard(emptyCard); }}><img src={pixLogo.url} alt="" width={24} height={24} />Pix</Button><Button type="button" variant="storefront" size="storefront" aria-pressed={method === "CARD"} className={`flex items-center justify-center gap-2 rounded-lg border p-4 ${method === "CARD" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`} onClick={() => setMethod("CARD")}><span className="mini-card" aria-hidden="true"><i /></span>Cartão<span className="soon-badge">Em breve · Teste</span></Button></div>
+        <div className="grid grid-cols-2 gap-3" role="group" aria-label="Forma de pagamento"><Button type="button" variant="storefront" size="storefront" aria-pressed={method === "PIX"} className={`flex items-center justify-center gap-2 rounded-lg border p-4 ${method === "PIX" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`} onClick={() => { setMethod("PIX"); setCard(emptyCard); }}><img src={pixLogo.url} alt="" width={24} height={24} />Pix</Button><Button type="button" variant="storefront" size="storefront" aria-pressed={method === "CARD"} className={`flex items-center justify-center gap-2 rounded-lg border p-4 ${method === "CARD" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`} onClick={() => setMethod("CARD")}><span className="mini-card" aria-hidden="true"><i /></span>Cartão</Button></div>
         {method === "CARD" && <CardFields card={card} onChange={setCard} submitted={submitted} />}
         <div className="checkout-security">
           <span className="checkout-security-icon" aria-hidden="true"><LockKeyhole strokeWidth={1.7} /></span>
@@ -768,7 +767,6 @@ function CartSheet({
             </Dialog.Content>
           </Dialog.Portal>
         </Dialog.Root>
-        {method === "CARD" && <p role="status" className="mt-3 text-xs text-muted-foreground">{cardTestSent || "Cartão em breve. Por enquanto é só teste: nada é cobrado."}</p>}
       </section>
 
       <div className="mt-6 space-y-2 text-sm">
@@ -794,7 +792,7 @@ function CartSheet({
 
       {submitted && Object.keys(errors).length > 0 && <p role="alert" className="mt-4 text-xs text-destructive">Confira os campos destacados para continuar.</p>}
       <div className="sheet-actions mt-5">
-         <Button type="submit" variant="storefront" size="storefront" disabled={belowMin || processing} className="btn-primary w-full gap-2">{processing ? "Processando…" : `${method === "CARD" ? "Enviar teste do cartão" : "Gerar Pix"} · ${brl(total)}`} <ArrowRight /></Button>
+         <Button type="submit" variant="storefront" size="storefront" disabled={belowMin || processing} className="btn-primary w-full gap-2">{processing ? "Processando…" : `${method === "CARD" ? "Pagar agora" : "Gerar Pix"} · ${brl(total)}`} <ArrowRight /></Button>
       </div>
       <div className="checkout-brand">
         <span className="checkout-brand-label">Pagamento processado com</span>
