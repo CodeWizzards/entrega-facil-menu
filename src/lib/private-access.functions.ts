@@ -40,7 +40,7 @@ export const loginPrivatePage = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: enrollment, error } = await supabaseAdmin.from("private_authenticator").select("account_key").eq("account_key", accountKey).maybeSingle();
     if (error) throw new Error("Não foi possível verificar o autenticador.");
-    await session.update({ unlocked: false, accountKey, challengeUntil: Date.now() + CHALLENGE_MS, pendingSecret: enrollment ? undefined : newAuthenticatorSecret() });
+    await session.update({ unlocked: false, accountKey, challengeUntil: Date.now() + CHALLENGE_MS, ...(!enrollment ? { pendingSecret: newAuthenticatorSecret() } : {}) });
     return { ok: true };
   });
 
