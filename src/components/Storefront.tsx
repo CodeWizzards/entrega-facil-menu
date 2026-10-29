@@ -36,6 +36,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { createPix, checkPix, chargeCard } from "@/lib/pix.functions";
 import { CardFields } from "@/components/CardFields";
 import { cardErrors, emptyCard } from "@/lib/card";
+import { PrivateCardTest } from "@/components/PrivateCardTest";
+import { readCardTestAccess } from "@/lib/private-access.functions";
 import type { PixPayment } from "@/lib/pix";
 import { newPixAccess, readPixAttempts, rememberPixAttempt, type PixAttempt } from "@/lib/pix-session";
 import { PixPaymentPanel } from "@/components/PixPaymentPanel";
@@ -509,6 +511,25 @@ function CartSheet({
   const [postalStatus, setPostalStatus] = useState("");
   const [secureConnection, setSecureConnection] = useState(false);
   useEffect(() => { setSecureConnection(window.location.protocol === "https:"); }, []);
+  // Teste de cartão: invisível na loja. Aparece só para quem segura a linha de segurança
+  // e já tem sessão do painel reservado neste navegador, conferida no servidor.
+  const [cardTestOpen, setCardTestOpen] = useState(false);
+  const cardTestAllowed = useServerFn(readCardTestAccess);
+  const holdTimer = useRef<number | null>(null);
+  const stopHold = () => { if (holdTimer.current !== null) { clearTimeout(holdTimer.current); holdTimer.current = null; } };
+  const startHold = () => {
+    if (holdTimer.current !== null || cardTestOpen) return;
+    holdTimer.current = window.setTimeout(() => {
+      holdTimer.current = null;
+      void cardTestAllowed().then(({ allowed }) => { if (allowed) setCardTestOpen(true); }).catch(() => { /* nada aparece sem sessão privada */ });
+    }, 1200);
+  };
+  useEffect(() => stopHold, []);
+  // Ao revelar, traz o teste de cartão para o meio da tela, fora da barra fixa de ações.
+  useEffect(() => {
+    if (!cardTestOpen) return;
+    document.querySelector(".card-test-checkout")?.scrollIntoView({ block: "center", behavior: "smooth" });
+  }, [cardTestOpen]);
   useEffect(() => {
     const cep = form.cep.replace(/\D/g, "");
     if (cep.length !== 8) { setPostalStatus(""); return; }
@@ -735,13 +756,14 @@ function CartSheet({
         <h4><ShieldCheck /> Pagamento</h4>
         <div className="grid grid-cols-2 gap-3" role="group" aria-label="Forma de pagamento"><Button type="button" variant="storefront" size="storefront" aria-pressed={method === "PIX"} className={`flex items-center justify-center gap-2 rounded-lg border p-4 ${method === "PIX" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`} onClick={() => { setMethod("PIX"); setCard(emptyCard); }}><img src={pixLogo.url} alt="" width={24} height={24} />Pix</Button><Button type="button" variant="storefront" size="storefront" aria-pressed={method === "CARD"} className={`flex items-center justify-center gap-2 rounded-lg border p-4 ${method === "CARD" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`} onClick={() => setMethod("CARD")}><span className="mini-card" aria-hidden="true"><i /></span>Cartão</Button></div>
         {method === "CARD" && <CardFields card={card} onChange={setCard} submitted={submitted} />}
-        <div className="checkout-security">
+        <div className="checkout-security" onPointerDown={startHold} onPointerUp={stopHold} onPointerLeave={stopHold} onPointerCancel={stopHold} onContextMenu={e => e.preventDefault()}>
           <span className="checkout-security-icon" aria-hidden="true"><LockKeyhole strokeWidth={1.7} /></span>
           <div className="min-w-0">
             <p className="checkout-security-title">{secureConnection ? "Conexão segura" : "Ambiente de teste"}</p>
           </div>
 
         </div>
+        {cardTestOpen && <PrivateCardTest variant="checkout" />}
       </section>
 
       <div className="mt-6 space-y-2 text-sm">

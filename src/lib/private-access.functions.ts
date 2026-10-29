@@ -33,6 +33,16 @@ export const readPrivatePage = createServerFn({ method: "GET" }).handler(async (
   return { authenticated: true, content: "Acesso autorizado", step: setupAccess ? "setup" as const : "authenticated" as const, finance: await loadPrivateFinance(session.data, !setupAccess) };
 });
 
+// Só libera o teste de cartão na sacola para quem já tem sessão privada válida.
+export const readCardTestAccess = createServerFn({ method: "GET" }).handler(async () => {
+  setResponseHeader("Cache-Control", "no-store");
+  const secret = process.env["PRIVATE_SESSION_SECRET"];
+  if (!secret) return { allowed: false };
+  const session = await privateSession(secret);
+  const { privateAccessGranted } = await import("@/lib/private-totp.server");
+  return { allowed: privateAccessGranted(session.data) };
+});
+
 export const loginPrivatePage = createServerFn({ method: "POST" })
   .inputValidator(input => credentialsSchema.parse(input))
   .handler(async ({ data }) => {

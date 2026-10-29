@@ -23,11 +23,10 @@
 - Category navigation uses its own shared Embla rail and active-category scrolling, so long menus remain reachable by mouse and touch.
 - Storefront overlays use Radix Dialog for focus trapping, Escape dismissal and background scroll locking.
 - Checkout validation and address formatting live in a shared browser-safe module with rule tests; a future payment handler must independently revalidate these fields and recalculate totals.
-- CEP lookup uses ViaCEP with cancellation and editable fallback; browser coordinates are reverse-geocoded through the keyless Nominatim endpoint wrapped in `src/lib/place.ts` to fill city and state, and the location wizard must never present demo distances as real calculations.
+- CEP lookup uses ViaCEP with cancellation and editable fallback; browser coordinates are reverse-geocoded through the keyless Nominatim endpoint in `src/lib/place.ts`, and the location wizard must never present demo distances as real calculations.
 - The location welcome renders its Radix overlay and content inline for server-rendered first-paint visibility; location requests must never block manual entry or overwrite it after cancellation.
-- Automatic IP location uses a single browser request to get.geojs.io (started by an inline head script before the bundle loads), accepts only a valid Brazilian region, with no credentials or referrer and a bounded total timeout; server proxying would geolocate the server rather than the visitor.
 - The last confirmed city is kept in the localCidade/localEstado cookies for 365 days and shown instantly on return visits; this skips the IP lookup wait without sending location anywhere.
-- After the visitor confirms the city, the location modal immediately shows a fixed "1,6 km · distância" label; it is a demonstration value, never a real distance calculation.
+- After the visitor confirms the city, the modal shows a fixed "1,6 km · distância" label: a demonstration value, never a real calculation.
 
 - Pix checkout uses shared server functions, server-repriced menu data and service-only order records scoped by hashed random guest capabilities; this keeps buyer data private without requiring buyer accounts.
 - Product Pix simulation is isolated in its own policy module and uses a dedicated transaction prefix plus an explicit test marker; this prevents testing checkout from approving real card or live-location transactions.
@@ -39,7 +38,8 @@
 - Render Pix QR codes locally and retain only the checkout capability and payment display in session storage, not buyer contact or address; this limits unnecessary disclosure.
 - Checkout inputs are masked on change through `src/lib/format.ts` (phone, CPF, CEP, e-mail), and the stored value keeps that format so the order message reads naturally; every validator strips non-digits first, so pasted or autofilled values still pass and the provider payload stays digits-only.
 - Direct Firebot card charges transmit card fields transiently via a server function and store only guest order data and verified provider status; never persist, log, or return PAN/CVV, and clear card inputs after every submission. Production card collection requires the merchant to confirm its applicable PCI obligations and Firebot activation.
+- The checkout card test renders only after a held press on the security row and a server check of the private panel session; never expose it through a visible control or public route.
 - The live-location screen draws its map as a hand-authored inline SVG (blocks, roads, street labels, route, destination pin and a courier marker moved with SMIL animateMotion); it is a labeled demonstration, never a real map, and replacing it with a real map requires a map provider plus the courier streaming their position.
 - The paid-order receipt is built in the browser by `src/lib/invoice.ts` from the cart plus the server-verified paid amount, and refuses to emit when those disagree; call it a receipt, not a tax invoice, and never fabricate a CNPJ or a tax-authority access key.
 
-- The inline location bootstrap only starts the early request or reads confirmed cookies; React renders the city in the normal result, without a pre-hydration preview. Keep the two-second deadline and reuse the request result to avoid duplicate lookups.
+- Automatic IP location uses one browser request to get.geojs.io, started by an inline head script before the bundle loads, accepts only a valid Brazilian region with no credentials or referrer and a two-second deadline; the bootstrap only starts that request or reads confirmed cookies, and React renders the city in the normal result. Server proxying would geolocate the server, not the visitor.
