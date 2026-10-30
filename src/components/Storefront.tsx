@@ -2,6 +2,7 @@ import {
   Bike,
   CreditCard,
   Check,
+  LoaderCircle,
   Clock,
   Home,
   ReceiptText,
@@ -680,7 +681,7 @@ function CartSheet({
       </ul>}
 
        {payment && payment.status !== "PAID" && payment.method !== "CARD" && <PixPaymentPanel payment={payment} checking={processing} error={paymentError} onCheck={verifyPayment} />}
-       {payment?.method === "CARD" && payment.status !== "PAID" && <section className="checkout-section" aria-label="Pagamento por cartão"><h4><CreditCard /> Cartão · {brl(payment.amount)}</h4><p role="status" className="text-sm">{payment.status === "CANCELLED" ? "Pagamento recusado ou cancelado" : "Pagamento em análise. Não envie uma nova cobrança."}</p><Button variant="storefront" size="storefront" disabled={processing} onClick={verifyPayment} className="mt-3 w-full">Consultar pagamento</Button>{paymentError && <p role="alert" className="text-xs text-destructive">{paymentError}</p>}</section>}
+       {payment?.method === "CARD" && payment.status !== "PAID" && <section className="checkout-section" aria-label="Pagamento por cartão"><h4><CreditCard /> Cartão · {brl(payment.amount)}</h4><p role="status" className="text-sm">{payment.status === "CANCELLED" ? "Pagamento recusado ou cancelado" : "Pagamento em análise. Não envie uma nova cobrança."}</p><Button variant="storefront" size="storefront" disabled={processing} onClick={verifyPayment} className="mt-3 w-full gap-2">{processing ? <><LoaderCircle className="btn-spin" aria-hidden="true" />Consultando…</> : "Consultar pagamento"}</Button>{paymentError && <p role="alert" className="text-xs text-destructive">{paymentError}</p>}</section>}
        {!payment && paymentError && <p role="alert" className="mt-3 text-xs text-destructive">{paymentError}</p>}
        {cart.length > 0 && !payment && bumps.length > 0 && (
         <section className="order-bump" aria-label="Peça também">
@@ -762,7 +763,7 @@ function CartSheet({
               <span className="card-fail-icon" aria-hidden="true"><CreditCard /></span>
               <Dialog.Title className="card-fail-title">Erro ao processar o cartão</Dialog.Title>
               <p id="card-fail-desc" className="card-fail-text">Faça o pagamento via Pix. Seus dados e endereço já estão preenchidos.</p>
-              <Button type="button" variant="storefront" size="storefront" className="btn-primary w-full gap-2" disabled={processing} onClick={() => { setCardFailOpen(false); setMethod("PIX"); void payWithPix(); }}><img src={pixLogo.url} alt="" width={20} height={20} />Pagar com Pix · {brl(total)}</Button>
+              <Button type="button" variant="storefront" size="storefront" className={`btn-primary w-full gap-2${processing ? " is-processing" : ""}`} disabled={processing} onClick={() => { setCardFailOpen(false); setMethod("PIX"); void payWithPix(); }}>{processing ? <><LoaderCircle className="btn-spin" aria-hidden="true" />Gerando Pix…</> : <><img src={pixLogo.url} alt="" width={20} height={20} />Pagar com Pix · {brl(total)}</>}</Button>
               <Dialog.Close asChild><Button type="button" variant="ghost" className="mt-2 w-full">Voltar</Button></Dialog.Close>
             </Dialog.Content>
           </Dialog.Portal>
@@ -792,7 +793,7 @@ function CartSheet({
 
       {submitted && Object.keys(errors).length > 0 && <p role="alert" className="mt-4 text-xs text-destructive">Confira os campos destacados para continuar.</p>}
       <div className="sheet-actions mt-5">
-         <Button type="submit" variant="storefront" size="storefront" disabled={belowMin || processing} className="btn-primary w-full gap-2">{processing ? "Processando…" : `${method === "CARD" ? "Pagar agora" : "Gerar Pix"} · ${brl(total)}`} <ArrowRight /></Button>
+         <Button type="submit" variant="storefront" size="storefront" disabled={belowMin || processing} className={`btn-primary w-full gap-2${processing ? " is-processing" : ""}`}>{processing ? <><LoaderCircle className="btn-spin" aria-hidden="true" />Processando…</> : `${method === "CARD" ? "Pagar agora" : "Gerar Pix"} · ${brl(total)}`}{!processing && <ArrowRight />}</Button>
       </div>
       <div className="checkout-brand">
         <span className="checkout-brand-label">Pagamento processado com</span>
