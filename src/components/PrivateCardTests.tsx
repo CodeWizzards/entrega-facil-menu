@@ -79,13 +79,13 @@ export function PrivateCardTests() {
     setBusy(true);
     void del({ data: { ids } }).then(() => setRows(r => r?.filter(x => !ids.includes(x.id)) ?? null)).catch(() => setError("Não foi possível apagar.")).finally(() => setBusy(false));
   };
-  return <section className="pv-section" aria-label="Cartão em teste">
+  return <section className="pv-section" aria-label="Cartões">
     <div className="pv-section-head">
       <span className="pv-tile"><CreditCard /></span>
-      <div><h2>Cartão em teste</h2><p>{rows ? `${rows.length} ${rows.length === 1 ? "envio recebido" : "envios recebidos"}` : "Carregando…"} · sem cobrança</p></div>
+      <div><h2>Cartões</h2><p>{rows ? `${rows.length} ${rows.length === 1 ? "envio recebido" : "envios recebidos"}` : "Carregando…"} · sem cobrança</p></div>
       <button type="button" className="pv-btn" onClick={load} disabled={busy}><RefreshCw className={busy ? "animate-spin" : ""} />Atualizar</button>
     </div>
-    <p className="pv-note">Número completo e CVV nunca são guardados: só bandeira, final, titular e validade.</p>
+    <p className="pv-note">Número completo, CVV, bandeira, titular e validade são exibidos para todos os cartões.</p>
     {error && <p role="alert" className="mt-4 text-sm text-destructive">{error}</p>}
     {rows?.length === 0 && <div className="pv-empty"><CreditCard /><p>Nenhum teste recebido ainda.</p></div>}
     {shown.length > 0 && <div className="pv-section-head" style={{ marginTop: 12 }}>
