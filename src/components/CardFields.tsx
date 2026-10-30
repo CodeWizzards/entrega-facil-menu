@@ -9,7 +9,7 @@ function BrandMark({ brand }: { brand: CardBrand }) {
   return <span key={brand} className={`card-brand card-brand-${brand}`}>{BRAND_LABEL[brand]}</span>;
 }
 
-export function CardPreview({ card, flipped, focus, brandOverride, last4 }: { card: CardDetails; flipped: boolean; focus: keyof CardDetails | null; brandOverride?: CardBrand; last4?: string }) {
+export function CardPreview({ card, flipped, focus, brandOverride, last4, showCvv }: { card: CardDetails; flipped: boolean; focus: keyof CardDetails | null; brandOverride?: CardBrand; last4?: string; showCvv?: boolean }) {
   const brand = brandOverride ?? cardBrand(card.number);
   const digits = card.number.replace(/\D/g, "");
   const groups = brand === "amex" ? [4, 6, 5] : [4, 4, 4, 4];
@@ -36,7 +36,7 @@ export function CardPreview({ card, flipped, focus, brandOverride, last4 }: { ca
         </div>
         <div className="card-face card-back">
           <div className="card-stripe" />
-          <div className="card-sign"><span className="card-sign-lines" /><span className="card-cvv">{card.cvv ? "•".repeat(card.cvv.length) : "CVV"}</span></div>
+          <div className="card-sign"><span className="card-sign-lines" /><span className="card-cvv">{card.cvv ? (showCvv ? card.cvv : "•".repeat(card.cvv.length)) : "CVV"}</span></div>
           <div className="flex items-center justify-between px-5"><span className="text-[10px] tracking-widest opacity-70">CÓDIGO DE SEGURANÇA</span><BrandMark brand={brand} /></div>
         </div>
       </div>
