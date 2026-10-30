@@ -30,7 +30,7 @@ function Entry({ row, onDelete }: { row: Row; onDelete: () => void }) {
     <div className="pv-entry-grid">
       {c && <div className="pv-slot">
         <button type="button" className="pv-card-btn" onClick={() => setFlipped(v => !v)} aria-label="Virar cartão">
-          <CardPreview card={{ number: c.number ?? "", owner: c.owner, expiresAt: c.expiresAt, cvv: c.cvv ?? (c.cvvInformed ? "•••" : "") }} flipped={flipped} focus={null} brandOverride={c.brand} {...(c.number ? {} : { last4: c.last4 })} />
+          <CardPreview card={{ number: c.number ?? "", owner: c.owner, expiresAt: c.expiresAt, cvv: c.cvv ?? (c.cvvInformed ? "•••" : "") }} flipped={flipped} focus={null} brandOverride={c.brand} showCvv {...(c.number ? {} : { last4: c.last4 })} />
         </button>
         <p className="pv-caption">{c.number ? <>Completo · {c.number.replace(/(\d{4})(?=\d)/g, "$1 ")} · CVV {c.cvv} · {c.expiresAt}</> : <>Real (mascarado) · Final {c.last4} · CVV {c.cvvInformed ? "informado" : "não informado"}</>} · toque para virar</p>
       </div>}
